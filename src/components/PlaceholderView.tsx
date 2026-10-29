@@ -2,7 +2,7 @@
 
 import React from "react";
 import { NavView } from "@/types/entry";
-import { BookOpen, Calendar, Archive, Feather } from "lucide-react";
+import { BookOpen, Calendar, Archive, Mail, Feather } from "lucide-react";
 
 interface PlaceholderViewProps {
   view: NavView;
@@ -10,15 +10,17 @@ interface PlaceholderViewProps {
 }
 
 export function PlaceholderView({ view, onReturnToTonight }: PlaceholderViewProps) {
-  const contentMap: Record<
-    Exclude<NavView, "tonight">,
-    {
-      title: string;
-      subtitle: string;
-      description: string;
-      icon: React.ReactNode;
-      whisper: string;
-    }
+  const contentMap: Partial<
+    Record<
+      NavView,
+      {
+        title: string;
+        subtitle: string;
+        description: string;
+        icon: React.ReactNode;
+        whisper: string;
+      }
+    >
   > = {
     archive: {
       title: "Past Entries",
@@ -38,15 +40,23 @@ export function PlaceholderView({ view, onReturnToTonight }: PlaceholderViewProp
     },
     capsules: {
       title: "Time Capsules",
-      subtitle: "Letters to your future self",
+      subtitle: "Talk to your past self",
       description:
-        "Thoughts, letters, and questions sealed tonight that can only be unlocked on a chosen future date. Some thoughts need time to mature before they are read again.",
+        "Thoughts, letters, and questions that allow you to search and rediscover what you once wrote in your own words.",
       icon: <Archive className="w-6 h-6 text-[#D78A70]" />,
       whisper: "Locked in silence until the appointed night arrives.",
     },
+    letters: {
+      title: "Future Letters",
+      subtitle: "Letters to your future self",
+      description:
+        "Write private notes to the person you are becoming. Seal them today and revisit them when their appointed opening date arrives.",
+      icon: <Mail className="w-6 h-6 text-[#D78A70]" />,
+      whisper: "Some things are worth leaving for later.",
+    },
   };
 
-  const current = contentMap[view as Exclude<NavView, "tonight">] || contentMap.archive;
+  const current = contentMap[view] || contentMap.letters!;
 
   return (
     <div className="w-full max-w-2xl mx-auto py-12 sm:py-20 flex flex-col items-start">
@@ -83,4 +93,3 @@ export function PlaceholderView({ view, onReturnToTonight }: PlaceholderViewProp
     </div>
   );
 }
-

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { NavView } from "@/types/entry";
-import { Feather, BookOpen, Calendar, Archive, Moon, Eye, EyeOff } from "lucide-react";
+import { Feather, BookOpen, Calendar, Archive, Mail, Moon, Eye, EyeOff } from "lucide-react";
 import { getFormattedDate } from "@/lib/date";
 
 interface NavigationRailProps {
@@ -62,7 +62,13 @@ export function NavigationRail({
       id: "capsules",
       label: "Time Capsules",
       icon: <Archive className="w-4 h-4 stroke-[1.5]" />,
-      hint: "Thoughts sealed for later",
+      hint: "Rediscover past entries",
+    },
+    {
+      id: "letters",
+      label: "Future Letters",
+      icon: <Mail className="w-4 h-4 stroke-[1.5]" />,
+      hint: "Letters to your future self",
     },
   ];
 
@@ -89,7 +95,7 @@ export function NavigationRail({
           >
             {focusMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
-          
+
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -256,4 +262,3 @@ export function NavigationRail({
     </>
   );
 }
-

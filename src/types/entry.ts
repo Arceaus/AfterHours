@@ -1,4 +1,4 @@
-export type NavView = 'tonight' | 'archive' | 'calendar' | 'capsules';
+export type NavView = 'tonight' | 'archive' | 'calendar' | 'capsules' | 'letters';
 
 export interface DiaryEntry {
   id: string;
@@ -58,4 +58,27 @@ export interface CapsuleResponse {
   synthesis: string;
   usedAI: boolean;
   aiError?: string;
+}
+
+// Letters to Your Future Self Types
+export type LetterStatus = 'draft' | 'sealed' | 'opened' | 'cancelled';
+export type EffectiveLetterStatus = 'draft' | 'sealed' | 'ready' | 'opened' | 'cancelled';
+
+export interface FutureLetter {
+  id: string;
+  title?: string;
+  content: string;
+  createdAt: string; // ISO 8601
+  updatedAt: string; // ISO 8601
+  scheduledOpenAt: string; // YYYY-MM-DD
+  openedAt?: string | null; // ISO 8601
+  status: LetterStatus;
+}
+
+export interface FutureLetterDraft {
+  id?: string | null;
+  title: string;
+  content: string;
+  scheduledOpenAt: string; // YYYY-MM-DD
+  updatedAt: string; // ISO 8601
 }

@@ -8,6 +8,7 @@ import { RecentMemories } from "@/components/RecentMemories";
 import { ArchiveView } from "@/components/ArchiveView";
 import { CalendarView } from "@/components/CalendarView";
 import { TimeCapsulesView } from "@/components/TimeCapsulesView";
+import { FutureLettersView } from "@/components/FutureLettersView";
 import { getSavedEntries, removeEntry } from "@/lib/storage";
 
 export default function HomePage() {
@@ -161,6 +162,12 @@ export default function HomePage() {
           <TimeCapsulesView
             entries={entries}
             onOpenEntry={handleSelectEntry}
+            onReturnToTonight={handleStartNewDraft}
+          />
+        )}
+
+        {currentView === "letters" && (
+          <FutureLettersView
             onReturnToTonight={handleStartNewDraft}
           />
         )}

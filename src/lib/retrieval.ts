@@ -366,3 +366,4 @@ export function generateLocalSynthesis(parsed: ParsedQuery, results: RetrievalRe
 
   return `Found ${countStr} matching your inquiry across your private sanctuary:`;
 }
+
