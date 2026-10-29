@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { NavView } from "@/types/entry";
-import { Feather, BookOpen, Calendar, Archive, Mail, Moon, Eye, EyeOff } from "lucide-react";
+import { Feather, BookOpen, Calendar, Archive, Mail, Moon, Eye, EyeOff, Shield, Cloud } from "lucide-react";
 import { getFormattedDate } from "@/lib/date";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { useRepository } from "@/lib/repository/RepositoryContext";
 
 interface NavigationRailProps {
   currentView: NavView;
@@ -11,6 +13,7 @@ interface NavigationRailProps {
   focusMode: boolean;
   onToggleFocusMode: () => void;
   wordCount: number;
+  onOpenAccountModal?: () => void;
 }
 
 export function NavigationRail({
@@ -19,7 +22,10 @@ export function NavigationRail({
   focusMode,
   onToggleFocusMode,
   wordCount,
+  onOpenAccountModal,
 }: NavigationRailProps) {
+  const { user } = useAuth();
+  const { mode } = useRepository();
   const [timeInfo, setTimeInfo] = useState<{ timeString: string; nightWhisper: string }>({
     timeString: "",
     nightWhisper: "The last room awake",
@@ -144,7 +150,24 @@ export function NavigationRail({
             })}
           </nav>
 
-          <div className="pt-6 border-t border-[#45373C]/40 space-y-3 text-xs text-[#A89A98]/70">
+          <div className="pt-6 border-t border-[#45373C]/40 space-y-4 text-xs text-[#A89A98]/70">
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenAccountModal?.();
+              }}
+              className="w-full flex items-center justify-between p-3 rounded-sm border border-[#45373C] bg-[#2B2226] text-xs text-[#F0E8DF]"
+            >
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-[#D78A70]" />
+                <span className="truncate max-w-[180px]">{user ? user.email : "Account & Cloud Sync"}</span>
+              </div>
+              <span className="text-[10px] uppercase font-mono text-[#D78A70]">
+                {mode === "cloud" ? "Cloud" : "Local"}
+              </span>
+            </button>
+
             <div className="flex items-center gap-2">
               <Moon className="w-3.5 h-3.5 text-[#D78A70]/70" />
               <span>{timeInfo.timeString} • {timeInfo.nightWhisper}</span>
@@ -253,9 +276,34 @@ export function NavigationRail({
             )}
           </div>
 
+          {/* Account & Cloud Sync Trigger */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={onOpenAccountModal}
+              className="w-full flex items-center justify-between px-3 py-2 rounded text-left border border-[#45373C]/50 bg-[#2B2226]/40 hover:bg-[#2B2226] text-[#A89A98] hover:text-[#F0E8DF] transition-all text-xs"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                {user ? (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0 animate-pulse" />
+                ) : (
+                  <Shield className="w-3.5 h-3.5 text-[#D78A70] flex-shrink-0" />
+                )}
+                <span className="truncate max-w-[130px] font-medium text-[11px]">
+                  {user ? user.email : "Cloud Sanctuary"}
+                </span>
+              </div>
+              <span className="text-[10px] uppercase font-mono text-[#A89A98]/60">
+                {mode === "cloud" ? "Cloud" : "Local"}
+              </span>
+            </button>
+          </div>
+
           {/* Privacy & Sanctuary promise */}
-          <div className="pt-2 text-[10px] text-[#A89A98]/40 leading-relaxed font-sans">
-            Private sanctuary. Stored solely in this browser.
+          <div className="pt-1 text-[10px] text-[#A89A98]/40 leading-relaxed font-sans">
+            {mode === "cloud"
+              ? "Cloud sanctuary active. Row-level secured with Supabase."
+              : "Private sanctuary. Stored solely in this browser."}
           </div>
         </div>
       </aside>

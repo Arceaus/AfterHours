@@ -9,22 +9,19 @@ import { ArchiveView } from "@/components/ArchiveView";
 import { CalendarView } from "@/components/CalendarView";
 import { TimeCapsulesView } from "@/components/TimeCapsulesView";
 import { FutureLettersView } from "@/components/FutureLettersView";
-import { getSavedEntries, removeEntry } from "@/lib/storage";
+import { MigrationBanner } from "@/components/MigrationBanner";
+import { AccountModal } from "@/components/AccountModal";
+import { useRepository } from "@/lib/repository/RepositoryContext";
 
 export default function HomePage() {
+  const { entries, deleteEntry, refreshEntries, mode } = useRepository();
   const [currentView, setCurrentView] = useState<NavView>("tonight");
   const [activeEntryId, setActiveEntryId] = useState<string | null>(null);
   const [customDate, setCustomDate] = useState<string | null>(null);
   const [focusMode, setFocusMode] = useState<boolean>(false);
   const [wordCount, setWordCount] = useState<number>(0);
-  const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
-
-  // Load saved entries on mount
-  useEffect(() => {
-    const list = getSavedEntries();
-    setEntries(list);
-  }, []);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
 
   const showNotification = useCallback((message: string) => {
     setNotification(message);
@@ -35,19 +32,21 @@ export default function HomePage() {
   }, []);
 
   const handleEntrySaved = useCallback((entry: DiaryEntry) => {
-    const updated = getSavedEntries();
-    setEntries(updated);
-    showNotification("Thought preserved in your quiet sanctuary.");
-  }, [showNotification]);
+    refreshEntries();
+    showNotification(
+      mode === "cloud"
+        ? "Thought preserved in your cloud sanctuary."
+        : "Thought preserved in your quiet sanctuary."
+    );
+  }, [mode, refreshEntries, showNotification]);
 
-  const handleEntryDeleted = useCallback((id: string) => {
-    const updated = removeEntry(id);
-    setEntries(updated);
+  const handleEntryDeleted = useCallback(async (id: string) => {
+    await deleteEntry(id);
     if (activeEntryId === id) {
       setActiveEntryId(null);
     }
     showNotification("Entry quietly released from your archives.");
-  }, [activeEntryId, showNotification]);
+  }, [activeEntryId, deleteEntry, showNotification]);
 
   const handleSelectEntry = (entry: DiaryEntry) => {
     setActiveEntryId(entry.id);
@@ -84,10 +83,14 @@ export default function HomePage() {
         focusMode={focusMode}
         onToggleFocusMode={() => setFocusMode(!focusMode)}
         wordCount={wordCount}
+        onOpenAccountModal={() => setIsAccountOpen(true)}
       />
 
       {/* Main Sanctuary Area */}
       <main className="flex-1 min-w-0 flex flex-col px-6 sm:px-10 lg:px-14 py-8 sm:py-12 lg:py-14 max-w-7xl">
+        {/* Local Data Migration Banner (if cloud user has local records) */}
+        <MigrationBanner />
+
         {/* Subtle tranquil notification */}
         {notification && (
           <div
@@ -172,6 +175,12 @@ export default function HomePage() {
           />
         )}
       </main>
+
+      {/* Account & Cloud Sanctuary Modal */}
+      <AccountModal
+        isOpen={isAccountOpen}
+        onClose={() => setIsAccountOpen(false)}
+      />
     </div>
   );
 }

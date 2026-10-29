@@ -9,8 +9,8 @@ import {
   saveLetterDraft,
   clearLetterDraft,
   loadLetterDraft,
-  persistLetter,
 } from "@/lib/letters";
+import { useRepository } from "@/lib/repository/RepositoryContext";
 import { formatLocalCalendarDate, getLocalCalendarDate } from "@/lib/date";
 import {
   Calendar,
@@ -43,6 +43,7 @@ export function LetterEditor({
   onCancel,
   onDraftDeleted,
 }: LetterEditorProps) {
+  const { saveLetter, mode } = useRepository();
   const [title, setTitle] = useState(initialLetter?.title || "");
   const [content, setContent] = useState(initialLetter?.content || "");
   const [scheduledDate, setScheduledDate] = useState<string>(
@@ -120,7 +121,7 @@ export function LetterEditor({
         };
         saveLetterDraft(draft);
       } else {
-        // Autosave existing draft letter
+        // Autosave existing draft letter via repository
         const updated: FutureLetter = {
           ...initialLetter,
           title: title.trim(),
@@ -128,7 +129,7 @@ export function LetterEditor({
           scheduledOpenAt: scheduledDate,
           updatedAt: now.toISOString(),
         };
-        persistLetter(updated);
+        saveLetter(updated);
       }
 
       setLastSavedTime(timeStr);
@@ -136,7 +137,7 @@ export function LetterEditor({
     }, 700);
 
     return () => clearTimeout(timeout);
-  }, [title, content, scheduledDate, initialLetter]);
+  }, [title, content, scheduledDate, initialLetter, saveLetter]);
 
   // Presets handler
   const handleSelectPreset = (preset: "1month" | "3months" | "6months" | "1year") => {
@@ -182,7 +183,7 @@ export function LetterEditor({
     setShowSealModal(true);
   };
 
-  const handleConfirmSeal = () => {
+  const handleConfirmSeal = async () => {
     const nowISO = new Date().toISOString();
     const letterToSeal: FutureLetter = {
       id: initialLetter?.id || generateLetterId(),
@@ -195,10 +196,14 @@ export function LetterEditor({
       status: "sealed",
     };
 
-    persistLetter(letterToSeal);
-    clearLetterDraft();
-    setShowSealModal(false);
-    onLetterSealed(letterToSeal);
+    try {
+      await saveLetter(letterToSeal);
+      clearLetterDraft();
+      setShowSealModal(false);
+      onLetterSealed(letterToSeal);
+    } catch (err) {
+      console.error("Failed to seal letter:", err);
+    }
   };
 
   const formattedOpeningDate = formatLocalCalendarDate(scheduledDate);

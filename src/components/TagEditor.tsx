@@ -8,17 +8,22 @@ interface TagEditorProps {
   tags: string[];
   onChange: (tags: string[]) => void;
   disabled?: boolean;
+  availableTags?: string[];
 }
 
-export function TagEditor({ tags, onChange, disabled }: TagEditorProps) {
+export function TagEditor({ tags, onChange, disabled, availableTags: propTags }: TagEditorProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setAvailableTags(getAllUniqueTags());
-  }, [tags]);
+    if (propTags && propTags.length > 0) {
+      setAvailableTags(propTags);
+    } else {
+      setAvailableTags(getAllUniqueTags());
+    }
+  }, [tags, propTags]);
 
   useEffect(() => {
     if (isAdding) {

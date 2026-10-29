@@ -3,13 +3,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { FutureLetter, EffectiveLetterStatus } from "@/types/entry";
 import {
-  getSavedLetters,
-  removeLetter,
-  openLetter,
-  unsealLetterToDraft,
   getEffectiveLetterStatus,
   loadLetterDraft,
 } from "@/lib/letters";
+import { useRepository } from "@/lib/repository/RepositoryContext";
 import { formatLocalCalendarDate, formatDateTimeFromISO, getLocalCalendarDate } from "@/lib/date";
 import { LetterEditor } from "@/components/LetterEditor";
 import { LetterReader } from "@/components/LetterReader";
@@ -32,7 +29,7 @@ interface FutureLettersViewProps {
 }
 
 export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps) {
-  const [letters, setLetters] = useState<FutureLetter[]>([]);
+  const { letters, openLetter: openLetterRepo, unsealLetter: unsealLetterRepo, deleteLetter: deleteLetterRepo, refreshLetters } = useRepository();
   const [viewState, setViewState] = useState<"overview" | "editor" | "reader">("overview");
   const [selectedLetter, setSelectedLetter] = useState<FutureLetter | null>(null);
   const [editingLetter, setEditingLetter] = useState<FutureLetter | null>(null);
@@ -40,17 +37,14 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
   const [unsealingId, setUnsealingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Load saved letters and check draft on mount
+  // Check local draft status
   useEffect(() => {
-    const list = getSavedLetters();
-    setLetters(list);
     const draft = loadLetterDraft();
     setHasDraftInStorage(Boolean(draft && (draft.title || draft.content)));
-  }, []);
+  }, [letters]);
 
   const refreshList = () => {
-    const list = getSavedLetters();
-    setLetters(list);
+    refreshLetters();
     const draft = loadLetterDraft();
     setHasDraftInStorage(Boolean(draft && (draft.title || draft.content)));
   };
@@ -79,10 +73,9 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
     return { ready, sealed, drafts, opened };
   }, [letters]);
 
-  const handleOpenReadyLetter = (letter: FutureLetter) => {
-    const updated = openLetter(letter.id);
+  const handleOpenReadyLetter = async (letter: FutureLetter) => {
+    const updated = await openLetterRepo(letter.id);
     if (updated) {
-      refreshList();
       setSelectedLetter(updated);
       setViewState("reader");
     }
@@ -108,9 +101,8 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
     setViewState("overview");
   };
 
-  const handleDeleteLetter = (id: string) => {
-    removeLetter(id);
-    refreshList();
+  const handleDeleteLetter = async (id: string) => {
+    await deleteLetterRepo(id);
     if (selectedLetter?.id === id) {
       setViewState("overview");
       setSelectedLetter(null);
@@ -118,9 +110,8 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
     setDeletingId(null);
   };
 
-  const handleConfirmUnseal = (id: string) => {
-    const unsealed = unsealLetterToDraft(id);
-    refreshList();
+  const handleConfirmUnseal = async (id: string) => {
+    const unsealed = await unsealLetterRepo(id);
     setUnsealingId(null);
     if (unsealed) {
       setEditingLetter(unsealed);
@@ -141,7 +132,7 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
         }}
         onDraftDeleted={() => {
           if (editingLetter) {
-            removeLetter(editingLetter.id);
+            deleteLetterRepo(editingLetter.id);
           }
           refreshList();
           setViewState("overview");

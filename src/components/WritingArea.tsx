@@ -5,15 +5,13 @@ import { DiaryEntry, DraftState } from "@/types/entry";
 import { formatLocalCalendarDate, getFormattedDate, getLocalCalendarDate } from "@/lib/date";
 import {
   generateId,
-  getEntryById,
-  persistEntry,
-  removeEntry,
   loadActiveDraft,
   saveActiveDraft,
   clearActiveDraft,
 } from "@/lib/storage";
+import { useRepository } from "@/lib/repository/RepositoryContext";
 import { TagEditor } from "@/components/TagEditor";
-import { Check, Sparkles, RotateCcw, Clock, Trash2, ArrowLeft, PenLine } from "lucide-react";
+import { Check, Sparkles, RotateCcw, Clock, Trash2, ArrowLeft, PenLine, AlertCircle } from "lucide-react";
 
 interface WritingAreaProps {
   activeEntryId: string | null;
@@ -32,12 +30,14 @@ export function WritingArea({
   onEntryDeleted,
   onStartNewDraft,
 }: WritingAreaProps) {
+  const { mode, saveEntry, deleteEntry, activeEntryRepo } = useRepository();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [entryDate, setEntryDate] = useState<string>(customDate || getLocalCalendarDate());
   const [originalCreatedAt, setOriginalCreatedAt] = useState<string | null>(null);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastSavedTime, setLastSavedTime] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -70,22 +70,23 @@ export function WritingArea({
     setShowDeleteConfirm(false);
 
     if (activeEntryId) {
-      // Load existing entry
-      const existing = getEntryById(activeEntryId);
-      if (existing) {
-        setTitle(existing.title || "");
-        setContent(existing.content || "");
-        setTags(existing.tags || []);
-        setEntryDate(existing.entryDate);
-        setOriginalCreatedAt(existing.createdAt);
-        setSaveStatus("idle");
-        const formatted = formatLocalCalendarDate(existing.entryDate);
-        setDateDisplay((prev) => ({
-          ...prev,
-          fullString: `${formatted.weekday}, ${formatted.monthDay}`,
-          year: formatted.year,
-        }));
-      }
+      // Load existing entry from active repository (cloud or local)
+      activeEntryRepo.getEntry(activeEntryId).then((existing) => {
+        if (existing) {
+          setTitle(existing.title || "");
+          setContent(existing.content || "");
+          setTags(existing.tags || []);
+          setEntryDate(existing.entryDate);
+          setOriginalCreatedAt(existing.createdAt);
+          setSaveStatus("idle");
+          const formatted = formatLocalCalendarDate(existing.entryDate);
+          setDateDisplay((prev) => ({
+            ...prev,
+            fullString: `${formatted.weekday}, ${formatted.monthDay}`,
+            year: formatted.year,
+          }));
+        }
+      });
     } else {
       // Load draft for new entry
       const draft = loadActiveDraft();
@@ -119,7 +120,7 @@ export function WritingArea({
       isInitialLoad.current = false;
     }, 100);
     return () => clearTimeout(timer);
-  }, [activeEntryId, customDate]);
+  }, [activeEntryId, customDate, activeEntryRepo]);
 
   // Auto-resize textarea to fit content comfortably
   useEffect(() => {
@@ -160,21 +161,31 @@ export function WritingArea({
       });
 
       if (activeEntryId) {
-        // Autosave existing entry directly to storage
-        const existing = getEntryById(activeEntryId);
-        if (existing) {
-          const updated: DiaryEntry = {
-            ...existing,
-            title: title.trim(),
-            content: content,
-            tags: tags,
-            updatedAt: now.toISOString(),
-          };
-          persistEntry(updated);
-          onEntrySaved?.(updated);
-        }
+        // Autosave existing entry via repository layer
+        const updated: DiaryEntry = {
+          id: activeEntryId,
+          title: title.trim(),
+          content: content,
+          tags: tags,
+          createdAt: originalCreatedAt || now.toISOString(),
+          updatedAt: now.toISOString(),
+          entryDate,
+          attachments: [],
+        };
+        saveEntry(updated)
+          .then((saved) => {
+            onEntrySaved?.(saved);
+            setLastSavedTime(timeStr);
+            setSaveStatus("saved");
+            setErrorMessage(null);
+          })
+          .catch((err) => {
+            console.error("Autosave error:", err);
+            setSaveStatus("error");
+            setErrorMessage(err?.message || "Cloud save failed");
+          });
       } else {
-        // Autosave active draft
+        // Autosave active draft locally
         const draft: DraftState = {
           entryId: null,
           title,
@@ -184,14 +195,14 @@ export function WritingArea({
           updatedAt: now.toISOString(),
         };
         saveActiveDraft(draft);
+        setLastSavedTime(timeStr);
+        setSaveStatus("saved");
+        setErrorMessage(null);
       }
-
-      setLastSavedTime(timeStr);
-      setSaveStatus("saved");
     }, 700);
 
     return () => clearTimeout(timeout);
-  }, [title, content, tags, activeEntryId, entryDate, onEntrySaved]);
+  }, [title, content, tags, activeEntryId, entryDate, originalCreatedAt, saveEntry, onEntrySaved]);
 
   const handleFinishEntry = () => {
     if (!content.trim() && !title.trim()) return;
@@ -200,20 +211,27 @@ export function WritingArea({
 
     if (activeEntryId) {
       // Update existing entry
-      const existing = getEntryById(activeEntryId);
       const updated: DiaryEntry = {
         id: activeEntryId,
         title: title.trim(),
         content: content.trim(),
         tags: tags,
-        createdAt: originalCreatedAt || existing?.createdAt || nowISO,
+        createdAt: originalCreatedAt || nowISO,
         updatedAt: nowISO,
         entryDate: entryDate || getLocalCalendarDate(),
-        attachments: existing?.attachments || [],
+        attachments: [],
       };
-      persistEntry(updated);
-      onEntrySaved?.(updated);
-      setSaveStatus("saved");
+      setSaveStatus("saving");
+      saveEntry(updated)
+        .then((saved) => {
+          onEntrySaved?.(saved);
+          setSaveStatus("saved");
+          setErrorMessage(null);
+        })
+        .catch((err) => {
+          setSaveStatus("error");
+          setErrorMessage(err?.message || "Failed to preserve entry");
+        });
     } else {
       // Create new permanent entry
       const newEntry: DiaryEntry = {
@@ -227,13 +245,21 @@ export function WritingArea({
         attachments: [],
       };
 
-      persistEntry(newEntry);
-      clearActiveDraft();
-      setTitle("");
-      setContent("");
-      setTags([]);
-      setSaveStatus("idle");
-      onEntrySaved?.(newEntry);
+      setSaveStatus("saving");
+      saveEntry(newEntry)
+        .then((saved) => {
+          clearActiveDraft();
+          setTitle("");
+          setContent("");
+          setTags([]);
+          setSaveStatus("idle");
+          setErrorMessage(null);
+          onEntrySaved?.(saved);
+        })
+        .catch((err) => {
+          setSaveStatus("error");
+          setErrorMessage(err?.message || "Failed to preserve entry");
+        });
     }
   };
 
@@ -252,11 +278,15 @@ export function WritingArea({
     }
   };
 
-  const handleDeleteEntry = () => {
+  const handleDeleteEntry = async () => {
     if (!activeEntryId) return;
-    removeEntry(activeEntryId);
-    onEntryDeleted?.(activeEntryId);
-    setShowDeleteConfirm(false);
+    try {
+      await deleteEntry(activeEntryId);
+      onEntryDeleted?.(activeEntryId);
+      setShowDeleteConfirm(false);
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Failed to delete entry");
+    }
   };
 
   const isEditingExisting = Boolean(activeEntryId);
@@ -383,7 +413,9 @@ export function WritingArea({
             {saveStatus === "saving" && (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70] animate-pulse" />
-                <span className="text-[#A89A98]">Saving quietly...</span>
+                <span className="text-[#A89A98]">
+                  {mode === "cloud" ? "Saving to cloud..." : "Saving quietly..."}
+                </span>
               </>
             )}
 
@@ -391,9 +423,24 @@ export function WritingArea({
               <>
                 <Check className="w-3.5 h-3.5 text-[#D78A70]" />
                 <span className="text-[#A89A98]">
-                  Saved quietly{lastSavedTime ? ` at ${lastSavedTime}` : ""}
+                  {mode === "cloud" ? "Saved to cloud" : "Saved locally"}
+                  {lastSavedTime ? ` at ${lastSavedTime}` : ""}
                 </span>
               </>
+            )}
+
+            {saveStatus === "error" && (
+              <div className="flex items-center gap-2 text-rose-400">
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{errorMessage || "Save failed"}</span>
+                <button
+                  type="button"
+                  onClick={handleFinishEntry}
+                  className="underline hover:text-rose-300 ml-1 text-[11px]"
+                >
+                  Retry
+                </button>
+              </div>
             )}
 
             {saveStatus === "idle" && (
@@ -403,6 +450,8 @@ export function WritingArea({
                   {content || title || tags.length > 0
                     ? isEditingExisting
                       ? "All changes preserved"
+                      : mode === "cloud"
+                      ? "Draft kept locally until saved"
                       : "Draft kept on this device"
                     : "Ready whenever you are"}
                 </span>
