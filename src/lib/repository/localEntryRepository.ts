@@ -30,3 +30,4 @@ export class LocalEntryRepository implements IEntryRepository {
     return getAllUniqueTags();
   }
 }
+

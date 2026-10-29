@@ -138,3 +138,4 @@ export class SupabaseEntryRepository implements IEntryRepository {
     );
   }
 }
+

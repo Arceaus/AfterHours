@@ -35,3 +35,4 @@ export class LocalLetterRepository implements IFutureLetterRepository {
     return unsealLetterToDraft(id);
   }
 }
+

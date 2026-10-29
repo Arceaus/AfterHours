@@ -109,3 +109,4 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.delete_user_archive() TO authenticated;
+

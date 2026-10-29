@@ -472,3 +472,4 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
     </div>
   );
 }
+

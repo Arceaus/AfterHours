@@ -138,3 +138,4 @@ export class SupabaseLetterRepository implements IFutureLetterRepository {
     return this.saveLetter(updated);
   }
 }
+

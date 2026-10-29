@@ -103,3 +103,4 @@ export function exportArchiveAsJSON(entries: DiaryEntry[], letters: FutureLetter
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+

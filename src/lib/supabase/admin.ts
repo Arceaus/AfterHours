@@ -20,3 +20,4 @@ export function getSupabaseAdminClient(): SupabaseClient | null {
 
   return adminClient;
 }
+
