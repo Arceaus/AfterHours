@@ -1,20 +1,24 @@
 "use client";
 
 import React from "react";
-import { Moon, Bookmark, Compass } from "lucide-react";
-
-export interface SavedEntry {
-  title: string;
-  content: string;
-  date: string;
-}
+import { DiaryEntry } from "@/types/entry";
+import { formatLocalCalendarDate } from "@/lib/date";
+import { Moon, Bookmark, Compass, PenLine } from "lucide-react";
 
 interface RecentMemoriesProps {
-  entries: SavedEntry[];
-  onSelectEntry?: (entry: SavedEntry) => void;
+  entries: DiaryEntry[];
+  activeEntryId?: string | null;
+  onSelectEntry: (entry: DiaryEntry) => void;
 }
 
-export function RecentMemories({ entries, onSelectEntry }: RecentMemoriesProps) {
+export function RecentMemories({
+  entries,
+  activeEntryId,
+  onSelectEntry,
+}: RecentMemoriesProps) {
+  // Show the most recent 4 entries in this side panel
+  const displayEntries = entries.slice(0, 5);
+
   return (
     <aside aria-label="Recent entries and memory" className="w-full flex flex-col">
       {/* Section Header */}
@@ -26,7 +30,9 @@ export function RecentMemories({ entries, onSelectEntry }: RecentMemoriesProps) 
           </h3>
         </div>
         <span className="font-mono text-[10px] text-[#A89A98]/50">
-          {entries.length === 0 ? "0 entries" : `${entries.length} recorded`}
+          {entries.length === 0
+            ? "0 entries"
+            : `${entries.length} ${entries.length === 1 ? "entry" : "entries"}`}
         </span>
       </div>
 
@@ -58,30 +64,44 @@ export function RecentMemories({ entries, onSelectEntry }: RecentMemoriesProps) 
         </div>
       ) : (
         <div className="space-y-3">
-          {entries.map((entry, idx) => (
-            <div
-              key={idx}
-              onClick={() => onSelectEntry?.(entry)}
-              className="p-4 border border-[#45373C]/40 hover:border-[#D78A70]/40 bg-[#2B2226]/30 hover:bg-[#2B2226]/70 transition-all rounded-sm cursor-pointer group"
-            >
-              <div className="flex items-center justify-between text-[11px] text-[#A89A98]/70 mb-1.5 font-sans">
-                <span>{entry.date}</span>
-                <span className="text-[#D78A70] opacity-0 group-hover:opacity-100 transition-opacity font-serif italic">
-                  Read &rarr;
-                </span>
+          {displayEntries.map((entry) => {
+            const dateObj = formatLocalCalendarDate(entry.entryDate);
+            const isActive = activeEntryId === entry.id;
+
+            return (
+              <div
+                key={entry.id}
+                onClick={() => onSelectEntry(entry)}
+                className={`p-4 border transition-all rounded-sm cursor-pointer group ${
+                  isActive
+                    ? "border-[#D78A70] bg-[#2B2226]/80 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]"
+                    : "border-[#45373C]/40 hover:border-[#D78A70]/40 bg-[#2B2226]/30 hover:bg-[#2B2226]/70"
+                }`}
+              >
+                <div className="flex items-center justify-between text-[11px] text-[#A89A98]/70 mb-1.5 font-sans">
+                  <span className="font-serif italic text-[#D78A70]/90">
+                    {dateObj.monthDay}, {dateObj.year}
+                  </span>
+                  <span className="text-[#D78A70] opacity-0 group-hover:opacity-100 transition-opacity font-serif italic flex items-center gap-1">
+                    <PenLine className="w-3 h-3" />
+                    <span>Open &rarr;</span>
+                  </span>
+                </div>
+
+                <h4 className="font-serif text-base text-[#F0E8DF] group-hover:text-[#FAF6F0] transition-colors line-clamp-1">
+                  {entry.title || "Untitled reflection"}
+                </h4>
+
+                <p className="font-sans text-xs text-[#A89A98] line-clamp-2 mt-1 leading-relaxed">
+                  {entry.content || "(No words recorded)"}
+                </p>
               </div>
-              <h4 className="font-serif text-base text-[#F0E8DF] group-hover:text-[#FAF6F0] transition-colors line-clamp-1">
-                {entry.title}
-              </h4>
-              <p className="font-sans text-xs text-[#A89A98] line-clamp-2 mt-1 leading-relaxed">
-                {entry.content}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* Atmospheric Late Night Note */}
+      {/* Atmospheric Sanctuary Note */}
       <div className="mt-8 pt-6 border-t border-[#45373C]/30 text-xs text-[#A89A98]/60 space-y-2">
         <div className="text-[11px] font-sans uppercase tracking-[0.14em] text-[#A89A98]/50">
           The Sanctuary
