@@ -16,5 +16,14 @@ export interface DraftState {
   title: string;
   content: string;
   entryDate: string; // YYYY-MM-DD
+  tags: string[];
   updatedAt: string; // ISO 8601
+}
+
+export interface MemoryOverviewStats {
+  totalEntries: number;
+  earliestEntryDate: string | null;
+  latestEntryDate: string | null;
+  distinctDatesCount: number;
+  topTags: { tag: string; count: number }[];
 }

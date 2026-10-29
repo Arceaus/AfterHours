@@ -12,10 +12,12 @@ import {
   saveActiveDraft,
   clearActiveDraft,
 } from "@/lib/storage";
+import { TagEditor } from "@/components/TagEditor";
 import { Check, Sparkles, RotateCcw, Clock, Trash2, ArrowLeft, PenLine } from "lucide-react";
 
 interface WritingAreaProps {
   activeEntryId: string | null;
+  customDate?: string | null;
   onWordCountChange?: (count: number) => void;
   onEntrySaved?: (entry: DiaryEntry) => void;
   onEntryDeleted?: (id: string) => void;
@@ -24,6 +26,7 @@ interface WritingAreaProps {
 
 export function WritingArea({
   activeEntryId,
+  customDate,
   onWordCountChange,
   onEntrySaved,
   onEntryDeleted,
@@ -31,7 +34,8 @@ export function WritingArea({
 }: WritingAreaProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [entryDate, setEntryDate] = useState<string>(getLocalCalendarDate());
+  const [tags, setTags] = useState<string[]>([]);
+  const [entryDate, setEntryDate] = useState<string>(customDate || getLocalCalendarDate());
   const [originalCreatedAt, setOriginalCreatedAt] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [lastSavedTime, setLastSavedTime] = useState<string | null>(null);
@@ -60,7 +64,7 @@ export function WritingArea({
     });
   }, []);
 
-  // Load entry or draft whenever activeEntryId changes
+  // Load entry or draft whenever activeEntryId or customDate changes
   useEffect(() => {
     isInitialLoad.current = true;
     setShowDeleteConfirm(false);
@@ -71,6 +75,7 @@ export function WritingArea({
       if (existing) {
         setTitle(existing.title || "");
         setContent(existing.content || "");
+        setTags(existing.tags || []);
         setEntryDate(existing.entryDate);
         setOriginalCreatedAt(existing.createdAt);
         setSaveStatus("idle");
@@ -84,23 +89,26 @@ export function WritingArea({
     } else {
       // Load draft for new entry
       const draft = loadActiveDraft();
-      const today = getLocalCalendarDate();
-      setEntryDate(today);
+      const targetDate = customDate || getLocalCalendarDate();
+      setEntryDate(targetDate);
       setOriginalCreatedAt(null);
 
       if (draft && !draft.entryId) {
         setTitle(draft.title || "");
         setContent(draft.content || "");
+        setTags(draft.tags || []);
       } else {
         setTitle("");
         setContent("");
+        setTags([]);
       }
       setSaveStatus("idle");
 
+      const formatted = formatLocalCalendarDate(targetDate);
       const d = getFormattedDate();
       setDateDisplay({
-        fullString: d.fullString,
-        year: d.year,
+        fullString: `${formatted.weekday}, ${formatted.monthDay}`,
+        year: formatted.year,
         timeString: d.timeString,
         nightWhisper: d.nightWhisper,
       });
@@ -111,7 +119,7 @@ export function WritingArea({
       isInitialLoad.current = false;
     }, 100);
     return () => clearTimeout(timer);
-  }, [activeEntryId]);
+  }, [activeEntryId, customDate]);
 
   // Auto-resize textarea to fit content comfortably
   useEffect(() => {
@@ -130,12 +138,12 @@ export function WritingArea({
     onWordCountChange?.(words);
   }, [words, onWordCountChange]);
 
-  // Autosave mechanism
+  // Autosave mechanism (covers title, content, and tags)
   useEffect(() => {
     // Avoid triggering autosave on initial component load
     if (isInitialLoad.current) return;
 
-    if (!title && !content) {
+    if (!title && !content && tags.length === 0) {
       setSaveStatus("idle");
       if (!activeEntryId) {
         clearActiveDraft();
@@ -159,6 +167,7 @@ export function WritingArea({
             ...existing,
             title: title.trim(),
             content: content,
+            tags: tags,
             updatedAt: now.toISOString(),
           };
           persistEntry(updated);
@@ -170,6 +179,7 @@ export function WritingArea({
           entryId: null,
           title,
           content,
+          tags,
           entryDate,
           updatedAt: now.toISOString(),
         };
@@ -181,7 +191,7 @@ export function WritingArea({
     }, 700);
 
     return () => clearTimeout(timeout);
-  }, [title, content, activeEntryId, entryDate, onEntrySaved]);
+  }, [title, content, tags, activeEntryId, entryDate, onEntrySaved]);
 
   const handleFinishEntry = () => {
     if (!content.trim() && !title.trim()) return;
@@ -195,10 +205,10 @@ export function WritingArea({
         id: activeEntryId,
         title: title.trim(),
         content: content.trim(),
+        tags: tags,
         createdAt: originalCreatedAt || existing?.createdAt || nowISO,
         updatedAt: nowISO,
         entryDate: entryDate || getLocalCalendarDate(),
-        tags: existing?.tags || [],
         attachments: existing?.attachments || [],
       };
       persistEntry(updated);
@@ -210,10 +220,10 @@ export function WritingArea({
         id: generateId(),
         title: title.trim(),
         content: content.trim(),
+        tags: tags,
         createdAt: nowISO,
         updatedAt: nowISO,
         entryDate: entryDate || getLocalCalendarDate(),
-        tags: [],
         attachments: [],
       };
 
@@ -221,17 +231,19 @@ export function WritingArea({
       clearActiveDraft();
       setTitle("");
       setContent("");
+      setTags([]);
       setSaveStatus("idle");
       onEntrySaved?.(newEntry);
     }
   };
 
   const handleDiscardOrClear = () => {
-    if (!content && !title) return;
+    if (!content && !title && tags.length === 0) return;
     const confirmClear = window.confirm("Clear this writing canvas? Unsaved draft words will be removed.");
     if (confirmClear) {
       setTitle("");
       setContent("");
+      setTags([]);
       if (!activeEntryId) {
         clearActiveDraft();
       }
@@ -252,9 +264,9 @@ export function WritingArea({
   return (
     <div className="w-full max-w-3xl mx-auto flex flex-col">
       {/* Editorial Header */}
-      <header className="mb-10 sm:mb-14">
-        {/* Navigation context / Mode banner if editing a past entry */}
-        {isEditingExisting && (
+      <header className="mb-8 sm:mb-12">
+        {/* Navigation context / Mode banner if editing a past entry or writing for custom date */}
+        {isEditingExisting ? (
           <div className="flex items-center justify-between gap-4 mb-4 p-3 bg-[#2B2226]/80 border border-[#D78A70]/30 rounded-sm text-xs font-sans">
             <div className="flex items-center gap-2 text-[#D78A70]">
               <PenLine className="w-3.5 h-3.5" />
@@ -271,7 +283,20 @@ export function WritingArea({
               <span>Back to tonight&apos;s blank page</span>
             </button>
           </div>
-        )}
+        ) : customDate && customDate !== getLocalCalendarDate() ? (
+          <div className="flex items-center justify-between gap-4 mb-4 p-3 bg-[#2B2226]/80 border border-[#45373C] rounded-sm text-xs font-sans">
+            <span className="text-[#A89A98]">
+              Recording a memory for <strong className="text-[#F0E8DF]">{dateDisplay.fullString}</strong>
+            </span>
+            <button
+              type="button"
+              onClick={onStartNewDraft}
+              className="text-xs text-[#D78A70] hover:underline"
+            >
+              Reset to tonight
+            </button>
+          </div>
+        ) : null}
 
         {/* Date and late-night tag */}
         <div className="flex flex-wrap items-center justify-between gap-y-2 gap-x-4 mb-4 border-b border-[#45373C]/40 pb-3">
@@ -313,7 +338,7 @@ export function WritingArea({
         className="relative flex flex-col transition-all"
       >
         {/* Optional Title Field */}
-        <div className="mb-4">
+        <div className="mb-3">
           <label htmlFor={titleInputId} className="sr-only">
             Entry title (optional)
           </label>
@@ -323,10 +348,15 @@ export function WritingArea({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Give this a name, if you want..."
-            className="w-full bg-transparent font-serif text-xl sm:text-2xl text-[#F0E8DF] placeholder-[#A89A98]/35 border-0 border-b border-transparent focus:border-[#45373C] hover:border-[#45373C]/40 pb-2.5 px-0 transition-colors focus-visible:outline-none focus-visible:ring-0"
+            className="w-full bg-transparent font-serif text-xl sm:text-2xl text-[#F0E8DF] placeholder-[#A89A98]/35 border-0 border-b border-transparent focus:border-[#45373C] hover:border-[#45373C]/40 pb-2 px-0 transition-colors focus-visible:outline-none focus-visible:ring-0"
             autoComplete="off"
             spellCheck="false"
           />
+        </div>
+
+        {/* Quiet Tag Editor (Directly integrated, non-intrusive) */}
+        <div className="mb-4 pt-1">
+          <TagEditor tags={tags} onChange={setTags} />
         </div>
 
         {/* The Writing Area */}
@@ -370,7 +400,7 @@ export function WritingArea({
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#45373C]" />
                 <span className="text-[#A89A98]/60">
-                  {content || title
+                  {content || title || tags.length > 0
                     ? isEditingExisting
                       ? "All changes preserved"
                       : "Draft kept on this device"
@@ -424,7 +454,7 @@ export function WritingArea({
             )}
 
             {/* Clear draft (for unsaved new draft) */}
-            {!isEditingExisting && (content || title) && (
+            {!isEditingExisting && (content || title || tags.length > 0) && (
               <button
                 type="button"
                 onClick={handleDiscardOrClear}
@@ -437,7 +467,7 @@ export function WritingArea({
             )}
 
             {/* Finish & Rest action */}
-            {(content || title) && (
+            {(content || title || tags.length > 0) && (
               <button
                 type="button"
                 onClick={handleFinishEntry}

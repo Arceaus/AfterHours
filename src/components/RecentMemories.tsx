@@ -2,7 +2,7 @@
 
 import React from "react";
 import { DiaryEntry } from "@/types/entry";
-import { formatLocalCalendarDate } from "@/lib/date";
+import { formatLocalCalendarDate, deriveDisplayTitle } from "@/lib/date";
 import { Moon, Bookmark, Compass, PenLine } from "lucide-react";
 
 interface RecentMemoriesProps {
@@ -16,7 +16,7 @@ export function RecentMemories({
   activeEntryId,
   onSelectEntry,
 }: RecentMemoriesProps) {
-  // Show the most recent 4 entries in this side panel
+  // Show the most recent 5 entries in this side panel
   const displayEntries = entries.slice(0, 5);
 
   return (
@@ -67,6 +67,7 @@ export function RecentMemories({
           {displayEntries.map((entry) => {
             const dateObj = formatLocalCalendarDate(entry.entryDate);
             const isActive = activeEntryId === entry.id;
+            const displayTitle = deriveDisplayTitle(entry.title, entry.content);
 
             return (
               <div
@@ -89,12 +90,30 @@ export function RecentMemories({
                 </div>
 
                 <h4 className="font-serif text-base text-[#F0E8DF] group-hover:text-[#FAF6F0] transition-colors line-clamp-1">
-                  {entry.title || "Untitled reflection"}
+                  {displayTitle}
                 </h4>
 
                 <p className="font-sans text-xs text-[#A89A98] line-clamp-2 mt-1 leading-relaxed">
                   {entry.content || "(No words recorded)"}
                 </p>
+
+                {entry.tags.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {entry.tags.slice(0, 3).map((t) => (
+                      <span
+                        key={t}
+                        className="text-[9px] text-[#A89A98]/80 bg-[#211A1D] px-1.5 py-0.2 rounded border border-[#45373C]/40"
+                      >
+                        #{t}
+                      </span>
+                    ))}
+                    {entry.tags.length > 3 && (
+                      <span className="text-[9px] text-[#A89A98]/50">
+                        +{entry.tags.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

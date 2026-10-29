@@ -6,12 +6,14 @@ import { NavigationRail } from "@/components/NavigationRail";
 import { WritingArea } from "@/components/WritingArea";
 import { RecentMemories } from "@/components/RecentMemories";
 import { ArchiveView } from "@/components/ArchiveView";
+import { CalendarView } from "@/components/CalendarView";
 import { PlaceholderView } from "@/components/PlaceholderView";
 import { getSavedEntries, removeEntry } from "@/lib/storage";
 
 export default function HomePage() {
   const [currentView, setCurrentView] = useState<NavView>("tonight");
   const [activeEntryId, setActiveEntryId] = useState<string | null>(null);
+  const [customDate, setCustomDate] = useState<string | null>(null);
   const [focusMode, setFocusMode] = useState<boolean>(false);
   const [wordCount, setWordCount] = useState<number>(0);
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
@@ -48,11 +50,19 @@ export default function HomePage() {
 
   const handleSelectEntry = (entry: DiaryEntry) => {
     setActiveEntryId(entry.id);
+    setCustomDate(null);
     setCurrentView("tonight");
   };
 
   const handleStartNewDraft = () => {
     setActiveEntryId(null);
+    setCustomDate(null);
+    setCurrentView("tonight");
+  };
+
+  const handleWriteForDate = (dateStr: string) => {
+    setActiveEntryId(null);
+    setCustomDate(dateStr);
     setCurrentView("tonight");
   };
 
@@ -108,6 +118,7 @@ export default function HomePage() {
             >
               <WritingArea
                 activeEntryId={activeEntryId}
+                customDate={customDate}
                 onWordCountChange={setWordCount}
                 onEntrySaved={handleEntrySaved}
                 onEntryDeleted={handleEntryDeleted}
@@ -137,7 +148,16 @@ export default function HomePage() {
           />
         )}
 
-        {(currentView === "calendar" || currentView === "capsules") && (
+        {currentView === "calendar" && (
+          <CalendarView
+            entries={entries}
+            onOpenEntry={handleSelectEntry}
+            onDeleteEntry={handleEntryDeleted}
+            onWriteForDate={handleWriteForDate}
+          />
+        )}
+
+        {currentView === "capsules" && (
           <PlaceholderView
             view={currentView}
             onReturnToTonight={handleStartNewDraft}
