@@ -132,12 +132,10 @@ export function getFormattedDate(date: Date = new Date()): {
 
 // Calendar Utilities (Safe from UTC timezone shifting)
 export function getDaysInMonth(year: number, month: number): number {
-  // month: 0-11; day 0 of month+1 gives last day of target month (handles leap years)
   return new Date(year, month + 1, 0).getDate();
 }
 
 export function getFirstDayOfWeek(year: number, month: number): number {
-  // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   return new Date(year, month, 1).getDay();
 }
 
@@ -181,10 +179,114 @@ export function deriveDisplayTitle(title?: string, content?: string): string {
   if (!content || !content.trim()) {
     return 'Untitled reflection';
   }
-  // Take the first line or first 50 characters of content
   const firstLine = content.trim().split('\n')[0].trim();
   if (firstLine.length <= 50) {
     return firstLine;
   }
   return `${firstLine.substring(0, 48).trim()}...`;
+}
+
+// Relative Natural-Language Date Calculations for Time Capsules
+export function getLastMonthRange(refDate: Date = new Date()): {
+  startDate: string;
+  endDate: string;
+  label: string;
+} {
+  const year = refDate.getFullYear();
+  const currentMonth = refDate.getMonth();
+  const targetMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const targetYear = currentMonth === 0 ? year - 1 : year;
+  const days = getDaysInMonth(targetYear, targetMonth);
+
+  const start = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-01`;
+  const end = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(days).padStart(2, '0')}`;
+
+  return {
+    startDate: start,
+    endDate: end,
+    label: `Last month (${getMonthName(targetMonth)} ${targetYear})`,
+  };
+}
+
+export function getMonthsAgoRange(
+  monthsAgo: number,
+  refDate: Date = new Date()
+): {
+  startDate: string;
+  endDate: string;
+  label: string;
+} {
+  const d = new Date(refDate.getFullYear(), refDate.getMonth() - monthsAgo, 1);
+  const targetYear = d.getFullYear();
+  const targetMonth = d.getMonth();
+  const days = getDaysInMonth(targetYear, targetMonth);
+
+  const start = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-01`;
+  const end = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(days).padStart(2, '0')}`;
+
+  return {
+    startDate: start,
+    endDate: end,
+    label: `${monthsAgo} months ago (${getMonthName(targetMonth)} ${targetYear})`,
+  };
+}
+
+export function getLastYearRange(refDate: Date = new Date()): {
+  startDate: string;
+  endDate: string;
+  label: string;
+} {
+  const targetYear = refDate.getFullYear() - 1;
+  return {
+    startDate: `${targetYear}-01-01`,
+    endDate: `${targetYear}-12-31`,
+    label: `Last year (${targetYear})`,
+  };
+}
+
+export function getSameTimeLastYearRange(
+  windowDays: number = 20,
+  refDate: Date = new Date()
+): {
+  startDate: string;
+  endDate: string;
+  label: string;
+} {
+  const targetYear = refDate.getFullYear() - 1;
+  const targetMonth = refDate.getMonth();
+  const targetDay = Math.min(refDate.getDate(), getDaysInMonth(targetYear, targetMonth));
+
+  const centerDate = new Date(targetYear, targetMonth, targetDay);
+  const startDateObj = new Date(centerDate.getTime() - windowDays * 24 * 60 * 60 * 1000);
+  const endDateObj = new Date(centerDate.getTime() + windowDays * 24 * 60 * 60 * 1000);
+
+  return {
+    startDate: getLocalCalendarDate(startDateObj),
+    endDate: getLocalCalendarDate(endDateObj),
+    label: `This time last year (around ${getMonthName(targetMonth)} ${targetDay}, ${targetYear})`,
+  };
+}
+
+export function getMonthRangeByName(
+  monthName: string,
+  refYear?: number,
+  refDate: Date = new Date()
+): {
+  startDate: string;
+  endDate: string;
+  label: string;
+} | null {
+  const normalized = monthName.toLowerCase().trim();
+  const monthIndex = MONTH_NAMES.findIndex((m) => m.toLowerCase().startsWith(normalized));
+
+  if (monthIndex === -1) return null;
+
+  const targetYear = refYear || refDate.getFullYear();
+  const days = getDaysInMonth(targetYear, monthIndex);
+
+  return {
+    startDate: `${targetYear}-${String(monthIndex + 1).padStart(2, '0')}-01`,
+    endDate: `${targetYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(days).padStart(2, '0')}`,
+    label: `${getMonthName(monthIndex)} ${targetYear}`,
+  };
 }

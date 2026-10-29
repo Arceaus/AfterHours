@@ -27,3 +27,35 @@ export interface MemoryOverviewStats {
   distinctDatesCount: number;
   topTags: { tag: string; count: number }[];
 }
+
+// Time Capsules & Retrieval Types
+export interface RetrievalResult {
+  entry: DiaryEntry;
+  score: number;
+  matchReasons: string[];
+  excerpt: string;
+  isEarliest?: boolean;
+  isLatest?: boolean;
+}
+
+export interface ParsedQuery {
+  rawQuery: string;
+  cleanKeywords: string[];
+  exactPhrases: string[];
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string;   // YYYY-MM-DD
+  targetMonth?: string; // YYYY-MM
+  targetYear?: number;
+  isEarliestRequest?: boolean;
+  isLatestRequest?: boolean;
+  filterTags: string[];
+  dateExplanation?: string;
+}
+
+export interface CapsuleResponse {
+  query: ParsedQuery;
+  results: RetrievalResult[];
+  synthesis: string;
+  usedAI: boolean;
+  aiError?: string;
+}

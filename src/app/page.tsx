@@ -7,7 +7,7 @@ import { WritingArea } from "@/components/WritingArea";
 import { RecentMemories } from "@/components/RecentMemories";
 import { ArchiveView } from "@/components/ArchiveView";
 import { CalendarView } from "@/components/CalendarView";
-import { PlaceholderView } from "@/components/PlaceholderView";
+import { TimeCapsulesView } from "@/components/TimeCapsulesView";
 import { getSavedEntries, removeEntry } from "@/lib/storage";
 
 export default function HomePage() {
@@ -158,8 +158,9 @@ export default function HomePage() {
         )}
 
         {currentView === "capsules" && (
-          <PlaceholderView
-            view={currentView}
+          <TimeCapsulesView
+            entries={entries}
+            onOpenEntry={handleSelectEntry}
             onReturnToTonight={handleStartNewDraft}
           />
         )}
