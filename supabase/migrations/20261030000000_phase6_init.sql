@@ -110,3 +110,8 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.delete_user_archive() TO authenticated;
 
+-- 7. Table Permissions for authenticated users (enforced by RLS above)
+GRANT ALL ON TABLE public.entries TO authenticated;
+GRANT ALL ON TABLE public.future_letters TO authenticated;
+
+
