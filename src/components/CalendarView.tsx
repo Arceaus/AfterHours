@@ -37,14 +37,12 @@ export function CalendarView({
   onDeleteEntry,
   onWriteForDate,
 }: CalendarViewProps) {
-  // Current calendar viewing state (month: 0-11)
   const today = new Date();
   const [viewYear, setViewYear] = useState<number>(today.getFullYear());
   const [viewMonth, setViewMonth] = useState<number>(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string>(getLocalCalendarDate());
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Map entries by their local calendar date (YYYY-MM-DD)
   const entriesByDate = useMemo(() => {
     const map = new Map<string, DiaryEntry[]>();
     entries.forEach((e) => {
@@ -56,18 +54,13 @@ export function CalendarView({
     return map;
   }, [entries]);
 
-  // Calendar calculations
   const totalDays = getDaysInMonth(viewYear, viewMonth);
-  const firstDayIndex = getFirstDayOfWeek(viewYear, viewMonth); // 0 = Sunday
-  const daysInPrevMonth = getDaysInMonth(
-    viewMonth === 0 ? viewYear - 1 : viewYear,
-    viewMonth === 0 ? 11 : viewMonth - 1
-  );
+  const firstDayIndex = getFirstDayOfWeek(viewYear, viewMonth);
 
   const prevMonth = () => {
     if (viewMonth === 0) {
-      setViewYear((y) => y - 1);
       setViewMonth(11);
+      setViewYear((y) => y - 1);
     } else {
       setViewMonth((m) => m - 1);
     }
@@ -75,75 +68,71 @@ export function CalendarView({
 
   const nextMonth = () => {
     if (viewMonth === 11) {
-      setViewYear((y) => y + 1);
       setViewMonth(0);
+      setViewYear((y) => y + 1);
     } else {
       setViewMonth((m) => m + 1);
     }
   };
 
   const returnToToday = () => {
-    const now = new Date();
-    setViewYear(now.getFullYear());
-    setViewMonth(now.getMonth());
+    const n = new Date();
+    setViewYear(n.getFullYear());
+    setViewMonth(n.getMonth());
     setSelectedDate(getLocalCalendarDate());
   };
 
-  // Entries for the currently selected date
-  const selectedEntries = entriesByDate.get(selectedDate) || [];
-  const selectedDateFormatted = formatLocalCalendarDate(selectedDate);
-
   const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const daysInPrevMonth = getDaysInMonth(
+    viewMonth === 0 ? viewYear - 1 : viewYear,
+    viewMonth === 0 ? 11 : viewMonth - 1
+  );
 
-  // Generate calendar cells (previous month trailing days, current month days, next month leading days)
   const calendarCells = useMemo(() => {
     const cells: {
-      day: number;
       dateStr: string;
+      day: number;
       isCurrentMonth: boolean;
       hasEntries: boolean;
       entryCount: number;
     }[] = [];
 
-    // Preceding days from previous month
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       const day = daysInPrevMonth - i;
-      const prevM = viewMonth === 0 ? 11 : viewMonth - 1;
-      const prevY = viewMonth === 0 ? viewYear - 1 : viewYear;
-      const dateStr = `${prevY}-${String(prevM + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      const m = viewMonth === 0 ? 12 : viewMonth;
+      const y = viewMonth === 0 ? viewYear - 1 : viewYear;
+      const dateStr = `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
       const dayEntries = entriesByDate.get(dateStr) || [];
       cells.push({
-        day,
         dateStr,
+        day,
         isCurrentMonth: false,
         hasEntries: dayEntries.length > 0,
         entryCount: dayEntries.length,
       });
     }
 
-    // Days of current month
-    for (let day = 1; day <= totalDays; day++) {
-      const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    for (let d = 1; d <= totalDays; d++) {
+      const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       const dayEntries = entriesByDate.get(dateStr) || [];
       cells.push({
-        day,
         dateStr,
+        day: d,
         isCurrentMonth: true,
         hasEntries: dayEntries.length > 0,
         entryCount: dayEntries.length,
       });
     }
 
-    // Trailing days to round to complete grid rows
     const remaining = (7 - (cells.length % 7)) % 7;
-    for (let day = 1; day <= remaining; day++) {
-      const nextM = viewMonth === 11 ? 0 : viewMonth + 1;
-      const nextY = viewMonth === 11 ? viewYear + 1 : viewYear;
-      const dateStr = `${nextY}-${String(nextM + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    for (let d = 1; d <= remaining; d++) {
+      const m = viewMonth === 11 ? 1 : viewMonth + 2;
+      const y = viewMonth === 11 ? viewYear + 1 : viewYear;
+      const dateStr = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       const dayEntries = entriesByDate.get(dateStr) || [];
       cells.push({
-        day,
         dateStr,
+        day: d,
         isCurrentMonth: false,
         hasEntries: dayEntries.length > 0,
         entryCount: dayEntries.length,
@@ -153,53 +142,54 @@ export function CalendarView({
     return cells;
   }, [viewYear, viewMonth, totalDays, firstDayIndex, daysInPrevMonth, entriesByDate]);
 
+  const selectedDateFormatted = formatLocalCalendarDate(selectedDate);
+  const selectedEntries = entriesByDate.get(selectedDate) || [];
+
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col py-4 sm:py-6">
+    <div className="w-full max-w-5xl mx-auto space-y-10 py-4 select-none">
       {/* Header */}
-      <header className="mb-8 pb-5 border-b border-[#45373C]/40 flex flex-wrap items-center justify-between gap-4">
+      <header className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#FAF6F0]/[0.08]">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <CalendarIcon className="w-4 h-4 text-[#D78A70]" />
-            <span className="font-sans text-xs tracking-[0.16em] uppercase text-[#A89A98] font-medium">
-              Temporal Rhythm
-            </span>
+          <div className="flex items-center gap-2 mb-2 text-xs uppercase tracking-[0.2em] text-[#D78A70] font-sans">
+            <CalendarIcon className="w-3.5 h-3.5" />
+            <span>Temporal Rhythm</span>
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl text-[#F0E8DF] font-normal tracking-tight">
-            Calendar
-          </h2>
-          <p className="text-xs text-[#A89A98] mt-1 font-sans">
-            Every night holds a quiet space. Explore the days you chose to remember.
+          <h1 className="font-serif text-4xl sm:text-5xl text-[#F7F3EE] font-light">
+            Calendar of Thoughts
+          </h1>
+          <p className="font-serif italic text-base text-[#9E948D] mt-1">
+            Every night holds a quiet space. Explore the moments you chose to preserve.
           </p>
         </div>
 
-        {/* Month Navigation Controls */}
+        {/* Navigation Controls */}
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={returnToToday}
-            className="px-2.5 py-1.5 border border-[#45373C] hover:border-[#D78A70]/60 bg-[#2B2226] text-[#F0E8DF] text-xs font-sans rounded-sm transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D78A70]"
+            className="px-3.5 py-1.5 border border-[#FAF6F0]/[0.08] hover:border-[#D78A70]/50 bg-[#1A1517]/80 text-[#F7F3EE] text-xs font-sans rounded-full transition-colors flex items-center gap-1.5"
             title="Return to current month"
           >
             <RotateCcw className="w-3 h-3 text-[#D78A70]" />
-            <span>This Month</span>
+            <span>Today</span>
           </button>
 
-          <div className="flex items-center border border-[#45373C] rounded-sm bg-[#2B2226]">
+          <div className="flex items-center border border-[#FAF6F0]/[0.08] rounded-full bg-[#1A1517]/80 p-0.5">
             <button
               type="button"
               onClick={prevMonth}
-              className="p-1.5 text-[#A89A98] hover:text-[#F0E8DF] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D78A70] rounded-l-sm"
+              className="p-1.5 text-[#9E948D] hover:text-[#F7F3EE] rounded-full hover:bg-[#FAF6F0]/[0.05] transition-colors"
               aria-label="Previous month"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="px-3 py-1 font-serif text-sm sm:text-base text-[#F0E8DF] min-w-[140px] text-center select-none">
+            <span className="px-3 py-0.5 font-serif text-sm sm:text-base text-[#F7F3EE] min-w-[130px] text-center select-none">
               {formatMonthYear(viewYear, viewMonth)}
             </span>
             <button
               type="button"
               onClick={nextMonth}
-              className="p-1.5 text-[#A89A98] hover:text-[#F0E8DF] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D78A70] rounded-r-sm"
+              className="p-1.5 text-[#9E948D] hover:text-[#F7F3EE] rounded-full hover:bg-[#FAF6F0]/[0.05] transition-colors"
               aria-label="Next month"
             >
               <ChevronRight className="w-4 h-4" />
@@ -211,21 +201,19 @@ export function CalendarView({
       {/* Main Grid & Selected Day Inspector */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Calendar Grid (7 cols) */}
-        <div className="lg:col-span-7 bg-[#2B2226]/30 border border-[#45373C]/40 rounded-sm p-4 sm:p-5">
-          {/* Weekday headers */}
-          <div className="grid grid-cols-7 mb-2 text-center">
+        <div className="lg:col-span-7 bg-[#1A1517]/50 backdrop-blur-xl border border-[#FAF6F0]/[0.08] rounded-2xl p-5 sm:p-6 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
+          <div className="grid grid-cols-7 mb-3 text-center">
             {weekdayNames.map((w) => (
               <span
                 key={w}
-                className="font-sans text-[11px] uppercase tracking-wider text-[#A89A98]/60 py-1"
+                className="font-sans text-[11px] uppercase tracking-wider text-[#9E948D]/60 py-1"
               >
                 {w}
               </span>
             ))}
           </div>
 
-          {/* Day Cells Grid */}
-          <div className="grid grid-cols-7 gap-1.5" role="grid" aria-label="Monthly Calendar">
+          <div className="grid grid-cols-7 gap-2" role="grid" aria-label="Monthly Calendar">
             {calendarCells.map((cell) => {
               const isSelected = selectedDate === cell.dateStr;
               const isCurrentDay = isToday(cell.dateStr);
@@ -237,46 +225,38 @@ export function CalendarView({
                   onClick={() => setSelectedDate(cell.dateStr)}
                   role="gridcell"
                   aria-selected={isSelected}
-                  aria-label={`${cell.dateStr}${cell.hasEntries ? ` (${cell.entryCount} entries)` : ""}`}
-                  className={`min-h-[48px] sm:min-h-[56px] p-1.5 rounded-sm flex flex-col justify-between transition-all relative text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D78A70] ${
+                  className={`min-h-[52px] sm:min-h-[60px] p-2 rounded-xl flex flex-col justify-between transition-all relative text-left ${
                     isSelected
-                      ? "bg-[#3A2D33] border border-[#D78A70] shadow-[0_0_10px_rgba(215,138,112,0.1)]"
+                      ? "bg-[#D78A70]/15 border border-[#D78A70] shadow-[0_0_15px_rgba(215,138,112,0.15)]"
                       : isCurrentDay
-                      ? "border border-[#45373C] bg-[#2B2226]/80 hover:bg-[#342A2F]"
-                      : "border border-transparent hover:bg-[#2B2226]/50 hover:border-[#45373C]/40"
-                  } ${!cell.isCurrentMonth ? "opacity-30" : "opacity-100"}`}
+                      ? "border border-[#FAF6F0]/[0.12] bg-[#FAF6F0]/[0.03] hover:bg-[#FAF6F0]/[0.06]"
+                      : "border border-transparent hover:bg-[#FAF6F0]/[0.03] hover:border-[#FAF6F0]/[0.06]"
+                  } ${!cell.isCurrentMonth ? "opacity-25" : "opacity-100"}`}
                 >
-                  {/* Day Number and Today Indicator */}
                   <div className="flex items-center justify-between w-full">
                     <span
                       className={`text-xs font-mono ${
                         isSelected
-                          ? "text-[#F0E8DF] font-semibold"
+                          ? "text-[#FAF6F0] font-semibold"
                           : isCurrentDay
                           ? "text-[#D78A70] font-medium"
-                          : "text-[#A89A98]"
+                          : "text-[#9E948D]"
                       }`}
                     >
                       {cell.day}
                     </span>
 
                     {isCurrentDay && (
-                      <span
-                        className="text-[9px] uppercase tracking-wider font-sans text-[#D78A70] font-medium px-1 rounded bg-[#D78A70]/10"
-                        title="Today"
-                      >
-                        Today
-                      </span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70]" title="Today" />
                     )}
                   </div>
 
-                  {/* Entry Marker Dot */}
                   <div className="flex items-center gap-1 mt-auto">
                     {cell.hasEntries && (
                       <div className="flex items-center gap-1">
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${
-                            isSelected ? "bg-[#D78A70]" : "bg-[#D78A70]/80"
+                            isSelected ? "bg-[#D78A70]" : "bg-[#D78A70]/70"
                           }`}
                         />
                         {cell.entryCount > 1 && (
@@ -292,123 +272,94 @@ export function CalendarView({
             })}
           </div>
 
-          {/* Legend / Quiet Guidance */}
-          <div className="mt-4 pt-3 border-t border-[#45373C]/30 flex flex-wrap items-center justify-between text-[11px] text-[#A89A98]/60 font-sans gap-3">
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70]" />
-                <span>Memory recorded</span>
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 border border-[#45373C] rounded-sm" />
-                <span>Today</span>
-              </span>
-            </div>
-            <span className="italic font-serif">Click any date to inspect</span>
+          <div className="mt-6 pt-4 border-t border-[#FAF6F0]/[0.06] flex items-center justify-between text-xs text-[#9E948D]/60 font-sans">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70]" />
+              <span>Recorded thought</span>
+            </span>
+            <span>Click any day to inspect</span>
           </div>
         </div>
 
-        {/* Selected Date Inspector (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col">
-          <div className="border border-[#45373C]/40 bg-[#2B2226]/40 p-5 sm:p-6 rounded-sm">
-            {/* Selected Date Header */}
-            <div className="pb-4 mb-4 border-b border-[#45373C]/30 flex items-start justify-between gap-2">
-              <div>
-                <span className="text-[11px] font-sans uppercase tracking-[0.16em] text-[#D78A70] font-medium">
-                  {isToday(selectedDate) ? "Today · Selected Date" : "Selected Date"}
-                </span>
-                <h3 className="font-serif text-2xl text-[#F0E8DF] mt-1">
-                  {selectedDateFormatted.fullDate}
-                </h3>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => onWriteForDate(selectedDate)}
-                className="shrink-0 p-2 text-[#A89A98] hover:text-[#F0E8DF] hover:bg-[#342A2F] border border-[#45373C] rounded transition-colors"
-                title={`Write a memory for ${selectedDateFormatted.fullDate}`}
-                aria-label="Write an entry for this date"
-              >
-                <Feather className="w-4 h-4 text-[#D78A70]" />
-              </button>
+        {/* Selected Day Inspector (5 cols) */}
+        <div className="lg:col-span-5 bg-[#1A1517]/50 backdrop-blur-xl border border-[#FAF6F0]/[0.08] rounded-2xl p-6 sm:p-7 space-y-6 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
+          <div className="flex items-center justify-between pb-3 border-b border-[#FAF6F0]/[0.08]">
+            <div>
+              <span className="font-serif italic text-lg sm:text-xl text-[#D78A70]">
+                {selectedDateFormatted.weekday}, {selectedDateFormatted.monthDay}
+              </span>
+              <p className="text-xs text-[#9E948D] font-mono mt-0.5">
+                {selectedDateFormatted.year}
+              </p>
             </div>
 
-            {/* Entries on this date */}
-            {selectedEntries.length > 0 ? (
-              <div className="space-y-4">
-                <div className="text-xs text-[#A89A98] font-sans flex items-center justify-between">
-                  <span>
-                    {selectedEntries.length} {selectedEntries.length === 1 ? "reflection" : "reflections"} recorded
-                  </span>
-                </div>
+            <button
+              type="button"
+              onClick={() => onWriteForDate(selectedDate)}
+              className="inline-flex items-center gap-1.5 text-xs font-sans text-[#FAF6F0] bg-[#FAF6F0]/[0.06] hover:bg-[#D78A70] hover:text-[#120F10] border border-[#FAF6F0]/[0.08] rounded-full px-3 py-1.5 transition-all"
+            >
+              <Feather className="w-3.5 h-3.5" />
+              <span>Record</span>
+            </button>
+          </div>
 
-                {selectedEntries.map((entry) => {
-                  const displayTitle = deriveDisplayTitle(entry.title, entry.content);
-                  const isDeleting = deletingId === entry.id;
-                  const timeStr = formatTimeFromISO(entry.createdAt);
+          {selectedEntries.length === 0 ? (
+            <div className="py-12 text-center space-y-2">
+              <p className="font-serif italic text-base text-[#9E948D]">
+                No reflection recorded for this date.
+              </p>
+              <p className="text-xs text-[#9E948D]/60">
+                You can write a thought for this day at any time.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {selectedEntries.map((entry) => {
+                const timeStr = formatTimeFromISO(entry.createdAt);
+                const displayTitle = deriveDisplayTitle(entry.title, entry.content);
 
-                  return (
-                    <div
-                      key={entry.id}
-                      className="p-4 border border-[#45373C]/50 hover:border-[#D78A70]/50 bg-[#211A1D]/60 rounded-sm transition-all space-y-2.5"
-                    >
-                      <div className="flex items-center justify-between text-xs text-[#A89A98]/70">
-                        {timeStr ? (
-                          <div className="flex items-center gap-2">
-                            <span className="flex items-center gap-1 font-mono text-[11px]">
-                              <Clock className="w-3 h-3 text-[#A89A98]/50" />
-                              <span>{timeStr}</span>
-                            </span>
-                            {entry.attachments?.length > 0 && (
-                              <span className="flex items-center gap-1 font-mono text-[10px] text-[#D78A70]">
-                                <ImageIcon className="w-3 h-3" />
-                                <span>{entry.attachments.length}</span>
-                              </span>
-                            )}
-                          </div>
-                        ) : entry.attachments?.length > 0 ? (
-                          <span className="flex items-center gap-1 font-mono text-[10px] text-[#D78A70]">
-                            <ImageIcon className="w-3 h-3" />
-                            <span>{entry.attachments.length}</span>
-                          </span>
-                        ) : (
-                          <span />
-                        )}
+                return (
+                  <div
+                    key={entry.id}
+                    className="p-4 bg-[#FAF6F0]/[0.03] hover:bg-[#FAF6F0]/[0.06] border border-[#FAF6F0]/[0.06] rounded-xl transition-all space-y-2"
+                  >
+                    <div className="flex items-center justify-between text-xs text-[#9E948D]">
+                      {timeStr && (
+                        <span className="flex items-center gap-1 font-mono text-[11px]">
+                          <Clock className="w-3 h-3 text-[#9E948D]/50" />
+                          <span>{timeStr}</span>
+                        </span>
+                      )}
 
-                        {entry.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {entry.tags.map((t) => (
-                              <span
-                                key={t}
-                                className="text-[10px] text-[#A89A98] bg-[#2B2226] px-1.5 py-0.5 rounded border border-[#45373C]/40"
-                              >
-                                #{t}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      {entry.attachments?.length > 0 && (
+                        <span className="flex items-center gap-1 font-mono text-[10px] text-[#D78A70]">
+                          <ImageIcon className="w-3 h-3" />
+                          <span>{entry.attachments.length}</span>
+                        </span>
+                      )}
+                    </div>
 
-                      <h4 className="font-serif text-lg text-[#F0E8DF] leading-snug">
-                        {displayTitle}
-                      </h4>
+                    <h4 className="font-serif text-lg text-[#F7F3EE] leading-snug">
+                      {displayTitle}
+                    </h4>
 
-                      <p className="font-writing text-sm text-[#F0E8DF]/80 line-clamp-3 leading-relaxed">
-                        {entry.content || "(No words recorded)"}
-                      </p>
+                    <p className="font-writing text-sm text-[#E5DDD3]/80 line-clamp-3 leading-relaxed">
+                      {entry.content || "(No words recorded)"}
+                    </p>
 
-                      <div className="pt-2 border-t border-[#45373C]/30 flex items-center justify-between text-xs font-sans">
-                        <button
-                          type="button"
-                          onClick={() => onOpenEntry(entry)}
-                          className="inline-flex items-center gap-1.5 text-[#D78A70] hover:text-[#FAF6F0] font-medium transition-colors"
-                        >
-                          <PenLine className="w-3.5 h-3.5" />
-                          <span>Open in editor</span>
-                        </button>
+                    <div className="pt-2 border-t border-[#FAF6F0]/[0.06] flex items-center justify-between text-xs font-sans">
+                      <button
+                        type="button"
+                        onClick={() => onOpenEntry(entry)}
+                        className="inline-flex items-center gap-1.5 text-[#D78A70] hover:text-[#FAF6F0] font-serif italic text-xs transition-colors"
+                      >
+                        <PenLine className="w-3.5 h-3.5" />
+                        <span>Open in editor</span>
+                      </button>
 
-                        {isDeleting ? (
-                          <div className="flex items-center gap-2 bg-[#211A1D] px-2 py-0.5 border border-red-900/50 rounded">
+                      <div>
+                        {deletingId === entry.id ? (
+                          <div className="flex items-center gap-2 bg-[#120F10] px-2 py-0.5 border border-red-900/40 rounded-full">
                             <span className="text-[10px] text-red-300">Delete?</span>
                             <button
                               type="button"
@@ -416,14 +367,14 @@ export function CalendarView({
                                 onDeleteEntry(entry.id);
                                 setDeletingId(null);
                               }}
-                              className="text-xs text-red-400 hover:text-red-300 font-medium px-1"
+                              className="text-xs text-red-400 font-bold"
                             >
                               Yes
                             </button>
                             <button
                               type="button"
                               onClick={() => setDeletingId(null)}
-                              className="text-xs text-[#A89A98] hover:text-[#F0E8DF] px-1"
+                              className="text-xs text-[#9E948D]"
                             >
                               No
                             </button>
@@ -432,43 +383,21 @@ export function CalendarView({
                           <button
                             type="button"
                             onClick={() => setDeletingId(entry.id)}
-                            className="text-[#A89A98]/50 hover:text-red-400 p-1 transition-colors rounded"
+                            className="p-1 text-[#9E948D]/40 hover:text-red-400 transition-colors"
                             title="Delete entry"
-                            aria-label="Delete entry"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              /* Honest, calm empty state */
-              <div className="py-8 text-left space-y-3">
-                <p className="font-serif italic text-lg text-[#F0E8DF]/80">
-                  Nothing written on this day.
-                </p>
-                <p className="font-sans text-xs text-[#A89A98] leading-relaxed">
-                  Some days pass in quiet observation without words. You can record a delayed reflection whenever you wish.
-                </p>
-                <div className="pt-3">
-                  <button
-                    type="button"
-                    onClick={() => onWriteForDate(selectedDate)}
-                    className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#211A1D] border border-[#45373C] hover:border-[#D78A70] text-[#F0E8DF] text-xs font-sans rounded-sm transition-colors"
-                  >
-                    <Feather className="w-3.5 h-3.5 text-[#D78A70]" />
-                    <span>Record a thought for this date</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-

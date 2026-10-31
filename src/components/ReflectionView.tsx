@@ -358,10 +358,10 @@ export function ReflectionView({
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col py-2 sm:py-6">
       {/* Editorial Header */}
-      <header className="mb-8 border-b border-[#45373C]/40 pb-6">
+      <header className="mb-8 border-b border-[#FAF6F0]/[0.06] pb-6">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-[#D78A70] font-sans">
-            <Compass className="w-4 h-4 text-[#D78A70]" />
+          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-[#C87A64] font-sans">
+            <Compass className="w-4 h-4 text-[#C87A64]" />
             <span>Reflection Center</span>
           </div>
 
@@ -369,18 +369,18 @@ export function ReflectionView({
           <button
             type="button"
             onClick={() => setShowConsentModal(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm border border-[#45373C] bg-[#2B2226] hover:border-[#D78A70]/60 text-xs text-[#A89A98] hover:text-[#F0E8DF] transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm border border-[#FAF6F0]/[0.08] bg-[#1B1618] hover:border-[#C87A64]/60 text-xs text-[#9E948D] hover:text-[#F7F3EE] transition-colors"
           >
-            <Shield className="w-3.5 h-3.5 text-[#D78A70]" />
+            <Shield className="w-3.5 h-3.5 text-[#C87A64]" />
             <span>{aiConsent ? "External AI: Active" : "Private Local Analysis"}</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C87A64]" />
           </button>
         </div>
 
-        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#F0E8DF] font-normal tracking-[-0.01em] leading-tight mb-3">
+        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#F7F3EE] font-normal tracking-[-0.01em] leading-tight mb-3">
           Sometimes, looking back helps you see things differently.
         </h1>
-        <p className="font-sans text-sm sm:text-base text-[#A89A98] max-w-2xl leading-relaxed">
+        <p className="font-sans text-sm sm:text-base text-[#9E948D] max-w-2xl leading-relaxed">
           A quiet space to understand recurring topics, observe how your perspectives shifted across months, and explore the subtle threads connecting your memories.
         </p>
 
@@ -405,11 +405,11 @@ export function ReflectionView({
                 }}
                 className={`px-3.5 py-2 rounded-sm text-xs font-sans font-medium transition-all flex items-center gap-2 ${
                   active
-                    ? "bg-[#2B2226] text-[#F0E8DF] border border-[#D78A70]/50"
-                    : "text-[#A89A98] hover:text-[#F0E8DF] hover:bg-[#2B2226]/40 border border-transparent"
+                    ? "bg-[#1B1618] text-[#F7F3EE] border border-[#C87A64]/50"
+                    : "text-[#9E948D] hover:text-[#F7F3EE] hover:bg-[#1B1618]/40 border border-transparent"
                 }`}
               >
-                <span className={active ? "text-[#D78A70]" : "text-[#A89A98]"}>{tab.icon}</span>
+                <span className={active ? "text-[#C87A64]" : "text-[#9E948D]"}>{tab.icon}</span>
                 <span>{tab.label}</span>
               </button>
             );
@@ -419,18 +419,18 @@ export function ReflectionView({
 
       {/* Empty State if 0 entries exist */}
       {entries.length === 0 ? (
-        <div className="p-8 sm:p-12 bg-[#2B2226]/40 border border-[#45373C]/50 rounded-sm text-center max-w-xl mx-auto my-8">
-          <BookOpen className="w-8 h-8 text-[#D78A70] mx-auto mb-4 opacity-70" />
-          <h2 className="font-serif text-2xl text-[#F0E8DF] mb-2 font-normal">
+        <div className="p-8 sm:p-12 bg-[#1B1618]/40 border border-[#FAF6F0]/[0.08] rounded-sm text-center max-w-xl mx-auto my-8">
+          <BookOpen className="w-8 h-8 text-[#C87A64] mx-auto mb-4 opacity-70" />
+          <h2 className="font-serif text-2xl text-[#F7F3EE] mb-2 font-normal">
             Your sanctuary is just beginning.
           </h2>
-          <p className="text-xs text-[#A89A98] leading-relaxed mb-6 font-sans">
+          <p className="text-xs text-[#9E948D] leading-relaxed mb-6 font-sans">
             As you preserve your thoughts over multiple evenings, recurring themes, perspective comparisons, and memory connections will gently reveal themselves here.
           </p>
           <button
             type="button"
             onClick={onReturnToTonight}
-            className="px-4 py-2 bg-[#D78A70] hover:bg-[#D78A70]/90 text-[#211A1D] text-xs font-medium rounded-sm inline-flex items-center gap-2 transition-colors"
+            className="px-4 py-2 bg-[#C87A64] hover:bg-[#C87A64]/90 text-[#130F11] text-xs font-medium rounded-sm inline-flex items-center gap-2 transition-colors"
           >
             <Feather className="w-3.5 h-3.5" />
             <span>Write Tonight&apos;s Entry</span>
@@ -442,13 +442,13 @@ export function ReflectionView({
           {activeTab === "overview" && (
             <div className="space-y-8">
               {/* Question Input */}
-              <div className="p-5 sm:p-6 bg-[#2B2226]/60 border border-[#45373C] rounded-sm space-y-4">
-                <label className="block text-xs uppercase tracking-wider text-[#A89A98] font-sans">
+              <div className="p-5 sm:p-6 bg-[#1B1618]/60 border border-[#FAF6F0]/[0.08] rounded-sm space-y-4">
+                <label className="block text-xs uppercase tracking-wider text-[#9E948D] font-sans">
                   Ask a quiet question about your writing
                 </label>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">
-                    <Search className="w-4 h-4 text-[#A89A98] absolute left-3.5 top-3.5" />
+                    <Search className="w-4 h-4 text-[#9E948D] absolute left-3.5 top-3.5" />
                     <input
                       type="text"
                       value={queryInput}
@@ -457,14 +457,14 @@ export function ReflectionView({
                         if (e.key === "Enter") handleAskQuestion(queryInput);
                       }}
                       placeholder="e.g. What have I written about my goals? Or How have I felt about learning?"
-                      className="w-full bg-[#211A1D] border border-[#45373C] text-[#F0E8DF] pl-10 pr-4 py-2.5 text-xs rounded-sm focus:outline-none focus:border-[#D78A70] font-sans placeholder-[#A89A98]/40"
+                      className="w-full bg-[#130F11] border border-[#FAF6F0]/[0.08] text-[#F7F3EE] pl-10 pr-4 py-2.5 text-xs rounded-sm focus:outline-none focus:border-[#C87A64] font-sans placeholder-[#9E948D]/40"
                     />
                   </div>
                   <button
                     type="button"
                     disabled={isSynthesizing || !queryInput.trim()}
                     onClick={() => handleAskQuestion(queryInput)}
-                    className="px-5 py-2.5 bg-[#D78A70] hover:bg-[#D78A70]/90 disabled:opacity-40 text-[#211A1D] text-xs font-medium rounded-sm transition-colors flex items-center justify-center gap-2"
+                    className="px-5 py-2.5 bg-[#C87A64] hover:bg-[#C87A64]/90 disabled:opacity-40 text-[#130F11] text-xs font-medium rounded-sm transition-colors flex items-center justify-center gap-2"
                   >
                     {isSynthesizing ? (
                       <>
@@ -482,7 +482,7 @@ export function ReflectionView({
 
                 {/* Gentle Suggested Questions (Section 8) */}
                 <div className="pt-2">
-                  <span className="text-[11px] text-[#A89A98]/70 block mb-2 font-sans">
+                  <span className="text-[11px] text-[#9E948D]/70 block mb-2 font-sans">
                     Or explore one of these gentle invitations:
                   </span>
                   <div className="flex flex-wrap gap-2">
@@ -494,7 +494,7 @@ export function ReflectionView({
                           setQueryInput(q);
                           handleAskQuestion(q);
                         }}
-                        className="text-[11px] text-[#A89A98] hover:text-[#F0E8DF] bg-[#211A1D] border border-[#45373C]/60 hover:border-[#D78A70]/40 px-3 py-1.5 rounded-sm transition-colors text-left"
+                        className="text-[11px] text-[#9E948D] hover:text-[#F7F3EE] bg-[#130F11] border border-[#FAF6F0]/[0.08] hover:border-[#C87A64]/40 px-3 py-1.5 rounded-sm transition-colors text-left"
                       >
                         {q}
                       </button>
@@ -507,17 +507,17 @@ export function ReflectionView({
               {activeReflection && (
                 <article
                   aria-label="Reflection result"
-                  className="p-6 sm:p-8 bg-[#2B2226] border border-[#D78A70]/40 rounded-sm space-y-6 shadow-2xl relative animate-fadeIn"
+                  className="p-6 sm:p-8 bg-[#1B1618] border border-[#C87A64]/40 rounded-sm space-y-6 shadow-2xl relative animate-fadeIn"
                 >
-                  <div className="flex items-start justify-between gap-4 border-b border-[#45373C]/40 pb-4">
+                  <div className="flex items-start justify-between gap-4 border-b border-[#FAF6F0]/[0.06] pb-4">
                     <div>
-                      <div className="flex items-center gap-2 text-xs text-[#D78A70] font-sans mb-1">
+                      <div className="flex items-center gap-2 text-xs text-[#C87A64] font-sans mb-1">
                         <Sparkles className="w-3.5 h-3.5" />
                         <span className="uppercase tracking-wider font-mono text-[10px]">
                           {activeReflection.usedAI ? "Grounded AI Synthesis" : "Local Synthesis"}
                         </span>
                       </div>
-                      <h2 className="font-serif text-2xl text-[#F0E8DF] font-normal">
+                      <h2 className="font-serif text-2xl text-[#F7F3EE] font-normal">
                         {activeReflection.title}
                       </h2>
                     </div>
@@ -527,15 +527,15 @@ export function ReflectionView({
                         type="button"
                         disabled={Boolean(activeReflection.savedId)}
                         onClick={handleSaveActiveReflection}
-                        className="px-3 py-1.5 border border-[#45373C] hover:border-[#D78A70] text-xs text-[#F0E8DF] rounded-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                        className="px-3 py-1.5 border border-[#FAF6F0]/[0.08] hover:border-[#C87A64] text-xs text-[#F7F3EE] rounded-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
                       >
-                        <Bookmark className="w-3.5 h-3.5 text-[#D78A70]" />
+                        <Bookmark className="w-3.5 h-3.5 text-[#C87A64]" />
                         <span>{activeReflection.savedId ? "Saved" : "Save"}</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => setActiveReflection(null)}
-                        className="text-[#A89A98] hover:text-[#F0E8DF] p-1.5"
+                        className="text-[#9E948D] hover:text-[#F7F3EE] p-1.5"
                         aria-label="Close reflection"
                       >
                         <X className="w-4 h-4" />
@@ -544,8 +544,8 @@ export function ReflectionView({
                   </div>
 
                   {/* Summary */}
-                  <div className="p-4 bg-[#211A1D] border border-[#45373C]/60 rounded-sm">
-                    <p className="font-serif italic text-base sm:text-lg text-[#F0E8DF] leading-relaxed">
+                  <div className="p-4 bg-[#130F11] border border-[#FAF6F0]/[0.08] rounded-sm">
+                    <p className="font-serif italic text-base sm:text-lg text-[#F7F3EE] leading-relaxed">
                       &ldquo;{activeReflection.data.summary}&rdquo;
                     </p>
                   </div>
@@ -553,13 +553,13 @@ export function ReflectionView({
                   {/* Observations */}
                   {activeReflection.data.observations.length > 0 && (
                     <div className="space-y-2">
-                      <h3 className="text-xs uppercase tracking-wider text-[#A89A98] font-sans">
+                      <h3 className="text-xs uppercase tracking-wider text-[#9E948D] font-sans">
                         Documented Observations
                       </h3>
-                      <ul className="space-y-2 text-xs font-sans text-[#F0E8DF]/90 leading-relaxed">
+                      <ul className="space-y-2 text-xs font-sans text-[#F7F3EE]/90 leading-relaxed">
                         {activeReflection.data.observations.map((obs, i) => (
                           <li key={i} className="flex items-start gap-2.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70] mt-1.5 flex-shrink-0" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#C87A64] mt-1.5 flex-shrink-0" />
                             <span>{obs}</span>
                           </li>
                         ))}
@@ -570,7 +570,7 @@ export function ReflectionView({
                   {/* Evidence / Supporting Diary Excerpts */}
                   {activeReflection.data.evidence.length > 0 && (
                     <div className="space-y-3 pt-2">
-                      <h3 className="text-xs uppercase tracking-wider text-[#A89A98] font-sans">
+                      <h3 className="text-xs uppercase tracking-wider text-[#9E948D] font-sans">
                         Supporting Evidence from your Diary ({activeReflection.data.evidence.length})
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -579,17 +579,17 @@ export function ReflectionView({
                           return (
                             <div
                               key={i}
-                              className="p-3.5 bg-[#211A1D] border border-[#45373C]/60 rounded-sm space-y-2 flex flex-col justify-between"
+                              className="p-3.5 bg-[#130F11] border border-[#FAF6F0]/[0.08] rounded-sm space-y-2 flex flex-col justify-between"
                             >
                               <div>
-                                <div className="flex items-center justify-between text-[11px] text-[#A89A98] mb-1 font-mono">
+                                <div className="flex items-center justify-between text-[11px] text-[#9E948D] mb-1 font-mono">
                                   <span>{formatLocalCalendarDate(ev.entryDate).monthDay}</span>
                                   <span>{formatLocalCalendarDate(ev.entryDate).year}</span>
                                 </div>
-                                <h4 className="font-serif text-sm text-[#F0E8DF] mb-1 line-clamp-1">
+                                <h4 className="font-serif text-sm text-[#F7F3EE] mb-1 line-clamp-1">
                                   {ev.title || "Untitled Reflection"}
                                 </h4>
-                                <p className="text-xs text-[#A89A98] italic font-serif leading-relaxed line-clamp-3">
+                                <p className="text-xs text-[#9E948D] italic font-serif leading-relaxed line-clamp-3">
                                   &ldquo;{ev.excerpt}&rdquo;
                                 </p>
                               </div>
@@ -598,7 +598,7 @@ export function ReflectionView({
                                 <button
                                   type="button"
                                   onClick={() => onOpenEntry(origEntry)}
-                                  className="pt-2 text-left text-[11px] text-[#D78A70] hover:underline flex items-center gap-1 font-sans"
+                                  className="pt-2 text-left text-[11px] text-[#C87A64] hover:underline flex items-center gap-1 font-sans"
                                 >
                                   <span>Open full entry</span>
                                   <ArrowRight className="w-3 h-3" />
@@ -613,19 +613,19 @@ export function ReflectionView({
 
                   {/* Limitations (Honest uncertainty) */}
                   {activeReflection.data.limitations && (
-                    <div className="pt-2 text-xs text-[#A89A98]/70 italic border-t border-[#45373C]/30 flex items-center gap-2">
-                      <HelpCircle className="w-3.5 h-3.5 text-[#D78A70]/60 flex-shrink-0" />
+                    <div className="pt-2 text-xs text-[#9E948D]/70 italic border-t border-[#FAF6F0]/[0.04] flex items-center gap-2">
+                      <HelpCircle className="w-3.5 h-3.5 text-[#C87A64]/60 flex-shrink-0" />
                       <span>{activeReflection.data.limitations}</span>
                     </div>
                   )}
 
                   {/* Reflection Questions to Ponder */}
                   {activeReflection.data.reflectionQuestions.length > 0 && (
-                    <div className="p-4 bg-[#211A1D]/80 border border-[#D78A70]/20 rounded-sm space-y-2">
-                      <span className="text-[11px] uppercase tracking-wider text-[#D78A70] font-sans font-medium block">
+                    <div className="p-4 bg-[#130F11]/80 border border-[#C87A64]/20 rounded-sm space-y-2">
+                      <span className="text-[11px] uppercase tracking-wider text-[#C87A64] font-sans font-medium block">
                         Questions for you to revisit
                       </span>
-                      <ul className="space-y-1.5 text-xs text-[#F0E8DF] font-serif italic">
+                      <ul className="space-y-1.5 text-xs text-[#F7F3EE] font-serif italic">
                         {activeReflection.data.reflectionQuestions.map((q, i) => (
                           <li key={i}>&bull; {q}</li>
                         ))}
@@ -642,17 +642,17 @@ export function ReflectionView({
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="font-serif text-2xl text-[#F0E8DF] font-normal">
+                  <h2 className="font-serif text-2xl text-[#F7F3EE] font-normal">
                     Recurring Personal Patterns
                   </h2>
-                  <p className="text-xs text-[#A89A98] font-sans mt-0.5">
+                  <p className="text-xs text-[#9E948D] font-sans mt-0.5">
                     Topics and ideas that appeared across several entries, discovered purely from your actual writing.
                   </p>
                 </div>
               </div>
 
               {patterns.length === 0 ? (
-                <div className="p-8 text-center text-xs text-[#A89A98] bg-[#2B2226]/30 border border-[#45373C]/50 rounded-sm">
+                <div className="p-8 text-center text-xs text-[#9E948D] bg-[#1B1618]/30 border border-[#FAF6F0]/[0.08] rounded-sm">
                   Not enough recurring topics detected yet. As you write across different days, patterns will automatically appear.
                 </div>
               ) : (
@@ -660,31 +660,31 @@ export function ReflectionView({
                   {patterns.map((pat, idx) => (
                     <div
                       key={idx}
-                      className="p-5 bg-[#2B2226] border border-[#45373C] rounded-sm space-y-3 flex flex-col justify-between"
+                      className="p-5 bg-[#1B1618] border border-[#FAF6F0]/[0.08] rounded-sm space-y-3 flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="font-serif text-lg text-[#F0E8DF]">
+                          <span className="font-serif text-lg text-[#F7F3EE]">
                             #{pat.topic}
                           </span>
                           <span
                             className={`px-2 py-0.5 text-[10px] uppercase font-mono tracking-wider rounded ${
                               pat.frequency === "frequent"
-                                ? "bg-[#D78A70]/20 text-[#D78A70] border border-[#D78A70]/40"
+                                ? "bg-[#C87A64]/20 text-[#C87A64] border border-[#C87A64]/40"
                                 : pat.frequency === "occasional"
                                 ? "bg-amber-500/10 text-amber-300 border border-amber-500/30"
-                                : "bg-[#45373C]/40 text-[#A89A98] border border-[#45373C]"
+                                : "bg-[#FAF6F0]/[0.06] text-[#9E948D] border border-[#FAF6F0]/[0.08]"
                             }`}
                           >
                             {pat.frequency}
                           </span>
                         </div>
-                        <p className="text-xs text-[#A89A98] font-sans leading-relaxed mb-3">
+                        <p className="text-xs text-[#9E948D] font-sans leading-relaxed mb-3">
                           {pat.description}
                         </p>
 
-                        <div className="space-y-2 border-t border-[#45373C]/40 pt-3">
-                          <span className="text-[10px] uppercase tracking-wider text-[#A89A98]/60 block font-mono">
+                        <div className="space-y-2 border-t border-[#FAF6F0]/[0.06] pt-3">
+                          <span className="text-[10px] uppercase tracking-wider text-[#9E948D]/60 block font-mono">
                             Recent Mentions ({formatLocalCalendarDate(pat.firstSeen).monthDay} &rarr; {formatLocalCalendarDate(pat.lastSeen).monthDay})
                           </span>
                           {pat.excerpts.slice(0, 2).map((ex, exIdx) => {
@@ -693,12 +693,12 @@ export function ReflectionView({
                               <div
                                 key={exIdx}
                                 onClick={() => entry && onOpenEntry(entry)}
-                                className="p-2 bg-[#211A1D] hover:bg-[#211A1D]/80 rounded border border-[#45373C]/40 cursor-pointer text-xs transition-colors"
+                                className="p-2 bg-[#130F11] hover:bg-[#130F11]/80 rounded border border-[#FAF6F0]/[0.06] cursor-pointer text-xs transition-colors"
                               >
-                                <span className="font-mono text-[10px] text-[#D78A70] block">
+                                <span className="font-mono text-[10px] text-[#C87A64] block">
                                   {formatLocalCalendarDate(ex.entryDate).fullDate}
                                 </span>
-                                <p className="text-xs text-[#A89A98] italic font-serif line-clamp-2">
+                                <p className="text-xs text-[#9E948D] italic font-serif line-clamp-2">
                                   &ldquo;{ex.excerpt}&rdquo;
                                 </p>
                               </div>
@@ -713,7 +713,7 @@ export function ReflectionView({
                           setPerspectiveTopic(pat.topic);
                           setActiveTab("perspectives");
                         }}
-                        className="pt-2 text-xs text-[#D78A70] hover:underline flex items-center gap-1.5 font-sans"
+                        className="pt-2 text-xs text-[#C87A64] hover:underline flex items-center gap-1.5 font-sans"
                       >
                         <span>Compare changing perspective on #{pat.topic}</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -729,18 +729,18 @@ export function ReflectionView({
           {activeTab === "perspectives" && (
             <div className="space-y-6">
               <div>
-                <h2 className="font-serif text-2xl text-[#F0E8DF] font-normal">
+                <h2 className="font-serif text-2xl text-[#F7F3EE] font-normal">
                   Changing Perspectives
                 </h2>
-                <p className="text-xs text-[#A89A98] font-sans mt-0.5">
+                <p className="text-xs text-[#9E948D] font-sans mt-0.5">
                   Compare how your thoughts regarding a topic shifted across distinct periods of time.
                 </p>
               </div>
 
-              <div className="p-5 sm:p-6 bg-[#2B2226] border border-[#45373C] rounded-sm space-y-4">
+              <div className="p-5 sm:p-6 bg-[#1B1618] border border-[#FAF6F0]/[0.08] rounded-sm space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-[#A89A98] mb-1.5 font-sans">
+                    <label className="block text-xs uppercase tracking-wider text-[#9E948D] mb-1.5 font-sans">
                       Topic or Idea to Compare
                     </label>
                     <input
@@ -748,12 +748,12 @@ export function ReflectionView({
                       value={perspectiveTopic}
                       onChange={(e) => setPerspectiveTopic(e.target.value)}
                       placeholder="e.g. college, work, family, future"
-                      className="w-full bg-[#211A1D] border border-[#45373C] text-[#F0E8DF] px-3.5 py-2 text-xs rounded-sm focus:outline-none focus:border-[#D78A70] font-sans"
+                      className="w-full bg-[#130F11] border border-[#FAF6F0]/[0.08] text-[#F7F3EE] px-3.5 py-2 text-xs rounded-sm focus:outline-none focus:border-[#C87A64] font-sans"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-[#A89A98] mb-1.5 font-sans">
+                    <label className="block text-xs uppercase tracking-wider text-[#9E948D] mb-1.5 font-sans">
                       Comparison Interval
                     </label>
                     <div className="grid grid-cols-3 gap-2">
@@ -768,8 +768,8 @@ export function ReflectionView({
                           onClick={() => setPerspectivePreset(preset.id as any)}
                           className={`py-2 px-2 text-center text-xs font-sans rounded-sm border transition-colors ${
                             perspectivePreset === preset.id
-                              ? "bg-[#D78A70] text-[#211A1D] border-[#D78A70] font-medium"
-                              : "bg-[#211A1D] text-[#A89A98] border-[#45373C] hover:text-[#F0E8DF]"
+                              ? "bg-[#C87A64] text-[#130F11] border-[#C87A64] font-medium"
+                              : "bg-[#130F11] text-[#9E948D] border-[#FAF6F0]/[0.08] hover:text-[#F7F3EE]"
                           }`}
                         >
                           {preset.label}
@@ -783,7 +783,7 @@ export function ReflectionView({
                   type="button"
                   disabled={!perspectiveTopic.trim() || isSynthesizing}
                   onClick={handleAnalyzePerspective}
-                  className="px-5 py-2.5 bg-[#D78A70] hover:bg-[#D78A70]/90 disabled:opacity-40 text-[#211A1D] text-xs font-medium rounded-sm transition-colors flex items-center gap-2"
+                  className="px-5 py-2.5 bg-[#C87A64] hover:bg-[#C87A64]/90 disabled:opacity-40 text-[#130F11] text-xs font-medium rounded-sm transition-colors flex items-center gap-2"
                 >
                   <GitCompare className="w-3.5 h-3.5" />
                   <span>{isSynthesizing ? "Synthesizing..." : "Compare Perspective Periods"}</span>
@@ -792,22 +792,22 @@ export function ReflectionView({
 
               {/* Perspective Result Card (if generated) */}
               {activeReflection && activeReflection.type === "perspective" && (
-                <div className="p-6 bg-[#2B2226] border border-[#D78A70]/40 rounded-sm space-y-4">
-                  <div className="flex items-center justify-between border-b border-[#45373C]/40 pb-3">
-                    <h3 className="font-serif text-xl text-[#F0E8DF]">
+                <div className="p-6 bg-[#1B1618] border border-[#C87A64]/40 rounded-sm space-y-4">
+                  <div className="flex items-center justify-between border-b border-[#FAF6F0]/[0.06] pb-3">
+                    <h3 className="font-serif text-xl text-[#F7F3EE]">
                       {activeReflection.title}
                     </h3>
-                    <span className="text-xs font-mono text-[#D78A70]">
+                    <span className="text-xs font-mono text-[#C87A64]">
                       {activeReflection.dateRangeLabel}
                     </span>
                   </div>
-                  <p className="font-serif italic text-base text-[#F0E8DF] leading-relaxed">
+                  <p className="font-serif italic text-base text-[#F7F3EE] leading-relaxed">
                     &ldquo;{activeReflection.data.summary}&rdquo;
                   </p>
-                  <ul className="space-y-2 text-xs font-sans text-[#A89A98]">
+                  <ul className="space-y-2 text-xs font-sans text-[#9E948D]">
                     {activeReflection.data.observations.map((obs, i) => (
-                      <li key={i} className="flex items-start gap-2 text-[#F0E8DF]/90">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70] mt-1.5 flex-shrink-0" />
+                      <li key={i} className="flex items-start gap-2 text-[#F7F3EE]/90">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#C87A64] mt-1.5 flex-shrink-0" />
                         <span>{obs}</span>
                       </li>
                     ))}
@@ -822,21 +822,21 @@ export function ReflectionView({
             <div className="space-y-6">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <h2 className="font-serif text-2xl text-[#F0E8DF] font-normal">
+                  <h2 className="font-serif text-2xl text-[#F7F3EE] font-normal">
                     Monthly Reflections
                   </h2>
-                  <p className="text-xs text-[#A89A98] font-sans mt-0.5">
+                  <p className="text-xs text-[#9E948D] font-sans mt-0.5">
                     Grounded review of what was actually preserved during a specific calendar month.
                   </p>
                 </div>
 
                 {/* Month Selector */}
                 <div className="flex items-center gap-2">
-                  <label className="text-xs text-[#A89A98] font-sans">Month:</label>
+                  <label className="text-xs text-[#9E948D] font-sans">Month:</label>
                   <select
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="bg-[#2B2226] border border-[#45373C] text-[#F0E8DF] px-3 py-1.5 text-xs rounded-sm focus:outline-none focus:border-[#D78A70] font-sans"
+                    className="bg-[#1B1618] border border-[#FAF6F0]/[0.08] text-[#F7F3EE] px-3 py-1.5 text-xs rounded-sm focus:outline-none focus:border-[#C87A64] font-sans"
                   >
                     {availableMonths.map((m) => (
                       <option key={m} value={m}>
@@ -848,40 +848,40 @@ export function ReflectionView({
               </div>
 
               {monthlyData && (
-                <div className="p-6 sm:p-8 bg-[#2B2226] border border-[#45373C] rounded-sm space-y-6">
-                  <div className="flex items-center justify-between border-b border-[#45373C]/40 pb-4">
+                <div className="p-6 sm:p-8 bg-[#1B1618] border border-[#FAF6F0]/[0.08] rounded-sm space-y-6">
+                  <div className="flex items-center justify-between border-b border-[#FAF6F0]/[0.06] pb-4">
                     <div>
-                      <span className="text-[11px] font-mono text-[#D78A70] uppercase">
+                      <span className="text-[11px] font-mono text-[#C87A64] uppercase">
                         Preserved History
                       </span>
-                      <h3 className="font-serif text-2xl text-[#F0E8DF]">
+                      <h3 className="font-serif text-2xl text-[#F7F3EE]">
                         {monthlyData.monthLabel}
                       </h3>
                     </div>
-                    <span className="px-2.5 py-1 bg-[#211A1D] border border-[#45373C] text-xs font-mono text-[#A89A98] rounded">
+                    <span className="px-2.5 py-1 bg-[#130F11] border border-[#FAF6F0]/[0.08] text-xs font-mono text-[#9E948D] rounded">
                       {monthlyData.entryCount} {monthlyData.entryCount === 1 ? "entry" : "entries"}
                     </span>
                   </div>
 
                   {/* Summary */}
-                  <p className="font-serif italic text-base sm:text-lg text-[#F0E8DF] leading-relaxed p-4 bg-[#211A1D] rounded-sm border border-[#45373C]/40">
+                  <p className="font-serif italic text-base sm:text-lg text-[#F7F3EE] leading-relaxed p-4 bg-[#130F11] rounded-sm border border-[#FAF6F0]/[0.06]">
                     &ldquo;{monthlyData.summary}&rdquo;
                   </p>
 
                   {/* Topics that appeared */}
                   {monthlyData.topics.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="text-xs uppercase tracking-wider text-[#A89A98] font-sans">
+                      <h4 className="text-xs uppercase tracking-wider text-[#9E948D] font-sans">
                         Topics that Appeared
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {monthlyData.topics.map((t, i) => (
                           <span
                             key={i}
-                            className="px-2.5 py-1 bg-[#211A1D] border border-[#45373C]/60 text-xs text-[#F0E8DF] rounded-sm font-sans"
+                            className="px-2.5 py-1 bg-[#130F11] border border-[#FAF6F0]/[0.08] text-xs text-[#F7F3EE] rounded-sm font-sans"
                           >
                             #{t.topic}{" "}
-                            <span className="text-[#A89A98]/60 text-[10px]">({t.count})</span>
+                            <span className="text-[#9E948D]/60 text-[10px]">({t.count})</span>
                           </span>
                         ))}
                       </div>
@@ -891,7 +891,7 @@ export function ReflectionView({
                   {/* Memorable Moments */}
                   {monthlyData.memorableMoments.length > 0 && (
                     <div className="space-y-3">
-                      <h4 className="text-xs uppercase tracking-wider text-[#A89A98] font-sans">
+                      <h4 className="text-xs uppercase tracking-wider text-[#9E948D] font-sans">
                         Documented Moments ({monthlyData.memorableMoments.length})
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -900,22 +900,22 @@ export function ReflectionView({
                           return (
                             <div
                               key={i}
-                              className="p-3.5 bg-[#211A1D] border border-[#45373C]/50 rounded-sm space-y-1.5"
+                              className="p-3.5 bg-[#130F11] border border-[#FAF6F0]/[0.08] rounded-sm space-y-1.5"
                             >
-                              <span className="font-mono text-[10px] text-[#D78A70]">
+                              <span className="font-mono text-[10px] text-[#C87A64]">
                                 {formatLocalCalendarDate(m.entryDate).fullDate}
                               </span>
-                              <h5 className="font-serif text-sm text-[#F0E8DF]">
+                              <h5 className="font-serif text-sm text-[#F7F3EE]">
                                 {m.title}
                               </h5>
-                              <p className="text-xs text-[#A89A98] italic font-serif line-clamp-2">
+                              <p className="text-xs text-[#9E948D] italic font-serif line-clamp-2">
                                 &ldquo;{m.excerpt}&rdquo;
                               </p>
                               {orig && (
                                 <button
                                   type="button"
                                   onClick={() => onOpenEntry(orig)}
-                                  className="text-[11px] text-[#D78A70] hover:underline pt-1 inline-flex items-center gap-1 font-sans"
+                                  className="text-[11px] text-[#C87A64] hover:underline pt-1 inline-flex items-center gap-1 font-sans"
                                 >
                                   <span>View full reflection</span>
                                   <ArrowRight className="w-3 h-3" />
@@ -930,11 +930,11 @@ export function ReflectionView({
 
                   {/* Questions to Revisit */}
                   {monthlyData.questionsToRevisit.length > 0 && (
-                    <div className="p-4 bg-[#211A1D]/60 border border-[#D78A70]/20 rounded-sm space-y-1.5">
-                      <span className="text-[11px] uppercase tracking-wider text-[#D78A70] font-sans font-medium">
+                    <div className="p-4 bg-[#130F11]/60 border border-[#C87A64]/20 rounded-sm space-y-1.5">
+                      <span className="text-[11px] uppercase tracking-wider text-[#C87A64] font-sans font-medium">
                         Looking back
                       </span>
-                      <ul className="space-y-1 text-xs text-[#F0E8DF] font-serif italic">
+                      <ul className="space-y-1 text-xs text-[#F7F3EE] font-serif italic">
                         {monthlyData.questionsToRevisit.map((q, i) => (
                           <li key={i}>&bull; {q}</li>
                         ))}
@@ -950,16 +950,16 @@ export function ReflectionView({
           {activeTab === "connections" && (
             <div className="space-y-6">
               <div>
-                <h2 className="font-serif text-2xl text-[#F0E8DF] font-normal">
+                <h2 className="font-serif text-2xl text-[#F7F3EE] font-normal">
                   Memory Connections
                 </h2>
-                <p className="text-xs text-[#A89A98] font-sans mt-0.5">
+                <p className="text-xs text-[#9E948D] font-sans mt-0.5">
                   Subtle thematic links and shared ideas discovered across entries recorded days or months apart.
                 </p>
               </div>
 
               {connections.length === 0 ? (
-                <div className="p-8 text-center text-xs text-[#A89A98] bg-[#2B2226]/30 border border-[#45373C]/50 rounded-sm">
+                <div className="p-8 text-center text-xs text-[#9E948D] bg-[#1B1618]/30 border border-[#FAF6F0]/[0.08] rounded-sm">
                   No memory connections detected yet. Connections appear when distinct thoughts or tags span across different weeks.
                 </div>
               ) : (
@@ -971,15 +971,15 @@ export function ReflectionView({
                     return (
                       <div
                         key={conn.id}
-                        className="p-5 bg-[#2B2226] border border-[#45373C] rounded-sm space-y-4"
+                        className="p-5 bg-[#1B1618] border border-[#FAF6F0]/[0.08] rounded-sm space-y-4"
                       >
-                        <div className="flex items-center justify-between border-b border-[#45373C]/40 pb-2.5">
+                        <div className="flex items-center justify-between border-b border-[#FAF6F0]/[0.06] pb-2.5">
                           <div className="flex items-center gap-2.5">
-                            <Sparkles className="w-4 h-4 text-[#D78A70]" />
-                            <span className="font-serif text-base text-[#F0E8DF]">
+                            <Sparkles className="w-4 h-4 text-[#C87A64]" />
+                            <span className="font-serif text-base text-[#F7F3EE]">
                               Theme: {conn.theme}
                             </span>
-                            <span className="px-2 py-0.5 bg-[#211A1D] border border-[#45373C] text-[10px] font-mono text-[#A89A98] rounded">
+                            <span className="px-2 py-0.5 bg-[#130F11] border border-[#FAF6F0]/[0.08] text-[10px] font-mono text-[#9E948D] rounded">
                               {conn.confidence}
                             </span>
                           </div>
@@ -987,34 +987,34 @@ export function ReflectionView({
                           <button
                             type="button"
                             onClick={() => handleDismissConnection(conn.id)}
-                            className="text-xs text-[#A89A98] hover:text-red-400 transition-colors"
+                            className="text-xs text-[#9E948D] hover:text-red-400 transition-colors"
                             title="Dismiss connection"
                           >
                             Dismiss
                           </button>
                         </div>
 
-                        <p className="text-xs text-[#A89A98] font-sans">
+                        <p className="text-xs text-[#9E948D] font-sans">
                           {conn.explanation}
                         </p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {/* Entry A */}
-                          <div className="p-3 bg-[#211A1D] border border-[#45373C]/40 rounded-sm space-y-1">
-                            <span className="font-mono text-[10px] text-[#D78A70]">
+                          <div className="p-3 bg-[#130F11] border border-[#FAF6F0]/[0.06] rounded-sm space-y-1">
+                            <span className="font-mono text-[10px] text-[#C87A64]">
                               {formatLocalCalendarDate(conn.entryA.entryDate).fullDate}
                             </span>
-                            <h4 className="font-serif text-sm text-[#F0E8DF] line-clamp-1">
+                            <h4 className="font-serif text-sm text-[#F7F3EE] line-clamp-1">
                               {conn.entryA.title}
                             </h4>
-                            <p className="text-xs text-[#A89A98] italic font-serif line-clamp-2">
+                            <p className="text-xs text-[#9E948D] italic font-serif line-clamp-2">
                               &ldquo;{conn.entryA.excerpt}&rdquo;
                             </p>
                             {entryA && (
                               <button
                                 type="button"
                                 onClick={() => onOpenEntry(entryA)}
-                                className="text-[11px] text-[#D78A70] hover:underline pt-1 inline-flex items-center gap-1 font-sans"
+                                className="text-[11px] text-[#C87A64] hover:underline pt-1 inline-flex items-center gap-1 font-sans"
                               >
                                 <span>Inspect Entry</span>
                                 <ArrowRight className="w-3 h-3" />
@@ -1023,21 +1023,21 @@ export function ReflectionView({
                           </div>
 
                           {/* Entry B */}
-                          <div className="p-3 bg-[#211A1D] border border-[#45373C]/40 rounded-sm space-y-1">
-                            <span className="font-mono text-[10px] text-[#D78A70]">
+                          <div className="p-3 bg-[#130F11] border border-[#FAF6F0]/[0.06] rounded-sm space-y-1">
+                            <span className="font-mono text-[10px] text-[#C87A64]">
                               {formatLocalCalendarDate(conn.entryB.entryDate).fullDate}
                             </span>
-                            <h4 className="font-serif text-sm text-[#F0E8DF] line-clamp-1">
+                            <h4 className="font-serif text-sm text-[#F7F3EE] line-clamp-1">
                               {conn.entryB.title}
                             </h4>
-                            <p className="text-xs text-[#A89A98] italic font-serif line-clamp-2">
+                            <p className="text-xs text-[#9E948D] italic font-serif line-clamp-2">
                               &ldquo;{conn.entryB.excerpt}&rdquo;
                             </p>
                             {entryB && (
                               <button
                                 type="button"
                                 onClick={() => onOpenEntry(entryB)}
-                                className="text-[11px] text-[#D78A70] hover:underline pt-1 inline-flex items-center gap-1 font-sans"
+                                className="text-[11px] text-[#C87A64] hover:underline pt-1 inline-flex items-center gap-1 font-sans"
                               >
                                 <span>Inspect Entry</span>
                                 <ArrowRight className="w-3 h-3" />
@@ -1057,16 +1057,16 @@ export function ReflectionView({
           {activeTab === "history" && (
             <div className="space-y-6">
               <div>
-                <h2 className="font-serif text-2xl text-[#F0E8DF] font-normal">
+                <h2 className="font-serif text-2xl text-[#F7F3EE] font-normal">
                   Saved Reflections History
                 </h2>
-                <p className="text-xs text-[#A89A98] font-sans mt-0.5">
+                <p className="text-xs text-[#9E948D] font-sans mt-0.5">
                   Reflections and perspectives you chose to preserve.
                 </p>
               </div>
 
               {reflections.length === 0 ? (
-                <div className="p-8 text-center text-xs text-[#A89A98] bg-[#2B2226]/30 border border-[#45373C]/50 rounded-sm">
+                <div className="p-8 text-center text-xs text-[#9E948D] bg-[#1B1618]/30 border border-[#FAF6F0]/[0.08] rounded-sm">
                   You haven&apos;t saved any reflections yet. When you generate a reflection or perspective comparison, click &ldquo;Save&rdquo; to keep it here.
                 </div>
               ) : (
@@ -1080,26 +1080,26 @@ export function ReflectionView({
                     return (
                       <div
                         key={ref.id}
-                        className="p-5 bg-[#2B2226] border border-[#45373C] rounded-sm space-y-3"
+                        className="p-5 bg-[#1B1618] border border-[#FAF6F0]/[0.08] rounded-sm space-y-3"
                       >
-                        <div className="flex items-center justify-between border-b border-[#45373C]/40 pb-2.5">
+                        <div className="flex items-center justify-between border-b border-[#FAF6F0]/[0.06] pb-2.5">
                           <div className="flex items-center gap-2">
-                            <span className="font-serif text-lg text-[#F0E8DF]">
+                            <span className="font-serif text-lg text-[#F7F3EE]">
                               {ref.title}
                             </span>
-                            <span className="px-2 py-0.5 bg-[#211A1D] border border-[#45373C] text-[10px] font-mono uppercase text-[#D78A70] rounded">
+                            <span className="px-2 py-0.5 bg-[#130F11] border border-[#FAF6F0]/[0.08] text-[10px] font-mono uppercase text-[#C87A64] rounded">
                               {ref.type}
                             </span>
                           </div>
 
                           <div className="flex items-center gap-3">
-                            <span className="text-[11px] font-mono text-[#A89A98]">
+                            <span className="text-[11px] font-mono text-[#9E948D]">
                               {formatLocalCalendarDate(ref.createdAt.split("T")[0]).fullDate}
                             </span>
                             <button
                               type="button"
                               onClick={() => deleteReflection(ref.id)}
-                              className="text-[#A89A98] hover:text-red-400 p-1"
+                              className="text-[#9E948D] hover:text-red-400 p-1"
                               title="Delete saved reflection"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1107,7 +1107,7 @@ export function ReflectionView({
                           </div>
                         </div>
 
-                        <p className="font-serif italic text-sm text-[#F0E8DF]/90 leading-relaxed">
+                        <p className="font-serif italic text-sm text-[#F7F3EE]/90 leading-relaxed">
                           &ldquo;{ref.reflection.summary}&rdquo;
                         </p>
 
@@ -1132,7 +1132,7 @@ export function ReflectionView({
                                 savedId: ref.id,
                               })
                             }
-                            className="text-xs text-[#D78A70] hover:underline flex items-center gap-1 font-sans"
+                            className="text-xs text-[#C87A64] hover:underline flex items-center gap-1 font-sans"
                           >
                             <span>Inspect full reflection & evidence</span>
                             <ArrowRight className="w-3.5 h-3.5" />
@@ -1150,29 +1150,29 @@ export function ReflectionView({
 
       {/* PRIVACY & INFORMED CONSENT MODAL (Section 10) */}
       {showConsentModal && (
-        <div className="fixed inset-0 z-50 bg-[#211A1D]/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#2B2226] border border-[#45373C] max-w-lg w-full p-6 sm:p-8 rounded-sm space-y-5 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 bg-[#130F11]/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1B1618] border border-[#FAF6F0]/[0.08] max-w-lg w-full p-6 sm:p-8 rounded-sm space-y-5 shadow-2xl relative">
             <button
               type="button"
               onClick={() => setShowConsentModal(false)}
-              className="absolute top-5 right-5 text-[#A89A98] hover:text-[#F0E8DF]"
+              className="absolute top-5 right-5 text-[#9E948D] hover:text-[#F7F3EE]"
               aria-label="Close modal"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-2.5 text-[#D78A70]">
+            <div className="flex items-center gap-2.5 text-[#C87A64]">
               <Shield className="w-5 h-5" />
-              <h3 className="font-serif text-xl text-[#F0E8DF]">
+              <h3 className="font-serif text-xl text-[#F7F3EE]">
                 Privacy & AI Processing Consent
               </h3>
             </div>
 
-            <p className="text-xs text-[#A89A98] leading-relaxed font-sans">
+            <p className="text-xs text-[#9E948D] leading-relaxed font-sans">
               Diary entries are deeply personal records. AFTERTHOUGHT operates with strict boundaries regarding how your memories are handled.
             </p>
 
-            <div className="p-4 bg-[#211A1D] border border-[#45373C]/60 rounded-sm space-y-2 text-xs font-sans text-[#A89A98]">
+            <div className="p-4 bg-[#130F11] border border-[#FAF6F0]/[0.08] rounded-sm space-y-2 text-xs font-sans text-[#9E948D]">
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
                 <span>
@@ -1194,12 +1194,12 @@ export function ReflectionView({
             </div>
 
             {/* Toggle */}
-            <div className="pt-2 flex items-center justify-between border-t border-[#45373C]/40">
+            <div className="pt-2 flex items-center justify-between border-t border-[#FAF6F0]/[0.06]">
               <div>
-                <span className="text-xs font-medium text-[#F0E8DF] block font-sans">
+                <span className="text-xs font-medium text-[#F7F3EE] block font-sans">
                   External AI Reflection Synthesis
                 </span>
-                <span className="text-[11px] text-[#A89A98] font-sans">
+                <span className="text-[11px] text-[#9E948D] font-sans">
                   Requires server API key (Google Gemini)
                 </span>
               </div>
@@ -1208,7 +1208,7 @@ export function ReflectionView({
                 type="button"
                 onClick={() => handleToggleConsent(!aiConsent)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  aiConsent ? "bg-[#D78A70]" : "bg-[#45373C]"
+                  aiConsent ? "bg-[#C87A64]" : "bg-[#FAF6F0]/[0.08]"
                 }`}
               >
                 <span
@@ -1223,7 +1223,7 @@ export function ReflectionView({
               <button
                 type="button"
                 onClick={() => setShowConsentModal(false)}
-                className="px-4 py-2 bg-[#D78A70] text-[#211A1D] font-medium text-xs rounded-sm hover:bg-[#D78A70]/90 transition-colors"
+                className="px-4 py-2 bg-[#C87A64] text-[#130F11] font-medium text-xs rounded-sm hover:bg-[#C87A64]/90 transition-colors"
               >
                 Confirm Preferences
               </button>

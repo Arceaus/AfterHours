@@ -3,15 +3,15 @@ import "./globals.css";
 import { AppProviders } from "@/components/AppProviders";
 
 export const viewport: Viewport = {
-  themeColor: "#211A1D",
+  themeColor: "#130F11",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
 };
 
 export const metadata: Metadata = {
-  title: "AFTERTHOUGHT — The Last Room Awake",
-  description: "A little corner of the internet that belongs only to you. A personal diary for nocturnal thoughts.",
+  title: "AFTERTHOUGHT — A World That Feels Like Your Thoughts",
+  description: "A private, atmospheric personal sanctuary for your reflections and memories.",
   icons: {
     icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>",
   },
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark bg-[#211A1D]" suppressHydrationWarning>
+    <html lang="en" className="dark bg-[#130F11]" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -33,7 +33,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className="bg-[#211A1D] text-[#F0E8DF] antialiased min-h-screen selection:bg-[#D78A70]/30 selection:text-[#FAF6F0] overflow-x-hidden"
+        className="bg-[#130F11] text-[#F7F3EE] antialiased min-h-screen selection:bg-[#C87A64]/30 selection:text-[#FAF6F2] overflow-x-hidden"
         suppressHydrationWarning
       >
         <AppProviders>{children}</AppProviders>

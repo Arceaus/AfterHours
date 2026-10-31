@@ -310,3 +310,42 @@ CREATE POLICY "Users can delete their own attachments" ON public.entry_attachmen
     FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 GRANT ALL ON TABLE public.entry_attachments TO anon, authenticated;
+
+
+-- 6. PHASE 9: STORAGE BUCKET & POLICIES (diary-attachments)
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+    'diary-attachments',
+    'diary-attachments',
+    false, -- private bucket, signed URLs only
+    10485760, -- 10MB limit
+    ARRAY['image/jpeg', 'image/png', 'image/webp']
+)
+ON CONFLICT (id) DO UPDATE SET
+    public = false,
+    file_size_limit = 10485760,
+    allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/webp'];
+
+DROP POLICY IF EXISTS "Users can upload their own diary attachments" ON storage.objects;
+CREATE POLICY "Users can upload their own diary attachments" ON storage.objects
+    FOR INSERT TO authenticated
+    WITH CHECK (
+        bucket_id = 'diary-attachments' AND
+        (storage.foldername(name))[1] = auth.uid()::text
+    );
+
+DROP POLICY IF EXISTS "Users can view their own diary attachments" ON storage.objects;
+CREATE POLICY "Users can view their own diary attachments" ON storage.objects
+    FOR SELECT TO authenticated
+    USING (
+        bucket_id = 'diary-attachments' AND
+        (storage.foldername(name))[1] = auth.uid()::text
+    );
+
+DROP POLICY IF EXISTS "Users can delete their own diary attachments" ON storage.objects;
+CREATE POLICY "Users can delete their own diary attachments" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (
+        bucket_id = 'diary-attachments' AND
+        (storage.foldername(name))[1] = auth.uid()::text
+    );

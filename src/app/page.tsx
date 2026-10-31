@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { NavView, DiaryEntry } from "@/types/entry";
-import { NavigationRail } from "@/components/NavigationRail";
+import { SpatialNav } from "@/components/SpatialNav";
+import { ThoughtWorldCanvas } from "@/components/canvas/ThoughtWorldCanvas";
 import { WritingArea } from "@/components/WritingArea";
-import { RecentMemories } from "@/components/RecentMemories";
 import { ArchiveView } from "@/components/ArchiveView";
 import { CalendarView } from "@/components/CalendarView";
 import { TimeCapsulesView } from "@/components/TimeCapsulesView";
@@ -14,6 +14,8 @@ import { MemoryUniverseView } from "@/components/MemoryUniverseView";
 import { MigrationBanner } from "@/components/MigrationBanner";
 import { AccountModal } from "@/components/AccountModal";
 import { useRepository } from "@/lib/repository/RepositoryContext";
+import { Bookmark, X, PenLine } from "lucide-react";
+import { formatLocalCalendarDate, deriveDisplayTitle } from "@/lib/date";
 
 export default function HomePage() {
   const { entries, deleteEntry, refreshEntries, mode } = useRepository();
@@ -22,6 +24,8 @@ export default function HomePage() {
   const [customDate, setCustomDate] = useState<string | null>(null);
   const [focusMode, setFocusMode] = useState<boolean>(false);
   const [wordCount, setWordCount] = useState<number>(0);
+  const [isWriting, setIsWriting] = useState<boolean>(false);
+  const [isEchoDrawerOpen, setIsEchoDrawerOpen] = useState<boolean>(false);
   const [notification, setNotification] = useState<string | null>(null);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
 
@@ -54,6 +58,7 @@ export default function HomePage() {
     setActiveEntryId(entry.id);
     setCustomDate(null);
     setCurrentView("tonight");
+    setIsEchoDrawerOpen(false);
   };
 
   const handleStartNewDraft = () => {
@@ -69,37 +74,38 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#211A1D] text-[#F0E8DF] flex flex-col md:flex-row relative selection:bg-[#D78A70]/30 selection:text-[#FAF6F0]">
-      {/* Subtle ambient lighting vignette in the corner - purely soft, no neon */}
+    <div className="min-h-screen bg-[#130F11] text-[#F0E8DF] relative selection:bg-[#D78A70]/30 selection:text-[#FAF6F0] overflow-x-hidden font-sans">
+      {/* 1. Signature Abstract 3D Environment Canvas */}
+      <ThoughtWorldCanvas isWriting={isWriting || focusMode} />
+
+      {/* 2. Environmental Lighting & Atmosphere Vignette */}
       <div
         aria-hidden="true"
-        className="fixed top-0 right-0 w-[500px] h-[500px] bg-gradient-to-b from-[#2B2226]/40 via-transparent to-transparent pointer-events-none -z-10 blur-3xl opacity-60"
+        className="fixed inset-0 pointer-events-none z-0 bg-radial-gradient from-transparent via-[#130F11]/40 to-[#130F11]/90"
       />
 
-      {/* Navigation Rail */}
-      <NavigationRail
+      {/* 3. Floating Spatial Navigation Dock */}
+      <SpatialNav
         currentView={currentView}
-        onSelectView={(v) => {
-          setCurrentView(v);
-        }}
+        onSelectView={(v) => setCurrentView(v)}
         focusMode={focusMode}
         onToggleFocusMode={() => setFocusMode(!focusMode)}
         wordCount={wordCount}
         onOpenAccountModal={() => setIsAccountOpen(true)}
       />
 
-      {/* Main Sanctuary Area */}
-      <main className="flex-1 min-w-0 flex flex-col px-6 sm:px-10 lg:px-14 py-8 sm:py-12 lg:py-14 max-w-7xl">
-        {/* Local Data Migration Banner (if cloud user has local records) */}
+      {/* 4. Main Spatial Canvas */}
+      <main className="relative z-10 min-h-screen pt-24 sm:pt-28 pb-16 px-5 sm:px-8 md:px-12 max-w-6xl mx-auto flex flex-col">
+        {/* Local Data Migration Banner */}
         <MigrationBanner />
 
-        {/* Subtle tranquil notification */}
+        {/* Quiet Notification Banner */}
         {notification && (
           <div
             role="status"
-            className="mb-8 p-3.5 bg-[#2B2226] border border-[#D78A70]/40 text-[#F0E8DF] text-xs font-sans rounded-sm flex items-center justify-between animate-fadeIn"
+            className="mb-8 p-3.5 bg-[#1F191B]/85 backdrop-blur-md border border-[#D78A70]/40 text-[#F0E8DF] text-xs font-sans rounded-full max-w-md mx-auto flex items-center justify-between shadow-xl animate-fadeIn"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pl-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70]" />
               <span>{notification}</span>
             </div>
@@ -113,88 +119,168 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* View Switcher */}
+        {/* Views */}
         {currentView === "tonight" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-            {/* Writing Area: Primary column (spacious 8 of 12 cols on desktop) */}
-            <div
-              className={`transition-all duration-300 ${
-                focusMode ? "lg:col-span-12 max-w-4xl mx-auto" : "lg:col-span-8"
-              }`}
-            >
-              <WritingArea
-                activeEntryId={activeEntryId}
-                customDate={customDate}
-                focusMode={focusMode}
-                onToggleFocusMode={() => setFocusMode(!focusMode)}
-                onWordCountChange={setWordCount}
-                onEntrySaved={handleEntrySaved}
-                onEntryDeleted={handleEntryDeleted}
-                onStartNewDraft={handleStartNewDraft}
-              />
-            </div>
+          <div className="w-full flex-1 flex flex-col justify-center animate-fadeIn">
+            <WritingArea
+              activeEntryId={activeEntryId}
+              customDate={customDate}
+              focusMode={focusMode}
+              onToggleFocusMode={() => setFocusMode(!focusMode)}
+              onWordCountChange={setWordCount}
+              onWritingStateChange={setIsWriting}
+              onEntrySaved={handleEntrySaved}
+              onEntryDeleted={handleEntryDeleted}
+              onStartNewDraft={handleStartNewDraft}
+            />
 
-            {/* Asymmetric Aside: Recent Memories (4 of 12 cols on desktop) */}
-            {!focusMode && (
-              <div className="lg:col-span-4 pt-4 lg:pt-0 border-t lg:border-t-0 lg:border-l border-[#45373C]/40 lg:pl-10">
-                <RecentMemories
-                  entries={entries}
-                  activeEntryId={activeEntryId}
-                  onSelectEntry={handleSelectEntry}
-                />
+            {/* Subtle Echoes Floating Pill (Quick glance at recent memories without cluttering canvas) */}
+            {!focusMode && entries.length > 0 && (
+              <div className="fixed bottom-6 right-6 z-30">
+                <button
+                  type="button"
+                  onClick={() => setIsEchoDrawerOpen(true)}
+                  className="flex items-center gap-2 px-3.5 py-1.5 bg-[#1A1517]/80 hover:bg-[#2B2226] backdrop-blur-xl border border-[#FAF6F0]/[0.08] hover:border-[#D78A70]/50 rounded-full text-xs text-[#A89A98] hover:text-[#FAF6F0] shadow-lg transition-all"
+                  title="Peek at recent thoughts"
+                >
+                  <Bookmark className="w-3.5 h-3.5 text-[#D78A70]" />
+                  <span>Echoes ({Math.min(entries.length, 5)})</span>
+                </button>
               </div>
             )}
           </div>
         )}
 
         {currentView === "archive" && (
-          <ArchiveView
-            entries={entries}
-            onOpenEntry={handleSelectEntry}
-            onDeleteEntry={handleEntryDeleted}
-            onReturnToTonight={handleStartNewDraft}
-          />
+          <div className="w-full flex-1 animate-fadeIn">
+            <ArchiveView
+              entries={entries}
+              onOpenEntry={handleSelectEntry}
+              onDeleteEntry={handleEntryDeleted}
+              onReturnToTonight={handleStartNewDraft}
+            />
+          </div>
         )}
 
         {currentView === "calendar" && (
-          <CalendarView
-            entries={entries}
-            onOpenEntry={handleSelectEntry}
-            onDeleteEntry={handleEntryDeleted}
-            onWriteForDate={handleWriteForDate}
-          />
+          <div className="w-full flex-1 animate-fadeIn">
+            <CalendarView
+              entries={entries}
+              onOpenEntry={handleSelectEntry}
+              onDeleteEntry={handleEntryDeleted}
+              onWriteForDate={handleWriteForDate}
+            />
+          </div>
         )}
 
         {currentView === "capsules" && (
-          <TimeCapsulesView
-            entries={entries}
-            onOpenEntry={handleSelectEntry}
-            onReturnToTonight={handleStartNewDraft}
-          />
+          <div className="w-full flex-1 animate-fadeIn">
+            <TimeCapsulesView
+              entries={entries}
+              onOpenEntry={handleSelectEntry}
+              onReturnToTonight={handleStartNewDraft}
+            />
+          </div>
         )}
 
         {currentView === "letters" && (
-          <FutureLettersView
-            onReturnToTonight={handleStartNewDraft}
-          />
+          <div className="w-full flex-1 animate-fadeIn">
+            <FutureLettersView
+              onReturnToTonight={handleStartNewDraft}
+            />
+          </div>
         )}
 
         {currentView === "reflection" && (
-          <ReflectionView
-            entries={entries}
-            onOpenEntry={handleSelectEntry}
-            onReturnToTonight={handleStartNewDraft}
-          />
+          <div className="w-full flex-1 animate-fadeIn">
+            <ReflectionView
+              entries={entries}
+              onOpenEntry={handleSelectEntry}
+              onReturnToTonight={handleStartNewDraft}
+            />
+          </div>
         )}
 
         {currentView === "universe" && (
-          <MemoryUniverseView
-            entries={entries}
-            onOpenEntry={handleSelectEntry}
-            onReturnToTonight={handleStartNewDraft}
-          />
+          <div className="w-full flex-1 animate-fadeIn">
+            <MemoryUniverseView
+              entries={entries}
+              onOpenEntry={handleSelectEntry}
+              onReturnToTonight={handleStartNewDraft}
+            />
+          </div>
         )}
       </main>
+
+      {/* Floating Recent Echoes Slide-Over Drawer */}
+      {isEchoDrawerOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-[#120F10]/70 backdrop-blur-sm flex justify-end animate-fadeIn"
+          onClick={() => setIsEchoDrawerOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm h-full bg-[#181315]/95 border-l border-[#FAF6F0]/[0.08] p-6 flex flex-col justify-between overflow-y-auto shadow-2xl animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-[#FAF6F0]/[0.08] mb-6">
+                <div className="flex items-center gap-2">
+                  <Bookmark className="w-4 h-4 text-[#D78A70]" />
+                  <h3 className="font-serif text-lg text-[#FAF6F0]">Recent Echoes</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEchoDrawerOpen(false)}
+                  className="p-1 text-[#A89A98] hover:text-[#FAF6F0]"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {entries.slice(0, 6).map((entry) => {
+                  const dateObj = formatLocalCalendarDate(entry.entryDate);
+                  const displayTitle = deriveDisplayTitle(entry.title, entry.content);
+
+                  return (
+                    <div
+                      key={entry.id}
+                      onClick={() => handleSelectEntry(entry)}
+                      className="p-3.5 bg-[#FAF6F0]/[0.03] hover:bg-[#FAF6F0]/[0.07] border border-[#FAF6F0]/[0.06] hover:border-[#D78A70]/40 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="flex items-center justify-between text-[11px] text-[#A89A98]/70 mb-1">
+                        <span className="font-serif italic text-[#D78A70]">
+                          {dateObj.monthDay}, {dateObj.year}
+                        </span>
+                        <PenLine className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-[#D78A70]" />
+                      </div>
+                      <h4 className="font-serif text-sm text-[#F0E8DF] line-clamp-1">
+                        {displayTitle}
+                      </h4>
+                      <p className="font-sans text-xs text-[#A89A98] line-clamp-2 mt-1 leading-relaxed">
+                        {entry.content || "(No words recorded)"}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-[#FAF6F0]/[0.08] text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEchoDrawerOpen(false);
+                  setCurrentView("archive");
+                }}
+                className="text-xs text-[#D78A70] hover:underline font-serif italic"
+              >
+                Browse all {entries.length} memories in the archive &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Account & Cloud Sanctuary Modal */}
       <AccountModal
