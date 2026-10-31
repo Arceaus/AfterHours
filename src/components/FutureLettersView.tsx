@@ -153,16 +153,16 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
   return (
     <div className="w-full max-w-4xl mx-auto space-y-12 py-4 select-none">
       {/* Header */}
-      <header className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#FAF6F0]/[0.08]">
+      <header className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#F4EFEA]/[0.08]">
         <div>
-          <div className="flex items-center gap-2 mb-2 text-xs uppercase tracking-[0.2em] text-[#D78A70] font-sans">
+          <div className="flex items-center gap-2 mb-2 text-xs uppercase tracking-[0.2em] text-[#E28A3B] font-sans">
             <Mail className="w-3.5 h-3.5" />
             <span>Epistolary Time Capsule</span>
           </div>
-          <h1 className="font-serif text-4xl sm:text-5xl text-[#F7F3EE] font-light">
+          <h1 className="font-serif text-4xl sm:text-5xl text-[#F4EFEA] font-light">
             Letters Waiting in Time
           </h1>
-          <p className="font-serif italic text-base text-[#9E948D] mt-1 max-w-lg">
+          <p className="font-serif italic text-base text-[#8F8782] mt-1 max-w-lg">
             Private notes sent forward across the months or years to meet the person you will become.
           </p>
         </div>
@@ -170,27 +170,27 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
         <button
           type="button"
           onClick={handleStartNewLetter}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FAF6F0]/[0.08] hover:bg-[#D78A70] hover:text-[#120F10] text-[#F7F3EE] border border-[#FAF6F0]/[0.08] rounded-full text-xs font-sans tracking-wide transition-all shadow-lg"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#F4EFEA]/[0.08] hover:bg-[#E28A3B] hover:text-[#070607] text-[#F4EFEA] border border-[#F4EFEA]/[0.08] rounded-full text-xs font-sans tracking-wide transition-all shadow-lg"
         >
-          <PenLine className="w-3.5 h-3.5 text-[#D78A70] group-hover:text-[#120F10]" />
+          <PenLine className="w-3.5 h-3.5 text-[#E28A3B] group-hover:text-[#070607]" />
           <span>Write to your future self</span>
         </button>
       </header>
 
       {/* Overview Sections */}
       {totalLetters === 0 && !hasDraftInStorage ? (
-        <div className="p-12 sm:p-16 border border-[#FAF6F0]/[0.08] bg-[#1A1517]/40 backdrop-blur-xl rounded-3xl text-center space-y-4">
-          <p className="font-serif italic text-2xl text-[#F7F3EE]">
+        <div className="p-12 sm:p-16 border border-[#F4EFEA]/[0.08] bg-[#0C0B0E]/40 backdrop-blur-xl rounded-3xl text-center space-y-4">
+          <p className="font-serif italic text-2xl text-[#F4EFEA]">
             No letters are currently sealed.
           </p>
-          <p className="text-sm text-[#9E948D] max-w-md mx-auto leading-relaxed">
+          <p className="text-sm text-[#8F8782] max-w-md mx-auto leading-relaxed">
             Write a message to yourself for next year, a milestone birthday, or a future season. Sealed in silence until its date arrives.
           </p>
           <div className="pt-4">
             <button
               type="button"
               onClick={handleStartNewLetter}
-              className="px-6 py-2.5 bg-[#FAF6F0]/[0.08] hover:bg-[#D78A70] hover:text-[#120F10] text-[#F7F3EE] rounded-full text-xs font-sans transition-all"
+              className="px-6 py-2.5 bg-[#F4EFEA]/[0.08] hover:bg-[#E28A3B] hover:text-[#070607] text-[#F4EFEA] rounded-full text-xs font-sans transition-all"
             >
               Compose your first letter
             </button>
@@ -201,7 +201,7 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
           {/* Ready to Open */}
           {groupedLetters.ready.length > 0 && (
             <section className="space-y-4">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-[#D78A70] font-sans">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-[#E28A3B] font-sans">
                 <Sparkles className="w-4 h-4 animate-pulse" />
                 <span>Ready to Open ({groupedLetters.ready.length})</span>
               </div>
@@ -214,28 +214,28 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
                   return (
                     <div
                       key={letter.id}
-                      className="p-6 bg-[#1A1517]/70 backdrop-blur-xl border border-[#D78A70]/60 rounded-2xl shadow-[0_10px_35px_rgba(215,138,112,0.12)] space-y-3"
+                      className="p-6 bg-[#0C0B0E]/70 backdrop-blur-xl border border-[#E28A3B]/60 rounded-2xl shadow-[0_10px_35px_rgba(215,138,112,0.12)] space-y-3"
                     >
-                      <div className="flex items-baseline justify-between text-xs text-[#9E948D]">
+                      <div className="flex items-baseline justify-between text-xs text-[#8F8782]">
                         <span>Written {writtenObj}</span>
-                        <span className="font-serif italic text-[#D78A70] text-sm">
+                        <span className="font-serif italic text-[#E28A3B] text-sm">
                           Opens on {scheduledObj.fullDate}
                         </span>
                       </div>
 
-                      <h3 className="font-serif text-2xl text-[#F7F3EE]">
+                      <h3 className="font-serif text-2xl text-[#F4EFEA]">
                         {letter.title || "Something you wrote to yourself"}
                       </h3>
 
-                      <p className="font-serif italic text-sm text-[#9E948D]">
+                      <p className="font-serif italic text-sm text-[#8F8782]">
                         The appointed date has arrived. Its words are waiting for you.
                       </p>
 
-                      <div className="pt-3 border-t border-[#FAF6F0]/[0.08] flex items-center justify-between">
+                      <div className="pt-3 border-t border-[#F4EFEA]/[0.08] flex items-center justify-between">
                         <button
                           type="button"
                           onClick={() => handleOpenReadyLetter(letter)}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-[#D78A70] hover:bg-[#E49A82] text-[#120F10] font-medium rounded-full text-xs transition-colors"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-[#E28A3B] hover:bg-[#E49A82] text-[#070607] font-medium rounded-full text-xs transition-colors"
                         >
                           <Unlock className="w-3.5 h-3.5" />
                           <span>Unseal and read letter</span>
@@ -251,18 +251,18 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
           {/* Drafts */}
           {(groupedLetters.drafts.length > 0 || hasDraftInStorage) && (
             <section className="space-y-4">
-              <h2 className="text-xs uppercase tracking-[0.16em] text-[#9E948D] font-sans">
+              <h2 className="text-xs uppercase tracking-[0.16em] text-[#8F8782] font-sans">
                 Unsealed Drafts ({groupedLetters.drafts.length + (hasDraftInStorage ? 1 : 0)})
               </h2>
 
               <div className="grid grid-cols-1 gap-4">
                 {hasDraftInStorage && (
-                  <div className="p-5 bg-[#1A1517]/40 border border-[#FAF6F0]/[0.06] rounded-xl flex items-center justify-between gap-4">
+                  <div className="p-5 bg-[#0C0B0E]/40 border border-[#F4EFEA]/[0.06] rounded-xl flex items-center justify-between gap-4">
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider text-[#D78A70] font-mono">
+                      <span className="text-[10px] uppercase tracking-wider text-[#E28A3B] font-mono">
                         Draft in progress
                       </span>
-                      <h3 className="font-serif text-lg text-[#F7F3EE]">
+                      <h3 className="font-serif text-lg text-[#F4EFEA]">
                         Unsealed letter draft
                       </h3>
                     </div>
@@ -273,7 +273,7 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
                         setEditingLetter(null);
                         setViewState("editor");
                       }}
-                      className="px-4 py-1.5 bg-[#FAF6F0]/[0.06] hover:bg-[#FAF6F0]/[0.1] text-xs font-sans text-[#F7F3EE] rounded-full transition-colors"
+                      className="px-4 py-1.5 bg-[#F4EFEA]/[0.06] hover:bg-[#F4EFEA]/[0.1] text-xs font-sans text-[#F4EFEA] rounded-full transition-colors"
                     >
                       Resume
                     </button>
@@ -283,13 +283,13 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
                 {groupedLetters.drafts.map((letter) => (
                   <div
                     key={letter.id}
-                    className="p-5 bg-[#1A1517]/40 border border-[#FAF6F0]/[0.06] rounded-xl flex items-center justify-between gap-4"
+                    className="p-5 bg-[#0C0B0E]/40 border border-[#F4EFEA]/[0.06] rounded-xl flex items-center justify-between gap-4"
                   >
                     <div>
-                      <h3 className="font-serif text-lg text-[#F7F3EE]">
+                      <h3 className="font-serif text-lg text-[#F4EFEA]">
                         {letter.title || "Untitled draft"}
                       </h3>
-                      <p className="text-xs text-[#9E948D] font-mono mt-0.5">
+                      <p className="text-xs text-[#8F8782] font-mono mt-0.5">
                         Target opening: {formatLocalCalendarDate(letter.scheduledOpenAt).fullDate}
                       </p>
                     </div>
@@ -297,7 +297,7 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
                     <button
                       type="button"
                       onClick={() => handleEditDraft(letter)}
-                      className="px-4 py-1.5 bg-[#FAF6F0]/[0.06] hover:bg-[#FAF6F0]/[0.1] text-xs font-sans text-[#F7F3EE] rounded-full transition-colors"
+                      className="px-4 py-1.5 bg-[#F4EFEA]/[0.06] hover:bg-[#F4EFEA]/[0.1] text-xs font-sans text-[#F4EFEA] rounded-full transition-colors"
                     >
                       Edit
                     </button>
@@ -309,12 +309,12 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
 
           {/* Still Sealed Letters */}
           <section className="space-y-4">
-            <h2 className="text-xs uppercase tracking-[0.16em] text-[#9E948D] font-sans">
+            <h2 className="text-xs uppercase tracking-[0.16em] text-[#8F8782] font-sans">
               Currently Sealed ({groupedLetters.sealed.length})
             </h2>
 
             {groupedLetters.sealed.length === 0 ? (
-              <p className="text-xs text-[#9E948D]/60 font-serif italic py-2">
+              <p className="text-xs text-[#8F8782]/60 font-serif italic py-2">
                 No sealed letters waiting in time.
               </p>
             ) : (
@@ -327,54 +327,54 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
                   return (
                     <div
                       key={letter.id}
-                      className="p-6 bg-[#1A1517]/40 backdrop-blur-xl border border-[#FAF6F0]/[0.07] rounded-2xl flex flex-col justify-between space-y-4 shadow-[0_8px_30px_rgba(0,0,0,0.15)]"
+                      className="p-6 bg-[#0C0B0E]/40 backdrop-blur-xl border border-[#F4EFEA]/[0.07] rounded-2xl flex flex-col justify-between space-y-4 shadow-[0_8px_30px_rgba(0,0,0,0.15)]"
                     >
-                      <div className="flex items-center justify-between text-xs text-[#9E948D]">
-                        <span className="font-sans text-[11px] text-[#9E948D]/60">
+                      <div className="flex items-center justify-between text-xs text-[#8F8782]">
+                        <span className="font-sans text-[11px] text-[#8F8782]/60">
                           Sealed on {writtenObj}
                         </span>
-                        <span className="flex items-center gap-1.5 text-xs text-[#D78A70] font-sans">
+                        <span className="flex items-center gap-1.5 text-xs text-[#E28A3B] font-sans">
                           <Lock className="w-3.5 h-3.5" />
                           <span>{scheduledObj.monthDay}, {scheduledObj.year}</span>
                         </span>
                       </div>
 
-                      <h3 className="font-serif text-xl text-[#F7F3EE] line-clamp-1">
+                      <h3 className="font-serif text-xl text-[#F4EFEA] line-clamp-1">
                         {letter.title || "Something you wrote to yourself"}
                       </h3>
 
-                      <p className="font-serif italic text-xs text-[#9E948D]/70">
+                      <p className="font-serif italic text-xs text-[#8F8782]/70">
                         Resting in silence until its appointed date.
                       </p>
 
-                      <div className="pt-3 border-t border-[#FAF6F0]/[0.06] flex items-center justify-between text-xs font-sans">
+                      <div className="pt-3 border-t border-[#F4EFEA]/[0.06] flex items-center justify-between text-xs font-sans">
                         {isUnsealing ? (
-                          <div className="flex items-center gap-2 bg-[#120F10] border border-[#D78A70]/40 p-2 rounded-lg w-full">
-                            <span className="text-[11px] text-[#F7F3EE]">Unseal to draft?</span>
+                          <div className="flex items-center gap-2 bg-[#070607] border border-[#E28A3B]/40 p-2 rounded-lg w-full">
+                            <span className="text-[11px] text-[#F4EFEA]">Unseal to draft?</span>
                             <button
                               type="button"
                               onClick={() => handleConfirmUnseal(letter.id)}
-                              className="text-xs text-[#D78A70] font-bold ml-auto"
+                              className="text-xs text-[#E28A3B] font-bold ml-auto"
                             >
                               Yes
                             </button>
                             <button
                               type="button"
                               onClick={() => setUnsealingId(null)}
-                              className="text-xs text-[#9E948D]"
+                              className="text-xs text-[#8F8782]"
                             >
                               Cancel
                             </button>
                           </div>
                         ) : (
                           <>
-                            <span className="text-[11px] font-mono text-[#9E948D]/40">
+                            <span className="text-[11px] font-mono text-[#8F8782]/40">
                               Sealed
                             </span>
                             <button
                               type="button"
                               onClick={() => setUnsealingId(letter.id)}
-                              className="text-[11px] text-[#9E948D]/60 hover:text-[#F7F3EE] transition-colors"
+                              className="text-[11px] text-[#8F8782]/60 hover:text-[#F4EFEA] transition-colors"
                             >
                               Unseal early
                             </button>
@@ -390,8 +390,8 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
 
           {/* Previously Opened */}
           {groupedLetters.opened.length > 0 && (
-            <section className="space-y-4 pt-4 border-t border-[#FAF6F0]/[0.08]">
-              <h2 className="text-xs uppercase tracking-[0.16em] text-[#9E948D] font-sans">
+            <section className="space-y-4 pt-4 border-t border-[#F4EFEA]/[0.08]">
+              <h2 className="text-xs uppercase tracking-[0.16em] text-[#8F8782] font-sans">
                 Previously Opened ({groupedLetters.opened.length})
               </h2>
 
@@ -403,22 +403,22 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
                   return (
                     <div
                       key={letter.id}
-                      className="p-5 bg-[#1A1517]/30 border border-[#FAF6F0]/[0.06] rounded-xl flex flex-col justify-between space-y-3"
+                      className="p-5 bg-[#0C0B0E]/30 border border-[#F4EFEA]/[0.06] rounded-xl flex flex-col justify-between space-y-3"
                     >
-                      <div className="flex items-center justify-between text-xs text-[#9E948D]">
+                      <div className="flex items-center justify-between text-xs text-[#8F8782]">
                         <span>Written {writtenObj}</span>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#D78A70]" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#E28A3B]" />
                       </div>
 
-                      <h3 className="font-serif text-lg text-[#F7F3EE] line-clamp-1">
+                      <h3 className="font-serif text-lg text-[#F4EFEA] line-clamp-1">
                         {letter.title || "Untitled letter"}
                       </h3>
 
-                      <div className="pt-2 border-t border-[#FAF6F0]/[0.06] flex items-center justify-between text-xs font-sans">
+                      <div className="pt-2 border-t border-[#F4EFEA]/[0.06] flex items-center justify-between text-xs font-sans">
                         <button
                           type="button"
                           onClick={() => handleReadOpenedLetter(letter)}
-                          className="inline-flex items-center gap-1.5 text-[#D78A70] hover:text-[#FAF6F0] font-serif italic"
+                          className="inline-flex items-center gap-1.5 text-[#E28A3B] hover:text-[#F4EFEA] font-serif italic"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>Read letter again &rarr;</span>
@@ -437,7 +437,7 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
                               <button
                                 type="button"
                                 onClick={() => setDeletingId(null)}
-                                className="text-[#9E948D]"
+                                className="text-[#8F8782]"
                               >
                                 Cancel
                               </button>
@@ -446,7 +446,7 @@ export function FutureLettersView({ onReturnToTonight }: FutureLettersViewProps)
                             <button
                               type="button"
                               onClick={() => setDeletingId(letter.id)}
-                              className="text-[#9E948D]/40 hover:text-red-400 p-1"
+                              className="text-[#8F8782]/40 hover:text-red-400 p-1"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>

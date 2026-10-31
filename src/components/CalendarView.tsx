@@ -148,16 +148,16 @@ export function CalendarView({
   return (
     <div className="w-full max-w-5xl mx-auto space-y-10 py-4 select-none">
       {/* Header */}
-      <header className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#FAF6F0]/[0.08]">
+      <header className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#F4EFEA]/[0.08]">
         <div>
-          <div className="flex items-center gap-2 mb-2 text-xs uppercase tracking-[0.2em] text-[#D78A70] font-sans">
+          <div className="flex items-center gap-2 mb-2 text-xs uppercase tracking-[0.2em] text-[#E28A3B] font-sans">
             <CalendarIcon className="w-3.5 h-3.5" />
             <span>Temporal Rhythm</span>
           </div>
-          <h1 className="font-serif text-4xl sm:text-5xl text-[#F7F3EE] font-light">
+          <h1 className="font-serif text-4xl sm:text-5xl text-[#F4EFEA] font-light">
             Calendar of Thoughts
           </h1>
-          <p className="font-serif italic text-base text-[#9E948D] mt-1">
+          <p className="font-serif italic text-base text-[#8F8782] mt-1">
             Every night holds a quiet space. Explore the moments you chose to preserve.
           </p>
         </div>
@@ -167,29 +167,29 @@ export function CalendarView({
           <button
             type="button"
             onClick={returnToToday}
-            className="px-3.5 py-1.5 border border-[#FAF6F0]/[0.08] hover:border-[#D78A70]/50 bg-[#1A1517]/80 text-[#F7F3EE] text-xs font-sans rounded-full transition-colors flex items-center gap-1.5"
+            className="px-3.5 py-1.5 border border-[#F4EFEA]/[0.08] hover:border-[#E28A3B]/50 bg-[#0C0B0E]/80 text-[#F4EFEA] text-xs font-sans rounded-full transition-colors flex items-center gap-1.5"
             title="Return to current month"
           >
-            <RotateCcw className="w-3 h-3 text-[#D78A70]" />
+            <RotateCcw className="w-3 h-3 text-[#E28A3B]" />
             <span>Today</span>
           </button>
 
-          <div className="flex items-center border border-[#FAF6F0]/[0.08] rounded-full bg-[#1A1517]/80 p-0.5">
+          <div className="flex items-center border border-[#F4EFEA]/[0.08] rounded-full bg-[#0C0B0E]/80 p-0.5">
             <button
               type="button"
               onClick={prevMonth}
-              className="p-1.5 text-[#9E948D] hover:text-[#F7F3EE] rounded-full hover:bg-[#FAF6F0]/[0.05] transition-colors"
+              className="p-1.5 text-[#8F8782] hover:text-[#F4EFEA] rounded-full hover:bg-[#F4EFEA]/[0.05] transition-colors"
               aria-label="Previous month"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="px-3 py-0.5 font-serif text-sm sm:text-base text-[#F7F3EE] min-w-[130px] text-center select-none">
+            <span className="px-3 py-0.5 font-serif text-sm sm:text-base text-[#F4EFEA] min-w-[130px] text-center select-none">
               {formatMonthYear(viewYear, viewMonth)}
             </span>
             <button
               type="button"
               onClick={nextMonth}
-              className="p-1.5 text-[#9E948D] hover:text-[#F7F3EE] rounded-full hover:bg-[#FAF6F0]/[0.05] transition-colors"
+              className="p-1.5 text-[#8F8782] hover:text-[#F4EFEA] rounded-full hover:bg-[#F4EFEA]/[0.05] transition-colors"
               aria-label="Next month"
             >
               <ChevronRight className="w-4 h-4" />
@@ -201,12 +201,12 @@ export function CalendarView({
       {/* Main Grid & Selected Day Inspector */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Calendar Grid (7 cols) */}
-        <div className="lg:col-span-7 bg-[#1A1517]/50 backdrop-blur-xl border border-[#FAF6F0]/[0.08] rounded-2xl p-5 sm:p-6 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
+        <div className="lg:col-span-7 bg-[#0C0B0E]/50 backdrop-blur-xl border border-[#F4EFEA]/[0.08] rounded-2xl p-5 sm:p-6 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
           <div className="grid grid-cols-7 mb-3 text-center">
             {weekdayNames.map((w) => (
               <span
                 key={w}
-                className="font-sans text-[11px] uppercase tracking-wider text-[#9E948D]/60 py-1"
+                className="font-sans text-[11px] uppercase tracking-wider text-[#8F8782]/60 py-1"
               >
                 {w}
               </span>
@@ -227,27 +227,27 @@ export function CalendarView({
                   aria-selected={isSelected}
                   className={`min-h-[52px] sm:min-h-[60px] p-2 rounded-xl flex flex-col justify-between transition-all relative text-left ${
                     isSelected
-                      ? "bg-[#D78A70]/15 border border-[#D78A70] shadow-[0_0_15px_rgba(215,138,112,0.15)]"
+                      ? "bg-[#E28A3B]/15 border border-[#E28A3B] shadow-[0_0_15px_rgba(215,138,112,0.15)]"
                       : isCurrentDay
-                      ? "border border-[#FAF6F0]/[0.12] bg-[#FAF6F0]/[0.03] hover:bg-[#FAF6F0]/[0.06]"
-                      : "border border-transparent hover:bg-[#FAF6F0]/[0.03] hover:border-[#FAF6F0]/[0.06]"
+                      ? "border border-[#F4EFEA]/[0.12] bg-[#F4EFEA]/[0.03] hover:bg-[#F4EFEA]/[0.06]"
+                      : "border border-transparent hover:bg-[#F4EFEA]/[0.03] hover:border-[#F4EFEA]/[0.06]"
                   } ${!cell.isCurrentMonth ? "opacity-25" : "opacity-100"}`}
                 >
                   <div className="flex items-center justify-between w-full">
                     <span
                       className={`text-xs font-mono ${
                         isSelected
-                          ? "text-[#FAF6F0] font-semibold"
+                          ? "text-[#F4EFEA] font-semibold"
                           : isCurrentDay
-                          ? "text-[#D78A70] font-medium"
-                          : "text-[#9E948D]"
+                          ? "text-[#E28A3B] font-medium"
+                          : "text-[#8F8782]"
                       }`}
                     >
                       {cell.day}
                     </span>
 
                     {isCurrentDay && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70]" title="Today" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#E28A3B]" title="Today" />
                     )}
                   </div>
 
@@ -256,11 +256,11 @@ export function CalendarView({
                       <div className="flex items-center gap-1">
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${
-                            isSelected ? "bg-[#D78A70]" : "bg-[#D78A70]/70"
+                            isSelected ? "bg-[#E28A3B]" : "bg-[#E28A3B]/70"
                           }`}
                         />
                         {cell.entryCount > 1 && (
-                          <span className="text-[9px] font-mono text-[#D78A70]/80">
+                          <span className="text-[9px] font-mono text-[#E28A3B]/80">
                             &times;{cell.entryCount}
                           </span>
                         )}
@@ -272,9 +272,9 @@ export function CalendarView({
             })}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-[#FAF6F0]/[0.06] flex items-center justify-between text-xs text-[#9E948D]/60 font-sans">
+          <div className="mt-6 pt-4 border-t border-[#F4EFEA]/[0.06] flex items-center justify-between text-xs text-[#8F8782]/60 font-sans">
             <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E28A3B]" />
               <span>Recorded thought</span>
             </span>
             <span>Click any day to inspect</span>
@@ -282,13 +282,13 @@ export function CalendarView({
         </div>
 
         {/* Selected Day Inspector (5 cols) */}
-        <div className="lg:col-span-5 bg-[#1A1517]/50 backdrop-blur-xl border border-[#FAF6F0]/[0.08] rounded-2xl p-6 sm:p-7 space-y-6 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
-          <div className="flex items-center justify-between pb-3 border-b border-[#FAF6F0]/[0.08]">
+        <div className="lg:col-span-5 bg-[#0C0B0E]/50 backdrop-blur-xl border border-[#F4EFEA]/[0.08] rounded-2xl p-6 sm:p-7 space-y-6 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
+          <div className="flex items-center justify-between pb-3 border-b border-[#F4EFEA]/[0.08]">
             <div>
-              <span className="font-serif italic text-lg sm:text-xl text-[#D78A70]">
+              <span className="font-serif italic text-lg sm:text-xl text-[#E28A3B]">
                 {selectedDateFormatted.weekday}, {selectedDateFormatted.monthDay}
               </span>
-              <p className="text-xs text-[#9E948D] font-mono mt-0.5">
+              <p className="text-xs text-[#8F8782] font-mono mt-0.5">
                 {selectedDateFormatted.year}
               </p>
             </div>
@@ -296,7 +296,7 @@ export function CalendarView({
             <button
               type="button"
               onClick={() => onWriteForDate(selectedDate)}
-              className="inline-flex items-center gap-1.5 text-xs font-sans text-[#FAF6F0] bg-[#FAF6F0]/[0.06] hover:bg-[#D78A70] hover:text-[#120F10] border border-[#FAF6F0]/[0.08] rounded-full px-3 py-1.5 transition-all"
+              className="inline-flex items-center gap-1.5 text-xs font-sans text-[#F4EFEA] bg-[#F4EFEA]/[0.06] hover:bg-[#E28A3B] hover:text-[#070607] border border-[#F4EFEA]/[0.08] rounded-full px-3 py-1.5 transition-all"
             >
               <Feather className="w-3.5 h-3.5" />
               <span>Record</span>
@@ -305,10 +305,10 @@ export function CalendarView({
 
           {selectedEntries.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <p className="font-serif italic text-base text-[#9E948D]">
+              <p className="font-serif italic text-base text-[#8F8782]">
                 No reflection recorded for this date.
               </p>
-              <p className="text-xs text-[#9E948D]/60">
+              <p className="text-xs text-[#8F8782]/60">
                 You can write a thought for this day at any time.
               </p>
             </div>
@@ -321,25 +321,25 @@ export function CalendarView({
                 return (
                   <div
                     key={entry.id}
-                    className="p-4 bg-[#FAF6F0]/[0.03] hover:bg-[#FAF6F0]/[0.06] border border-[#FAF6F0]/[0.06] rounded-xl transition-all space-y-2"
+                    className="p-4 bg-[#F4EFEA]/[0.03] hover:bg-[#F4EFEA]/[0.06] border border-[#F4EFEA]/[0.06] rounded-xl transition-all space-y-2"
                   >
-                    <div className="flex items-center justify-between text-xs text-[#9E948D]">
+                    <div className="flex items-center justify-between text-xs text-[#8F8782]">
                       {timeStr && (
                         <span className="flex items-center gap-1 font-mono text-[11px]">
-                          <Clock className="w-3 h-3 text-[#9E948D]/50" />
+                          <Clock className="w-3 h-3 text-[#8F8782]/50" />
                           <span>{timeStr}</span>
                         </span>
                       )}
 
                       {entry.attachments?.length > 0 && (
-                        <span className="flex items-center gap-1 font-mono text-[10px] text-[#D78A70]">
+                        <span className="flex items-center gap-1 font-mono text-[10px] text-[#E28A3B]">
                           <ImageIcon className="w-3 h-3" />
                           <span>{entry.attachments.length}</span>
                         </span>
                       )}
                     </div>
 
-                    <h4 className="font-serif text-lg text-[#F7F3EE] leading-snug">
+                    <h4 className="font-serif text-lg text-[#F4EFEA] leading-snug">
                       {displayTitle}
                     </h4>
 
@@ -347,11 +347,11 @@ export function CalendarView({
                       {entry.content || "(No words recorded)"}
                     </p>
 
-                    <div className="pt-2 border-t border-[#FAF6F0]/[0.06] flex items-center justify-between text-xs font-sans">
+                    <div className="pt-2 border-t border-[#F4EFEA]/[0.06] flex items-center justify-between text-xs font-sans">
                       <button
                         type="button"
                         onClick={() => onOpenEntry(entry)}
-                        className="inline-flex items-center gap-1.5 text-[#D78A70] hover:text-[#FAF6F0] font-serif italic text-xs transition-colors"
+                        className="inline-flex items-center gap-1.5 text-[#E28A3B] hover:text-[#F4EFEA] font-serif italic text-xs transition-colors"
                       >
                         <PenLine className="w-3.5 h-3.5" />
                         <span>Open in editor</span>
@@ -359,7 +359,7 @@ export function CalendarView({
 
                       <div>
                         {deletingId === entry.id ? (
-                          <div className="flex items-center gap-2 bg-[#120F10] px-2 py-0.5 border border-red-900/40 rounded-full">
+                          <div className="flex items-center gap-2 bg-[#070607] px-2 py-0.5 border border-red-900/40 rounded-full">
                             <span className="text-[10px] text-red-300">Delete?</span>
                             <button
                               type="button"
@@ -374,7 +374,7 @@ export function CalendarView({
                             <button
                               type="button"
                               onClick={() => setDeletingId(null)}
-                              className="text-xs text-[#9E948D]"
+                              className="text-xs text-[#8F8782]"
                             >
                               No
                             </button>
@@ -383,7 +383,7 @@ export function CalendarView({
                           <button
                             type="button"
                             onClick={() => setDeletingId(entry.id)}
-                            className="p-1 text-[#9E948D]/40 hover:text-red-400 transition-colors"
+                            className="p-1 text-[#8F8782]/40 hover:text-red-400 transition-colors"
                             title="Delete entry"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

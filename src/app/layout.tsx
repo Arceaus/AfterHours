@@ -3,15 +3,15 @@ import "./globals.css";
 import { AppProviders } from "@/components/AppProviders";
 
 export const viewport: Viewport = {
-  themeColor: "#09080A",
+  themeColor: "#070607",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
 };
 
 export const metadata: Metadata = {
-  title: "AFTERTHOUGHT — The Quiet Sanctuary",
-  description: "A private, atmospheric personal sanctuary for your reflections and memories.",
+  title: "AFTERTHOUGHT — In Praise of Shadows",
+  description: "A private, atmospheric Japanese-inspired architectural sanctuary for your reflections and memories.",
   icons: {
     icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>",
   },
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark bg-[#09080A]" suppressHydrationWarning>
+    <html lang="en" className="dark bg-[#070607]" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -33,7 +33,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className="bg-[#09080A] text-[#F3EFEA] antialiased min-h-screen selection:bg-[#D47A60]/25 selection:text-[#FDFCF9] overflow-x-hidden"
+        className="bg-[#070607] text-[#F4EFEA] antialiased min-h-screen selection:bg-[#E28A3B]/30 selection:text-[#FFFDF9] overflow-x-hidden"
         suppressHydrationWarning
       >
         <AppProviders>{children}</AppProviders>

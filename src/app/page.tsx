@@ -74,14 +74,14 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#09080A] text-[#F3EFEA] relative selection:bg-[#D47A60]/25 selection:text-[#FDFCF9] overflow-x-hidden font-sans">
-      {/* 1. Signature Abstract Celestial Canvas */}
+    <div className="min-h-screen bg-[#070607] text-[#F4EFEA] relative selection:bg-[#E28A3B]/30 selection:text-[#FFFDF9] overflow-x-hidden font-sans">
+      {/* 1. Signature Neo-Japanese Living Candlelight & Architectural Canvas */}
       <ThoughtWorldCanvas isWriting={isWriting || focusMode} />
 
       {/* 2. Environmental Lighting & Atmosphere Vignette */}
       <div
         aria-hidden="true"
-        className="fixed inset-0 pointer-events-none z-0 bg-radial-gradient from-transparent via-[#09080A]/40 to-[#09080A]/90"
+        className="fixed inset-0 pointer-events-none z-0 bg-radial-gradient from-transparent via-[#070607]/30 to-[#070607]/85"
       />
 
       {/* 3. Floating Spatial Navigation Dock */}
@@ -103,16 +103,16 @@ export default function HomePage() {
         {notification && (
           <div
             role="status"
-            className="mb-8 p-3 bg-[#141215]/90 backdrop-blur-md border border-[#D47A60]/30 text-[#F3EFEA] text-xs font-sans rounded-full max-w-md mx-auto flex items-center justify-between shadow-xl animate-fadeIn"
+            className="mb-8 p-3 bg-[#0E0D10]/90 backdrop-blur-md border border-[#E28A3B]/30 text-[#F4EFEA] text-xs font-sans rounded-full max-w-md mx-auto flex items-center justify-between shadow-xl animate-fadeIn"
           >
             <div className="flex items-center gap-2 pl-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D47A60]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E28A3B] shadow-[0_0_6px_#E28A3B]" />
               <span>{notification}</span>
             </div>
             <button
               type="button"
               onClick={() => setNotification(null)}
-              className="text-[#8E8782] hover:text-[#F3EFEA] text-xs px-2"
+              className="text-[#8F8782] hover:text-[#F4EFEA] text-xs px-2"
             >
               Dismiss
             </button>
@@ -134,16 +134,16 @@ export default function HomePage() {
               onStartNewDraft={handleStartNewDraft}
             />
 
-            {/* Subtle Echoes Floating Pill (Quick glance at recent memories without cluttering canvas) */}
+            {/* Subtle Echoes Floating Pill (Neo-Japanese Bronze & Wax Seal) */}
             {!focusMode && entries.length > 0 && (
               <div className="fixed bottom-6 right-6 z-30">
                 <button
                   type="button"
                   onClick={() => setIsEchoDrawerOpen(true)}
-                  className="flex items-center gap-2 px-3.5 py-1.5 bg-[#1A1517]/80 hover:bg-[#2B2226] backdrop-blur-xl border border-[#FAF6F0]/[0.08] hover:border-[#D78A70]/50 rounded-full text-xs text-[#A89A98] hover:text-[#FAF6F0] shadow-lg transition-all"
+                  className="flex items-center gap-2 px-3.5 py-1.5 bg-[#0C0B0E]/85 hover:bg-[#141217] backdrop-blur-xl border border-[#E28A3B]/25 hover:border-[#E28A3B]/60 rounded-full text-xs text-[#8F8782] hover:text-[#F4EFEA] shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all"
                   title="Peek at recent thoughts"
                 >
-                  <Bookmark className="w-3.5 h-3.5 text-[#D78A70]" />
+                  <span className="font-serif text-[#E28A3B] text-[11px]">記</span>
                   <span>Echoes ({Math.min(entries.length, 5)})</span>
                 </button>
               </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import * as THREE from "three";
 
 interface ThoughtWorldCanvasProps {
   isWriting?: boolean;
@@ -10,7 +9,7 @@ interface ThoughtWorldCanvasProps {
 export function ThoughtWorldCanvas({
   isWriting = false,
 }: ThoughtWorldCanvasProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const isWritingRef = useRef(isWriting);
 
   useEffect(() => {
@@ -18,162 +17,135 @@ export function ThoughtWorldCanvas({
   }, [isWriting]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    let renderer: THREE.WebGLRenderer;
-    try {
-      renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-        powerPreference: "high-performance",
-      });
-    } catch {
-      return;
-    }
-
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setClearColor(0x000000, 0);
-    container.appendChild(renderer.domElement);
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      50,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      100
-    );
-    camera.position.set(0, 0, 20);
-
-    // --- Atmospheric Luminous Star Dust / Constellation Particles ---
-    const count = 240;
-    const positions = new Float32Array(count * 3);
-    const colors = new Float32Array(count * 3);
-    const scales = new Float32Array(count);
-
-    const warmPalette = [
-      new THREE.Color(0xd47a60), // Terracotta ember
-      new THREE.Color(0xf3efea), // Ivory bone
-      new THREE.Color(0x8e8782), // Soft stone
-      new THREE.Color(0x9ca9a1), // Whisper sage
-    ];
-
-    for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 44;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 32;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 24;
-
-      const col = warmPalette[Math.floor(Math.random() * warmPalette.length)];
-      colors[i * 3] = col.r;
-      colors[i * 3 + 1] = col.g;
-      colors[i * 3 + 2] = col.b;
-
-      scales[i] = Math.random() * 0.7 + 0.3;
-    }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-
-    // Circular soft glowing particle texture
-    const canvas = document.createElement("canvas");
-    canvas.width = 64;
-    canvas.height = 64;
     const ctx = canvas.getContext("2d");
-    if (ctx) {
-      const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-      gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-      gradient.addColorStop(0.3, "rgba(255, 240, 230, 0.6)");
-      gradient.addColorStop(0.7, "rgba(212, 122, 96, 0.15)");
-      gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, 64, 64);
-    }
-    const particleTexture = new THREE.CanvasTexture(canvas);
+    if (!ctx) return;
 
-    const particleMaterial = new THREE.PointsMaterial({
-      size: 0.45,
-      map: particleTexture,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.55,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
 
-    const particlePoints = new THREE.Points(geometry, particleMaterial);
-    scene.add(particlePoints);
-
-    // Mouse Parallax
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
+    let mouseX = width * 0.5;
+    let mouseY = height * 0.45;
+    let targetMouseX = mouseX;
+    let targetMouseY = mouseY;
 
     const onMouseMove = (e: MouseEvent) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      targetMouseX = e.clientX;
+      targetMouseY = e.clientY;
     };
     window.addEventListener("mousemove", onMouseMove);
 
-    // Resize handler
     const onResize = () => {
-      if (!container) return;
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
     };
     window.addEventListener("resize", onResize);
 
-    // Animation Loop
+    // Candlelight simulation variables
+    let time = 0;
     let animationFrameId: number;
-    let clock = new THREE.Clock();
+    let currentIntensity = 0.5;
 
-    const animate = () => {
-      animationFrameId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+    const render = () => {
+      time += 0.02;
 
-      // Smooth mouse follow
-      targetX += (mouseX - targetX) * 0.03;
-      targetY += (mouseY - targetY) * 0.03;
+      // Smooth cursor follow for the lantern ambient warmth
+      mouseX += (targetMouseX - mouseX) * 0.04;
+      mouseY += (targetMouseY - mouseY) * 0.04;
 
-      camera.position.x = targetX * 1.5;
-      camera.position.y = -targetY * 1.2;
-      camera.lookAt(0, 0, 0);
+      // Organic multi-octave candle flame flicker
+      const flicker1 = Math.sin(time * 2.3) * 0.04;
+      const flicker2 = Math.cos(time * 4.1) * 0.025;
+      const flicker3 = Math.sin(time * 0.8) * 0.06;
+      const flicker = flicker1 + flicker2 + flicker3;
 
-      // Gentle, poetic particle drift
-      particlePoints.rotation.y = elapsedTime * 0.015;
-      particlePoints.rotation.x = Math.sin(elapsedTime * 0.01) * 0.05;
+      // Reactive flame intensity when writing
+      const targetIntensity = isWritingRef.current ? 0.72 : 0.46;
+      currentIntensity += (targetIntensity - currentIntensity) * 0.03;
 
-      // When user writes, softly fade stardust into quiet background
-      const targetOpacity = isWritingRef.current ? 0.18 : 0.55;
-      particleMaterial.opacity += (targetOpacity - particleMaterial.opacity) * 0.05;
+      ctx.clearRect(0, 0, width, height);
 
-      renderer.render(scene, camera);
+      // --- 1. Ambient Volumetric Candlelight Glow ---
+      const centerX = width * 0.5 + (mouseX - width * 0.5) * 0.12;
+      const centerY = height * 0.38 + (mouseY - height * 0.38) * 0.12;
+      const baseRadius = Math.min(width, height) * (0.48 + flicker * 0.5);
+
+      const lanternGradient = ctx.createRadialGradient(
+        centerX,
+        centerY,
+        0,
+        centerX,
+        centerY,
+        baseRadius
+      );
+
+      // Warm Amber / Smoked Honey / Pure Noir decay
+      const alphaCore = 0.14 * (currentIntensity + flicker);
+      const alphaMid = 0.06 * (currentIntensity + flicker);
+      const alphaRim = 0.02 * currentIntensity;
+
+      lanternGradient.addColorStop(0, `rgba(226, 138, 59, ${alphaCore})`);
+      lanternGradient.addColorStop(0.35, `rgba(212, 110, 40, ${alphaMid})`);
+      lanternGradient.addColorStop(0.7, `rgba(160, 75, 25, ${alphaRim})`);
+      lanternGradient.addColorStop(1, "rgba(7, 6, 7, 0)");
+
+      ctx.fillStyle = lanternGradient;
+      ctx.fillRect(0, 0, width, height);
+
+      // --- 2. Architectural Shadow & Light Slit (Tadao Ando / Shoji Slit) ---
+      // A dramatic vertical light seam cutting quietly through the darkness
+      const slitX = width * 0.5;
+      const slitGradient = ctx.createLinearGradient(slitX - 1, 0, slitX + 1, 0);
+      slitGradient.addColorStop(0, "rgba(226, 138, 59, 0)");
+      slitGradient.addColorStop(0.5, `rgba(226, 138, 59, ${0.035 * currentIntensity})`);
+      slitGradient.addColorStop(1, "rgba(226, 138, 59, 0)");
+
+      ctx.fillStyle = slitGradient;
+      ctx.fillRect(slitX - 120, 0, 240, height);
+
+      // Subtle horizontal tatami/shoji architectural datum line
+      const datumY = height * 0.22;
+      const datumGradient = ctx.createLinearGradient(0, datumY, width, datumY);
+      datumGradient.addColorStop(0, "rgba(226, 138, 59, 0)");
+      datumGradient.addColorStop(0.2, "rgba(255, 255, 255, 0.02)");
+      datumGradient.addColorStop(0.5, `rgba(226, 138, 59, ${0.05 * currentIntensity})`);
+      datumGradient.addColorStop(0.8, "rgba(255, 255, 255, 0.02)");
+      datumGradient.addColorStop(1, "rgba(226, 138, 59, 0)");
+
+      ctx.strokeStyle = datumGradient;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, datumY);
+      ctx.lineTo(width, datumY);
+      ctx.stroke();
+
+      animationFrameId = requestAnimationFrame(render);
     };
 
-    animate();
+    render();
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("resize", onResize);
       cancelAnimationFrame(animationFrameId);
-      if (container && renderer.domElement) {
-        container.removeChild(renderer.domElement);
-      }
-      geometry.dispose();
-      particleMaterial.dispose();
-      particleTexture.dispose();
-      renderer.dispose();
     };
   }, []);
 
   return (
     <div
-      ref={containerRef}
       aria-hidden="true"
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
-    />
+    >
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full block"
+      />
+      {/* Fine grain washi paper & architectural overlay */}
+      <div className="absolute inset-0 noir-grain opacity-75" />
+      <div className="absolute inset-0 architectural-grid opacity-60" />
+    </div>
   );
 }
