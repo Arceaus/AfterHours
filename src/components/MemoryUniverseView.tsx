@@ -718,10 +718,19 @@ export function MemoryUniverseView({
                         key={node.id}
                         transform={`translate(${node.x}, ${node.y})`}
                         onClick={(e) => handleNodeClick(e, node)}
-                        className="cursor-pointer transition-transform hover:scale-110"
+                        className="group cursor-pointer select-none"
                       >
-                        {/* Generous invisible hit circle for effortless mouse/finger clicks */}
-                        <circle r={28} fill="transparent" pointerEvents="all" />
+                        {/* Stationary generous hit area with NO scale transform to eliminate cursor jitter */}
+                        <circle r={32} fill="transparent" pointerEvents="all" />
+
+                        {/* Subtle velvet halo that fades in smoothly without moving the node */}
+                        <circle
+                          r={node.type === "entry" ? 24 : 22}
+                          fill="#D78A70"
+                          opacity="0"
+                          className="transition-opacity duration-200 group-hover:opacity-20"
+                          pointerEvents="none"
+                        />
 
                         {/* Entry Node */}
                         {node.type === "entry" && (
@@ -731,9 +740,11 @@ export function MemoryUniverseView({
                               fill="#2B2226"
                               stroke={node.isMeaningful ? "#D78A70" : isSelected ? "#F0E8DF" : "#A89A98"}
                               strokeWidth={node.isMeaningful || isSelected ? 2.5 : 1.5}
+                              className="transition-all duration-200 group-hover:stroke-[#D78A70] group-hover:stroke-[2.5px]"
+                              pointerEvents="none"
                             />
                             {node.isMeaningful && (
-                              <circle r="4" fill="#D78A70" />
+                              <circle r="4" fill="#D78A70" pointerEvents="none" />
                             )}
                             <text
                               y={26}
@@ -742,6 +753,8 @@ export function MemoryUniverseView({
                               fontSize="10"
                               fontFamily="sans-serif"
                               opacity={isSelected ? 1 : 0.85}
+                              className="transition-colors group-hover:fill-[#FAF6F0]"
+                              pointerEvents="none"
                             >
                               {node.label.length > 18 ? node.label.slice(0, 16) + "…" : node.label}
                             </text>
@@ -752,6 +765,7 @@ export function MemoryUniverseView({
                               fontSize="8"
                               fontFamily="sans-serif"
                               opacity="0.6"
+                              pointerEvents="none"
                             >
                               {node.sublabel}
                             </text>
@@ -767,6 +781,8 @@ export function MemoryUniverseView({
                               fillOpacity={node.status === "confirmed" ? 0.9 : 0.4}
                               stroke="#D78A70"
                               strokeWidth={isSelected ? 2 : 1}
+                              className="transition-all duration-200 group-hover:stroke-[#F0E8DF] group-hover:fill-opacity-100"
+                              pointerEvents="none"
                             />
                             <text
                               y="3.5"
@@ -775,6 +791,7 @@ export function MemoryUniverseView({
                               fontSize="9"
                               fontWeight="bold"
                               fontFamily="sans-serif"
+                              pointerEvents="none"
                             >
                               {node.label.slice(0, 2).toUpperCase()}
                             </text>
@@ -784,6 +801,7 @@ export function MemoryUniverseView({
                               fill="#F0E8DF"
                               fontSize="10"
                               fontFamily="sans-serif"
+                              pointerEvents="none"
                             >
                               {node.label}
                             </text>
@@ -802,6 +820,8 @@ export function MemoryUniverseView({
                               fill="#2B2226"
                               stroke={node.status === "confirmed" ? "#D78A70" : "#A89A98"}
                               strokeWidth={isSelected ? 2 : 1.2}
+                              className="transition-all duration-200 group-hover:stroke-[#D78A70] group-hover:stroke-[2px]"
+                              pointerEvents="none"
                             />
                             <text
                               y={26}
@@ -809,6 +829,7 @@ export function MemoryUniverseView({
                               fill="#F0E8DF"
                               fontSize="10"
                               fontFamily="sans-serif"
+                              pointerEvents="none"
                             >
                               {node.label}
                             </text>
@@ -827,6 +848,8 @@ export function MemoryUniverseView({
                               fill="#2B2226"
                               stroke={isSelected ? "#F0E8DF" : "#45373C"}
                               strokeWidth={isSelected ? 2 : 1}
+                              className="transition-all duration-200 group-hover:stroke-[#D78A70] group-hover:stroke-[1.5px]"
+                              pointerEvents="none"
                             />
                             <text
                               y="3"
@@ -834,6 +857,7 @@ export function MemoryUniverseView({
                               fill="#D78A70"
                               fontSize="9"
                               fontFamily="sans-serif"
+                              pointerEvents="none"
                             >
                               #{node.label.length > 10 ? node.label.slice(0, 8) + "…" : node.label}
                             </text>
