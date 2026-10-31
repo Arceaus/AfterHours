@@ -74,14 +74,14 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#130F11] text-[#F0E8DF] relative selection:bg-[#D78A70]/30 selection:text-[#FAF6F0] overflow-x-hidden font-sans">
-      {/* 1. Signature Abstract 3D Environment Canvas */}
+    <div className="min-h-screen bg-[#09080A] text-[#F3EFEA] relative selection:bg-[#D47A60]/25 selection:text-[#FDFCF9] overflow-x-hidden font-sans">
+      {/* 1. Signature Abstract Celestial Canvas */}
       <ThoughtWorldCanvas isWriting={isWriting || focusMode} />
 
       {/* 2. Environmental Lighting & Atmosphere Vignette */}
       <div
         aria-hidden="true"
-        className="fixed inset-0 pointer-events-none z-0 bg-radial-gradient from-transparent via-[#130F11]/40 to-[#130F11]/90"
+        className="fixed inset-0 pointer-events-none z-0 bg-radial-gradient from-transparent via-[#09080A]/40 to-[#09080A]/90"
       />
 
       {/* 3. Floating Spatial Navigation Dock */}
@@ -95,7 +95,7 @@ export default function HomePage() {
       />
 
       {/* 4. Main Spatial Canvas */}
-      <main className="relative z-10 min-h-screen pt-24 sm:pt-28 pb-16 px-5 sm:px-8 md:px-12 max-w-6xl mx-auto flex flex-col">
+      <main className="relative z-10 min-h-screen pt-24 sm:pt-28 pb-16 px-5 sm:px-8 md:px-12 max-w-5xl mx-auto flex flex-col">
         {/* Local Data Migration Banner */}
         <MigrationBanner />
 
@@ -103,16 +103,16 @@ export default function HomePage() {
         {notification && (
           <div
             role="status"
-            className="mb-8 p-3.5 bg-[#1F191B]/85 backdrop-blur-md border border-[#D78A70]/40 text-[#F0E8DF] text-xs font-sans rounded-full max-w-md mx-auto flex items-center justify-between shadow-xl animate-fadeIn"
+            className="mb-8 p-3 bg-[#141215]/90 backdrop-blur-md border border-[#D47A60]/30 text-[#F3EFEA] text-xs font-sans rounded-full max-w-md mx-auto flex items-center justify-between shadow-xl animate-fadeIn"
           >
             <div className="flex items-center gap-2 pl-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D47A60]" />
               <span>{notification}</span>
             </div>
             <button
               type="button"
               onClick={() => setNotification(null)}
-              className="text-[#A89A98] hover:text-[#F0E8DF] text-xs px-2"
+              className="text-[#8E8782] hover:text-[#F3EFEA] text-xs px-2"
             >
               Dismiss
             </button>

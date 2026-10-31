@@ -480,11 +480,11 @@ export function WritingArea({
 
       {/* Atmospheric Editorial Opening (The Signature Tonight Experience) */}
       {!focusMode && (
-        <header className="mb-10 sm:mb-14 pt-6 select-none transition-all duration-700">
+        <header className="mb-10 sm:mb-12 pt-4 select-none transition-all duration-700">
           {/* Past entry editing mode indicator */}
           {isEditingExisting ? (
-            <div className="flex items-center justify-between gap-4 mb-6 p-3 bg-[#FAF6F0]/[0.03] border border-[#D78A70]/30 rounded-lg text-xs font-sans">
-              <div className="flex items-center gap-2 text-[#D78A70]">
+            <div className="flex items-center justify-between gap-4 mb-6 p-3 bg-white/[0.03] border border-[#D47A60]/30 rounded-xl text-xs font-sans">
+              <div className="flex items-center gap-2 text-[#D47A60]">
                 <PenLine className="w-3.5 h-3.5" />
                 <span className="font-medium">
                   Revisiting memory from {dateDisplay.fullString}
@@ -493,21 +493,21 @@ export function WritingArea({
               <button
                 type="button"
                 onClick={onStartNewDraft}
-                className="inline-flex items-center gap-1.5 text-[#F0E8DF] hover:text-[#D78A70] transition-colors py-1 px-2.5 rounded-full bg-[#FAF6F0]/[0.04]"
+                className="inline-flex items-center gap-1.5 text-[#F3EFEA] hover:text-[#D47A60] transition-colors py-1 px-3 rounded-full bg-white/[0.04]"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Return to blank canvas</span>
               </button>
             </div>
           ) : customDate && customDate !== getLocalCalendarDate() ? (
-            <div className="flex items-center justify-between gap-4 mb-6 p-3 bg-[#FAF6F0]/[0.03] border border-[#FAF6F0]/[0.08] rounded-lg text-xs font-sans">
-              <span className="text-[#A89A98]">
-                Composing thoughts for <strong className="text-[#F0E8DF]">{dateDisplay.fullString}</strong>
+            <div className="flex items-center justify-between gap-4 mb-6 p-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-xs font-sans">
+              <span className="text-[#8E8782]">
+                Composing thoughts for <strong className="text-[#F3EFEA]">{dateDisplay.fullString}</strong>
               </span>
               <button
                 type="button"
                 onClick={onStartNewDraft}
-                className="text-xs text-[#D78A70] hover:underline"
+                className="text-xs text-[#D47A60] hover:underline"
               >
                 Reset to tonight
               </button>
@@ -515,30 +515,25 @@ export function WritingArea({
           ) : null}
 
           {/* Date & Whispering Atmosphere */}
-          <div className="flex items-center gap-3 text-xs tracking-wider text-[#A89A98] mb-4 font-sans">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70]" />
-            <time className="font-serif italic text-base sm:text-lg text-[#D78A70]">
+          <div className="flex items-center gap-2.5 text-xs text-[#8E8782] mb-3 font-sans">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D47A60]" />
+            <time className="font-serif italic text-base text-[#D47A60]">
               {dateDisplay.fullString || "Tonight"}
               {dateDisplay.year ? `, ${dateDisplay.year}` : ""}
             </time>
-            <span className="text-[#A89A98]/40">&middot;</span>
-            <span className="text-[#A89A98]/70 italic font-serif">
+            <span className="text-[#8E8782]/40">&middot;</span>
+            <span className="text-[#8E8782]/80 italic font-serif">
               {dateDisplay.nightWhisper}
             </span>
           </div>
 
-          {/* Opening Poetic Prompt: "You're here." */}
-          <p className="font-sans text-xs tracking-[0.24em] uppercase text-[#A89A98] mb-3 font-medium">
-            {isEditingExisting ? "Revisiting earlier words" : "You're here."}
-          </p>
-
-          {/* Primary Inspiring Headline: "What has been living in your mind?" */}
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-light text-[#F0E8DF] tracking-[-0.015em] leading-[1.12]">
+          {/* Primary Inspiring Headline */}
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal text-[#F3EFEA] tracking-[-0.015em] leading-[1.18] mb-3">
             {isEditingExisting ? "Revise this reflection" : "What has been living in your mind?"}
           </h1>
 
-          {/* Calming Supporting Whisper: "You don't have to organize your thoughts. Just let them exist." */}
-          <p className="mt-4 font-serif italic text-base sm:text-lg text-[#A89A98] font-normal leading-relaxed max-w-xl">
+          {/* Calming Supporting Whisper */}
+          <p className="font-serif italic text-sm sm:text-base text-[#8E8782] font-normal leading-relaxed max-w-xl">
             {isEditingExisting
               ? "Amend your memory, add missing thoughts, or let it stand."
               : "You don\u2019t have to organize your thoughts. Just let them exist."}
@@ -546,13 +541,13 @@ export function WritingArea({
         </header>
       )}
 
-      {/* Spatial Writing Canvas (Integrated into the 3D environment) */}
+      {/* Spatial Writing Canvas */}
       <section
         aria-label="Writing Canvas"
         className="relative flex flex-col transition-all duration-500"
       >
         {/* Title Field (Minimal, Borderless Editorial Typography) */}
-        <div className="mb-4">
+        <div className="mb-6">
           <label htmlFor={titleInputId} className="sr-only">
             Entry title (optional)
           </label>
@@ -563,16 +558,11 @@ export function WritingArea({
             onChange={(e) => setTitle(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Give this moment a name, if you wish..."
-            className="w-full bg-transparent font-serif italic text-2xl sm:text-3xl text-[#F0E8DF] placeholder-[#A89A98]/30 border-0 border-b border-transparent focus:border-[#FAF6F0]/[0.1] pb-2 px-0 transition-colors focus-visible:outline-none focus-visible:ring-0"
+            placeholder="Give this moment a title, if you wish..."
+            className="w-full bg-transparent font-serif italic text-2xl sm:text-3xl text-[#F3EFEA] placeholder-[#8E8782]/30 border-0 border-b border-white/[0.05] focus:border-[#D47A60]/40 pb-3 px-0 transition-colors focus-visible:outline-none focus-visible:ring-0"
             autoComplete="off"
             spellCheck="false"
           />
-        </div>
-
-        {/* Quiet Tag Editor */}
-        <div className="mb-6 pt-1">
-          <TagEditor tags={tags} onChange={setTags} />
         </div>
 
         {/* The Writing Area with luxurious paragraph typography */}
@@ -588,10 +578,15 @@ export function WritingArea({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder="Start anywhere... Let the words arrive on their own."
-            className={`w-full min-h-[340px] sm:min-h-[400px] bg-transparent text-[#FAF6F0] placeholder-[#A89A98]/30 font-writing p-0 border-0 focus-visible:outline-none focus-visible:ring-0 selection:bg-[#D78A70]/30 tracking-wide ${fontSizeClasses[fontSize]}`}
+            className={`w-full min-h-[360px] sm:min-h-[420px] bg-transparent text-[#F3EFEA] placeholder-[#8E8782]/30 font-writing p-0 border-0 focus-visible:outline-none focus-visible:ring-0 selection:bg-[#D47A60]/25 tracking-wide ${fontSizeClasses[fontSize]}`}
             rows={12}
             spellCheck="true"
           />
+        </div>
+
+        {/* Quiet Tag Editor (Now below writing area so it never interrupts the flow) */}
+        <div className="mt-6 pt-3 border-t border-white/[0.05]">
+          <TagEditor tags={tags} onChange={setTags} />
         </div>
 
         {/* Memory Attachments Tray */}
@@ -602,7 +597,7 @@ export function WritingArea({
         />
 
         {/* Subtle, Calm Status Bar */}
-        <footer className="mt-12 pt-6 border-t border-[#FAF6F0]/[0.08] flex flex-wrap items-center justify-between gap-4 text-xs font-sans text-[#A89A98]">
+        <footer className="mt-8 pt-5 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-4 text-xs font-sans text-[#8E8782]">
           {/* Truthful Save Status */}
           <div className="flex items-center gap-2.5">
             {saveStatus === "saving" && (
