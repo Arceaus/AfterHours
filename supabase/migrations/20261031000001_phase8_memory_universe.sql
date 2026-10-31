@@ -182,3 +182,4 @@ CREATE POLICY "Users can delete their own meaningful moments"
     USING (auth.uid() = user_id);
 
 GRANT ALL ON TABLE public.meaningful_moments TO anon, authenticated;
+

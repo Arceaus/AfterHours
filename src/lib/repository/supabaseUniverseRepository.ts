@@ -340,3 +340,4 @@ export class SupabaseUniverseRepository implements IUniverseRepository {
     }
   }
 }
+

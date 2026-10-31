@@ -153,3 +153,4 @@ DROP POLICY IF EXISTS "Users can delete their own meaningful moments" ON public.
 CREATE POLICY "Users can delete their own meaningful moments" ON public.meaningful_moments FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 GRANT ALL ON TABLE public.meaningful_moments TO anon, authenticated;
+

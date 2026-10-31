@@ -83,8 +83,10 @@ export function MemoryUniverseView({
   // Pan & Zoom state for SVG graph
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const isPointerDownRef = useRef(false);
+  const dragDistanceRef = useRef(0);
+  const pointerStartRef = useRef({ x: 0, y: 0 });
+  const panStartRef = useRef({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   // Modals & Drawers
@@ -144,35 +146,63 @@ export function MemoryUniverseView({
     );
   }, [entries, entities, mentions, connections, meaningfulMoments, graphFilter, searchQuery]);
 
-  // Handle Graph SVG mouse drag / pan
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Handle Graph SVG mouse/pointer drag and pan with distance threshold
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return; // Primary button only
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    isPointerDownRef.current = true;
+    dragDistanceRef.current = 0;
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
+    panStartRef.current = { ...pan };
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    setPan({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    });
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isPointerDownRef.current) return;
+    const dx = e.clientX - pointerStartRef.current.x;
+    const dy = e.clientY - pointerStartRef.current.y;
+    dragDistanceRef.current = Math.hypot(dx, dy);
+
+    // Only pan if the pointer actually moved more than 4px
+    if (dragDistanceRef.current > 4) {
+      setPan({
+        x: panStartRef.current.x + dx,
+        y: panStartRef.current.y + dy,
+      });
+    }
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
+  const handlePointerUp = () => {
+    isPointerDownRef.current = false;
   };
 
+  // Wheel zoom: ONLY zoom if user holds Ctrl / Meta key, allowing completely natural page scrolling
   const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY < 0 ? 1.1 : 0.9;
-    setZoom((prev) => Math.min(Math.max(0.4, prev * delta), 2.5));
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      // Gentle exponential damping so graph never jumps too fast
+      const factor = Math.exp(-e.deltaY * 0.0015);
+      setZoom((prev) => Math.min(Math.max(0.4, prev * factor), 2.5));
+    }
+  };
+
+  const handleZoomIn = () => {
+    setZoom((z) => Math.min(2.5, z * 1.15));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((z) => Math.max(0.4, z * 0.85));
   };
 
   const resetView = () => {
     setPan({ x: 0, y: 0 });
     setZoom(1);
     setSelectedNode(null);
+  };
+
+  const handleNodeClick = (e: React.MouseEvent, node: GraphNode) => {
+    e.stopPropagation();
+    // If user dragged more than 5px, don't trigger click
+    if (dragDistanceRef.current > 5) return;
+    setSelectedNode(node);
   };
 
   // Perform AI / Heuristic Scan
@@ -568,18 +598,18 @@ export function MemoryUniverseView({
               <div className="absolute top-4 right-4 z-10 flex flex-col gap-1.5 bg-[#2B2226]/90 border border-[#45373C] rounded-lg p-1.5 backdrop-blur-sm shadow-md">
                 <button
                   type="button"
-                  onClick={() => setZoom((z) => Math.min(2.5, z * 1.2))}
+                  onClick={handleZoomIn}
                   className="p-1.5 text-[#A89A98] hover:text-[#F0E8DF] hover:bg-[#45373C]/40 rounded transition-colors"
-                  title="Zoom In"
+                  title="Zoom In (or use Ctrl + Scroll)"
                   aria-label="Zoom In"
                 >
                   <ZoomIn className="w-4 h-4" />
                 </button>
                 <button
                   type="button"
-                  onClick={() => setZoom((z) => Math.max(0.4, z * 0.8))}
+                  onClick={handleZoomOut}
                   className="p-1.5 text-[#A89A98] hover:text-[#F0E8DF] hover:bg-[#45373C]/40 rounded transition-colors"
-                  title="Zoom Out"
+                  title="Zoom Out (or use Ctrl + Scroll)"
                   aria-label="Zoom Out"
                 >
                   <ZoomOut className="w-4 h-4" />
@@ -593,6 +623,12 @@ export function MemoryUniverseView({
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
+              </div>
+
+              {/* Interaction guidance pill */}
+              <div className="absolute top-4 left-4 z-10 bg-[#2B2226]/85 border border-[#45373C]/50 rounded-full px-3 py-1 backdrop-blur-sm text-[11px] font-sans text-[#A89A98] pointer-events-none hidden sm:flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D78A70] animate-pulse" />
+                <span>Drag to explore • Ctrl + scroll to zoom • Click any memory to visit</span>
               </div>
 
               {/* Legend Overlay */}
@@ -621,14 +657,15 @@ export function MemoryUniverseView({
                 </div>
               </div>
 
-              {/* SVG Surface */}
+              {/* SVG Surface with distance-checked pointer dragging */}
               <svg
                 ref={svgRef}
-                className="w-full h-full cursor-grab active:cursor-grabbing"
+                className="w-full h-full cursor-grab active:cursor-grabbing touch-none select-none"
                 viewBox="0 0 1000 800"
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
                 onWheel={handleWheel}
               >
                 <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
@@ -680,12 +717,12 @@ export function MemoryUniverseView({
                       <g
                         key={node.id}
                         transform={`translate(${node.x}, ${node.y})`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedNode(node);
-                        }}
+                        onClick={(e) => handleNodeClick(e, node)}
                         className="cursor-pointer transition-transform hover:scale-110"
                       >
+                        {/* Generous invisible hit circle for effortless mouse/finger clicks */}
+                        <circle r={28} fill="transparent" pointerEvents="all" />
+
                         {/* Entry Node */}
                         {node.type === "entry" && (
                           <>
@@ -808,126 +845,225 @@ export function MemoryUniverseView({
                 </g>
               </svg>
 
-              {/* Node Inspector Drawer */}
+              {/* ANIMATED OVERVIEW BOX & VISIT REDIRECT MODAL */}
               {selectedNode && (
-                <div className="absolute top-4 left-4 z-20 w-80 max-w-[90%] bg-[#2B2226]/95 border border-[#45373C] rounded-xl p-5 backdrop-blur-md shadow-2xl flex flex-col gap-4 animate-fadeIn">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="text-[10px] uppercase font-mono tracking-wider text-[#D78A70]">
-                        {selectedNode.type}
-                      </span>
-                      <h4 className="font-serif text-lg text-[#F0E8DF] leading-tight">
-                        {selectedNode.label}
-                      </h4>
-                      {selectedNode.sublabel && (
-                        <p className="text-xs text-[#A89A98] font-sans mt-0.5">{selectedNode.sublabel}</p>
-                      )}
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm animate-fadeIn"
+                  onClick={() => setSelectedNode(null)}
+                >
+                  <div
+                    className="relative bg-[#2B2226] border border-[#D78A70]/50 rounded-2xl max-w-md w-full p-6 sm:p-7 shadow-2xl flex flex-col gap-5 animate-scaleUp"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* Header with Type, Title, and Close */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[10px] uppercase font-mono tracking-widest text-[#D78A70] bg-[#D78A70]/10 px-2 py-0.5 rounded border border-[#D78A70]/20 font-semibold">
+                            {selectedNode.type === "entry" ? "Diary Memory" : selectedNode.type}
+                          </span>
+                          {selectedNode.date && (
+                            <span className="text-xs text-[#A89A98] font-mono flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-[#A89A98]/70" />
+                              <span>{selectedNode.date}</span>
+                            </span>
+                          )}
+                        </div>
+
+                        <h3 className="font-serif text-2xl text-[#F0E8DF] leading-snug">
+                          {selectedNode.label}
+                        </h3>
+
+                        {selectedNode.sublabel && (
+                          <p className="text-xs text-[#A89A98] font-sans mt-0.5">
+                            {selectedNode.sublabel}
+                          </p>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedNode(null)}
+                        className="text-[#A89A98] hover:text-[#F0E8DF] p-1.5 rounded-lg hover:bg-[#45373C]/40 transition-colors"
+                        aria-label="Close overview"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedNode(null)}
-                      className="text-[#A89A98] hover:text-[#F0E8DF] p-1"
-                      aria-label="Close details"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
 
-                  {/* Node Specific Actions */}
-                  {selectedNode.type === "entry" && selectedNode.entryId && (
-                    <div className="flex flex-col gap-3">
-                      {(() => {
-                        const targetEntry = entries.find((e) => e.id === selectedNode.entryId);
-                        if (!targetEntry) return null;
-                        const isMeaningful = meaningfulMoments.some((m) => m.entryId === targetEntry.id);
+                    {/* OVERVIEW CONTENT FOR DIARY ENTRY */}
+                    {selectedNode.type === "entry" && selectedNode.entryId && (
+                      <div className="flex flex-col gap-4">
+                        {(() => {
+                          const targetEntry = entries.find((e) => e.id === selectedNode.entryId);
+                          if (!targetEntry) return null;
+                          const isMeaningful = meaningfulMoments.some((m) => m.entryId === targetEntry.id);
 
-                        return (
-                          <>
-                            <p className="text-xs text-[#F0E8DF]/80 font-sans italic line-clamp-3 bg-[#211A1D]/60 p-2.5 rounded border border-[#45373C]/40">
-                              "{targetEntry.content.slice(0, 160)}..."
-                            </p>
-                            <div className="flex items-center gap-2 pt-1">
-                              <button
-                                type="button"
-                                onClick={() => onOpenEntry(targetEntry)}
-                                className="flex-1 py-1.5 px-3 bg-[#D78A70] hover:bg-[#D78A70]/90 text-[#211A1D] rounded text-xs font-sans font-medium flex items-center justify-center gap-1.5 transition-colors"
-                              >
-                                <span>Open in Tonight</span>
-                                <ExternalLink className="w-3 h-3" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (isMeaningful) {
-                                    toggleMeaningfulMoment(targetEntry.id);
-                                  } else {
-                                    setMomentEntryId(targetEntry.id);
-                                    setMomentNote("");
-                                  }
-                                }}
-                                className={`p-1.5 border rounded text-xs transition-colors ${
-                                  isMeaningful
-                                    ? "border-[#D78A70] bg-[#D78A70]/15 text-[#D78A70]"
-                                    : "border-[#45373C] text-[#A89A98] hover:text-[#F0E8DF]"
-                                }`}
-                                title={isMeaningful ? "Remove Meaningful Moment" : "Mark as Meaningful Moment"}
-                              >
-                                <Star className={`w-4 h-4 ${isMeaningful ? "fill-[#D78A70]" : ""}`} />
-                              </button>
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  )}
+                          return (
+                            <>
+                              <div className="bg-[#211A1D]/80 border border-[#45373C]/60 rounded-xl p-4 flex flex-col gap-2">
+                                <span className="text-[10px] uppercase tracking-wider font-mono text-[#A89A98]/80 font-medium">
+                                  Memory Excerpt
+                                </span>
+                                <p className="text-xs sm:text-sm text-[#F0E8DF]/90 font-sans italic leading-relaxed line-clamp-4">
+                                  "{targetEntry.content.slice(0, 260)}{targetEntry.content.length > 260 ? "…" : ""}"
+                                </p>
+                              </div>
 
-                  {/* Entity Details & Status Toggle */}
-                  {selectedNode.entityId && (
-                    <div className="flex flex-col gap-3">
-                      {(() => {
-                        const targetEntity = entities.find((e) => e.id === selectedNode.entityId);
-                        if (!targetEntity) return null;
-
-                        return (
-                          <>
-                            <div className="flex items-center justify-between text-xs font-sans">
-                              <span className="text-[#A89A98]">Status:</span>
-                              <span
-                                className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wide font-medium ${
-                                  targetEntity.confirmationStatus === "confirmed"
-                                    ? "bg-emerald-950/60 text-emerald-300 border border-emerald-800/40"
-                                    : "bg-[#45373C]/60 text-[#F0E8DF]"
-                                }`}
-                              >
-                                {targetEntity.confirmationStatus}
-                              </span>
-                            </div>
-
-                            <div className="flex items-center gap-2 pt-2 border-t border-[#45373C]/40">
-                              {targetEntity.confirmationStatus !== "confirmed" ? (
-                                <button
-                                  type="button"
-                                  onClick={() => handleConfirmEntity(targetEntity)}
-                                  className="flex-1 py-1.5 bg-emerald-900/60 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-200 rounded text-xs font-sans transition-colors flex items-center justify-center gap-1"
-                                >
-                                  <Check className="w-3 h-3" />
-                                  <span>Confirm</span>
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => handleDismissEntity(targetEntity)}
-                                  className="flex-1 py-1.5 bg-[#45373C]/40 hover:bg-[#45373C] text-[#A89A98] hover:text-[#F0E8DF] rounded text-xs font-sans transition-colors"
-                                >
-                                  Dismiss
-                                </button>
+                              {/* Tags */}
+                              {targetEntry.tags && targetEntry.tags.length > 0 && (
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  {targetEntry.tags.map((t) => (
+                                    <span
+                                      key={t}
+                                      className="px-2 py-0.5 rounded text-[11px] bg-[#211A1D] text-[#A89A98] border border-[#45373C]/40 font-mono"
+                                    >
+                                      #{t.replace(/^#/, "")}
+                                    </span>
+                                  ))}
+                                </div>
                               )}
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  )}
+
+                              {/* VISIT MEMORY ACTION BUTTON */}
+                              <div className="flex flex-col gap-2 pt-2 border-t border-[#45373C]/40">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedNode(null);
+                                    onOpenEntry(targetEntry);
+                                  }}
+                                  className="w-full py-3 px-5 bg-[#D78A70] hover:bg-[#D78A70]/90 text-[#211A1D] rounded-xl font-sans text-xs sm:text-sm font-semibold tracking-wide flex items-center justify-center gap-2.5 shadow-lg shadow-[#D78A70]/20 transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                                >
+                                  <span>Visit Memory</span>
+                                  <ArrowRight className="w-4 h-4 stroke-[2.2]" />
+                                </button>
+
+                                <div className="flex items-center justify-between pt-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (isMeaningful) {
+                                        toggleMeaningfulMoment(targetEntry.id);
+                                      } else {
+                                        setMomentEntryId(targetEntry.id);
+                                        setMomentNote("");
+                                      }
+                                    }}
+                                    className={`text-xs font-sans flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
+                                      isMeaningful
+                                        ? "text-[#D78A70] bg-[#D78A70]/10 border border-[#D78A70]/30"
+                                        : "text-[#A89A98] hover:text-[#F0E8DF]"
+                                    }`}
+                                  >
+                                    <Star className={`w-3.5 h-3.5 ${isMeaningful ? "fill-[#D78A70]" : ""}`} />
+                                    <span>{isMeaningful ? "Meaningful Moment marked" : "Mark as Meaningful Moment"}</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedNode(null)}
+                                    className="text-xs text-[#A89A98] hover:text-[#F0E8DF] px-2 py-1"
+                                  >
+                                    Dismiss
+                                  </button>
+                                </div>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )}
+
+                    {/* OVERVIEW CONTENT FOR ENTITY (PERSON, PLACE, TOPIC, PROJECT) */}
+                    {selectedNode.type !== "entry" && selectedNode.entityId && (
+                      <div className="flex flex-col gap-4">
+                        {(() => {
+                          const targetEntity = entities.find((e) => e.id === selectedNode.entityId);
+                          if (!targetEntity) return null;
+                          const entityMentions = mentions.filter((m) => m.entityId === targetEntity.id);
+
+                          return (
+                            <>
+                              <div className="flex items-center justify-between text-xs font-sans pb-2 border-b border-[#45373C]/40">
+                                <span className="text-[#A89A98]">
+                                  Appears in {entityMentions.length} {entityMentions.length === 1 ? "memory" : "memories"}:
+                                </span>
+                                <span
+                                  className={`px-2 py-0.5 rounded text-[10px] uppercase font-mono font-medium ${
+                                    targetEntity.confirmationStatus === "confirmed"
+                                      ? "bg-emerald-950/60 text-emerald-300 border border-emerald-800/40"
+                                      : "bg-[#45373C]/60 text-[#F0E8DF]"
+                                  }`}
+                                >
+                                  {targetEntity.confirmationStatus}
+                                </span>
+                              </div>
+
+                              {/* List of associated memories with Visit buttons */}
+                              <div className="flex flex-col gap-2.5 max-h-56 overflow-y-auto pr-1">
+                                {entityMentions.map((m) => {
+                                  const parentEntry = entries.find((e) => e.id === m.entryId);
+                                  if (!parentEntry) return null;
+
+                                  return (
+                                    <div
+                                      key={m.id}
+                                      className="bg-[#211A1D]/80 border border-[#45373C]/50 rounded-xl p-3 flex flex-col gap-2"
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-mono text-[#D78A70]">
+                                          {parentEntry.entryDate}
+                                        </span>
+                                        <span className="font-serif text-xs text-[#F0E8DF] truncate max-w-[180px]">
+                                          {parentEntry.title || "Untitled"}
+                                        </span>
+                                      </div>
+                                      <p className="text-xs text-[#A89A98] font-sans italic line-clamp-2">
+                                        "{m.excerpt || parentEntry.content.slice(0, 100)}..."
+                                      </p>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedNode(null);
+                                          onOpenEntry(parentEntry);
+                                        }}
+                                        className="self-end px-3 py-1 bg-[#D78A70] hover:bg-[#D78A70]/90 text-[#211A1D] rounded-md font-sans text-[11px] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                                      >
+                                        <span>Visit Memory</span>
+                                        <ArrowRight className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Entity Confirmation Actions */}
+                              <div className="flex items-center gap-2 pt-2 border-t border-[#45373C]/40">
+                                {targetEntity.confirmationStatus !== "confirmed" ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleConfirmEntity(targetEntity)}
+                                    className="flex-1 py-2 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800/50 text-emerald-300 rounded-lg text-xs font-sans transition-colors flex items-center justify-center gap-1.5"
+                                  >
+                                    <Check className="w-3.5 h-3.5" />
+                                    <span>Confirm Identity</span>
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDismissEntity(targetEntity)}
+                                    className="flex-1 py-2 bg-[#45373C]/40 hover:bg-[#45373C] text-[#A89A98] hover:text-[#F0E8DF] rounded-lg text-xs font-sans transition-colors"
+                                  >
+                                    Dismiss
+                                  </button>
+                                )}
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -1826,3 +1962,4 @@ export function MemoryUniverseView({
     </div>
   );
 }
+
