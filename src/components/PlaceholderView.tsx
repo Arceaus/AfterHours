@@ -54,6 +54,14 @@ export function PlaceholderView({ view, onReturnToTonight }: PlaceholderViewProp
       icon: <Mail className="w-6 h-6 text-[#D78A70]" />,
       whisper: "Some things are worth leaving for later.",
     },
+    reflection: {
+      title: "Reflection Center",
+      subtitle: "Look back to see things differently",
+      description:
+        "Understand recurring themes, explore changing perspectives over time, and revisit your personal history using your actual diary entries.",
+      icon: <BookOpen className="w-6 h-6 text-[#D78A70]" />,
+      whisper: "Sometimes, looking back helps you see things differently.",
+    },
   };
 
   const current = contentMap[view] || contentMap.letters!;

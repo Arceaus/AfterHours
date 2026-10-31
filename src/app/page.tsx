@@ -9,6 +9,7 @@ import { ArchiveView } from "@/components/ArchiveView";
 import { CalendarView } from "@/components/CalendarView";
 import { TimeCapsulesView } from "@/components/TimeCapsulesView";
 import { FutureLettersView } from "@/components/FutureLettersView";
+import { ReflectionView } from "@/components/ReflectionView";
 import { MigrationBanner } from "@/components/MigrationBanner";
 import { AccountModal } from "@/components/AccountModal";
 import { useRepository } from "@/lib/repository/RepositoryContext";
@@ -171,6 +172,14 @@ export default function HomePage() {
 
         {currentView === "letters" && (
           <FutureLettersView
+            onReturnToTonight={handleStartNewDraft}
+          />
+        )}
+
+        {currentView === "reflection" && (
+          <ReflectionView
+            entries={entries}
+            onOpenEntry={handleSelectEntry}
             onReturnToTonight={handleStartNewDraft}
           />
         )}

@@ -1,4 +1,4 @@
-export type NavView = 'tonight' | 'archive' | 'calendar' | 'capsules' | 'letters';
+export type NavView = 'tonight' | 'archive' | 'calendar' | 'capsules' | 'letters' | 'reflection';
 
 export interface DiaryEntry {
   id: string;
@@ -82,3 +82,70 @@ export interface FutureLetterDraft {
   scheduledOpenAt: string; // YYYY-MM-DD
   updatedAt: string; // ISO 8601
 }
+
+// Phase 7: AI Personal Reflection Engine Types
+export type ReflectionType = 'question' | 'perspective' | 'monthly' | 'pattern' | 'connection';
+
+export interface EvidenceItem {
+  entryId: string;
+  entryDate: string;
+  title?: string;
+  excerpt: string;
+}
+
+export interface StructuredReflection {
+  summary: string;
+  observations: string[];
+  evidence: EvidenceItem[];
+  limitations: string;
+  reflectionQuestions: string[];
+}
+
+export interface SavedReflection {
+  id: string;
+  createdAt: string; // ISO 8601
+  type: ReflectionType;
+  title: string;
+  query?: string;
+  dateRange?: {
+    start?: string;
+    end?: string;
+    label?: string;
+  };
+  reflection: StructuredReflection;
+  referencedEntryIds: string[];
+  usedAI: boolean;
+}
+
+export interface PersonalPattern {
+  topic: string;
+  frequency: 'frequent' | 'occasional' | 'emerging';
+  mentionCount: number;
+  firstSeen: string; // YYYY-MM-DD
+  lastSeen: string;  // YYYY-MM-DD
+  excerpts: EvidenceItem[];
+  description: string;
+}
+
+export interface MemoryConnection {
+  id: string;
+  entryA: EvidenceItem;
+  entryB: EvidenceItem;
+  explanation: string;
+  confidence: 'observed connection' | 'tentative thematic link';
+  theme: string;
+  dismissed?: boolean;
+}
+
+export interface MonthlyReflectionData {
+  monthKey: string; // YYYY-MM
+  monthLabel: string;
+  entryCount: number;
+  summary: string;
+  topics: { topic: string; count: number }[];
+  memorableMoments: EvidenceItem[];
+  repeatedInterests: string[];
+  questionsToRevisit: string[];
+  evidence: EvidenceItem[];
+}
+

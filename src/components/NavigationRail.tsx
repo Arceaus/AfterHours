@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { NavView } from "@/types/entry";
-import { Feather, BookOpen, Calendar, Archive, Mail, Moon, Eye, EyeOff, Shield, Cloud } from "lucide-react";
+import { Feather, BookOpen, Calendar, Archive, Mail, Sparkles, Moon, Eye, EyeOff, Shield, Cloud } from "lucide-react";
 import { getFormattedDate } from "@/lib/date";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useRepository } from "@/lib/repository/RepositoryContext";
@@ -75,6 +75,12 @@ export function NavigationRail({
       label: "Future Letters",
       icon: <Mail className="w-4 h-4 stroke-[1.5]" />,
       hint: "Letters to your future self",
+    },
+    {
+      id: "reflection",
+      label: "Reflection",
+      icon: <Sparkles className="w-4 h-4 stroke-[1.5]" />,
+      hint: "See things differently",
     },
   ];
 

@@ -1,12 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
-import { DiaryEntry, FutureLetter } from "@/types/entry";
-import { IEntryRepository, IFutureLetterRepository, MigrationSummary } from "./types";
+import { DiaryEntry, FutureLetter, SavedReflection } from "@/types/entry";
+import { IEntryRepository, IFutureLetterRepository, IReflectionRepository, MigrationSummary } from "./types";
 import { LocalEntryRepository } from "./localEntryRepository";
 import { LocalLetterRepository } from "./localLetterRepository";
+import { LocalReflectionRepository } from "./localReflectionRepository";
 import { SupabaseEntryRepository } from "./supabaseEntryRepository";
 import { SupabaseLetterRepository } from "./supabaseLetterRepository";
+import { SupabaseReflectionRepository } from "./supabaseReflectionRepository";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { checkPendingLocalData, executeDataMigration, exportArchiveAsJSON } from "./migration";
@@ -18,16 +20,21 @@ export interface RepositoryContextType {
   isSyncing: boolean;
   entries: DiaryEntry[];
   letters: FutureLetter[];
+  reflections: SavedReflection[];
   activeEntryRepo: IEntryRepository;
   activeLetterRepo: IFutureLetterRepository;
+  activeReflectionRepo: IReflectionRepository;
   refreshEntries: () => Promise<DiaryEntry[]>;
   refreshLetters: () => Promise<FutureLetter[]>;
+  refreshReflections: () => Promise<SavedReflection[]>;
   saveEntry: (entry: DiaryEntry) => Promise<DiaryEntry>;
   deleteEntry: (id: string) => Promise<void>;
   saveLetter: (letter: FutureLetter) => Promise<FutureLetter>;
   deleteLetter: (id: string) => Promise<void>;
   openLetter: (id: string) => Promise<FutureLetter | null>;
   unsealLetter: (id: string) => Promise<FutureLetter | null>;
+  saveReflection: (reflection: SavedReflection) => Promise<SavedReflection>;
+  deleteReflection: (id: string) => Promise<void>;
   // Migration
   pendingLocalData: {
     entriesCount: number;
@@ -43,6 +50,7 @@ export interface RepositoryContextType {
 
 const defaultLocalEntryRepo = new LocalEntryRepository();
 const defaultLocalLetterRepo = new LocalLetterRepository();
+const defaultLocalReflectionRepo = new LocalReflectionRepository();
 
 const RepositoryContext = createContext<RepositoryContextType | null>(null);
 
@@ -50,6 +58,7 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
   const { user, session, signOut } = useAuth();
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [letters, setLetters] = useState<FutureLetter[]>([]);
+  const [reflections, setReflections] = useState<SavedReflection[]>([]);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [pendingLocal, setPendingLocal] = useState({
     entriesCount: 0,
@@ -58,18 +67,20 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
   });
 
   // Decide active repos based on user authentication
-  const { entryRepo, letterRepo, mode } = useMemo(() => {
+  const { entryRepo, letterRepo, reflectionRepo, mode } = useMemo(() => {
     const supabase = getSupabaseBrowserClient();
     if (user && supabase) {
       return {
         entryRepo: new SupabaseEntryRepository(supabase, user.id),
         letterRepo: new SupabaseLetterRepository(supabase, user.id),
+        reflectionRepo: new SupabaseReflectionRepository(supabase, user.id),
         mode: "cloud" as const,
       };
     }
     return {
       entryRepo: defaultLocalEntryRepo,
       letterRepo: defaultLocalLetterRepo,
+      reflectionRepo: defaultLocalReflectionRepo,
       mode: "local" as const,
     };
   }, [user]);
@@ -110,14 +121,27 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
     }
   }, [letterRepo]);
 
+  const refreshReflections = useCallback(async (): Promise<SavedReflection[]> => {
+    try {
+      const data = await reflectionRepo.listReflections();
+      setReflections(data);
+      return data;
+    } catch (err) {
+      console.error("Failed to refresh reflections:", err);
+      return [];
+    }
+  }, [reflectionRepo]);
+
   useEffect(() => {
     // When switching user or mode, reset state immediately to prevent cache bleeding
     setEntries([]);
     setLetters([]);
+    setReflections([]);
     refreshEntries();
     refreshLetters();
+    refreshReflections();
     updatePendingLocalStatus();
-  }, [user, mode, refreshEntries, refreshLetters, updatePendingLocalStatus]);
+  }, [user, mode, refreshEntries, refreshLetters, refreshReflections, updatePendingLocalStatus]);
 
   const handleSaveEntry = useCallback(
     async (entry: DiaryEntry): Promise<DiaryEntry> => {
@@ -179,6 +203,23 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
       return unsealed;
     },
     [letterRepo, refreshLetters]
+  );
+
+  const handleSaveReflection = useCallback(
+    async (reflection: SavedReflection): Promise<SavedReflection> => {
+      const saved = await reflectionRepo.saveReflection(reflection);
+      await refreshReflections();
+      return saved;
+    },
+    [reflectionRepo, refreshReflections]
+  );
+
+  const handleDeleteReflection = useCallback(
+    async (id: string): Promise<void> => {
+      await reflectionRepo.deleteReflection(id);
+      await refreshReflections();
+    },
+    [reflectionRepo, refreshReflections]
   );
 
   // Safe migration flow
@@ -262,16 +303,21 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
         isSyncing,
         entries,
         letters,
+        reflections,
         activeEntryRepo: entryRepo,
         activeLetterRepo: letterRepo,
+        activeReflectionRepo: reflectionRepo,
         refreshEntries,
         refreshLetters,
+        refreshReflections,
         saveEntry: handleSaveEntry,
         deleteEntry: handleDeleteEntry,
         saveLetter: handleSaveLetter,
         deleteLetter: handleDeleteLetter,
         openLetter: handleOpenLetter,
         unsealLetter: handleUnsealLetter,
+        saveReflection: handleSaveReflection,
+        deleteReflection: handleDeleteReflection,
         pendingLocalData: pendingLocal,
         migrateLocalToCloud,
         clearLocalBrowserData,

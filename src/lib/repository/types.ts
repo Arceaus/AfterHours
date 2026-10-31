@@ -1,4 +1,4 @@
-import { DiaryEntry, FutureLetter } from "@/types/entry";
+import { DiaryEntry, FutureLetter, SavedReflection } from "@/types/entry";
 
 export interface IEntryRepository {
   listEntries(): Promise<DiaryEntry[]>;
@@ -15,6 +15,12 @@ export interface IFutureLetterRepository {
   deleteLetter(id: string): Promise<void>;
   openLetter(id: string): Promise<FutureLetter | null>;
   unsealLetter(id: string): Promise<FutureLetter | null>;
+}
+
+export interface IReflectionRepository {
+  listReflections(): Promise<SavedReflection[]>;
+  saveReflection(reflection: SavedReflection): Promise<SavedReflection>;
+  deleteReflection(id: string): Promise<void>;
 }
 
 export interface MigrationSummary {
