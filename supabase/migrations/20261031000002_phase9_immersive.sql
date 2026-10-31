@@ -83,3 +83,4 @@ CREATE POLICY "Users can delete their own diary attachments" ON storage.objects
         bucket_id = 'diary-attachments' AND
         (storage.foldername(name))[1] = auth.uid()::text
     );
+

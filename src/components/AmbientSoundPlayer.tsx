@@ -223,3 +223,4 @@ export function AmbientSoundPlayer({ compact = false }: AmbientSoundPlayerProps)
     </div>
   );
 }
+

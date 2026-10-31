@@ -487,3 +487,4 @@ class SoundscapeEngine {
 
 // Global singleton instance
 export const ambientSound = typeof window !== 'undefined' ? new SoundscapeEngine() : (null as unknown as SoundscapeEngine);
+

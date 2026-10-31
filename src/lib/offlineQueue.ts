@@ -159,3 +159,4 @@ export class OfflineSyncQueue {
 }
 
 export const offlineQueue = typeof window !== 'undefined' ? OfflineSyncQueue.getInstance() : (null as unknown as OfflineSyncQueue);
+
