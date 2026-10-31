@@ -20,3 +20,4 @@ export class LocalReflectionRepository implements IReflectionRepository {
     removeLocalReflection(id);
   }
 }
+

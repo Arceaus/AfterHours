@@ -61,7 +61,13 @@ export class SupabaseReflectionRepository implements IReflectionRepository {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("SupabaseReflectionRepository: listReflections error", error.message);
+      if (error.message.includes("Could not find the table") || error.code === "PGRST205") {
+        console.warn(
+          "Supabase 'reflections' table not yet created. Run supabase/migrations/20261031000000_phase7_reflections.sql in Supabase SQL Editor."
+        );
+      } else {
+        console.error("SupabaseReflectionRepository: listReflections error", error.message);
+      }
       return [];
     }
 
@@ -110,3 +116,4 @@ export class SupabaseReflectionRepository implements IReflectionRepository {
     }
   }
 }
+

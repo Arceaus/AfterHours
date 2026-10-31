@@ -47,3 +47,4 @@ CREATE POLICY "Users can delete their own reflections"
 
 -- Permissions
 GRANT ALL ON TABLE public.reflections TO anon, authenticated;
+

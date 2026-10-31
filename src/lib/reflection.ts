@@ -512,3 +512,4 @@ export function removeLocalReflection(id: string): SavedReflection[] {
     return [];
   }
 }
+
