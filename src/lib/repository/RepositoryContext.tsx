@@ -9,6 +9,7 @@ import {
   MemoryMention,
   UniverseConnection,
   MeaningfulMoment,
+  MemoryAttachment,
 } from "@/types/entry";
 import {
   IEntryRepository,
@@ -27,13 +28,21 @@ import { SupabaseReflectionRepository } from "./supabaseReflectionRepository";
 import { SupabaseUniverseRepository } from "./supabaseUniverseRepository";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { checkPendingLocalData, executeDataMigration, exportArchiveAsJSON } from "./migration";
-import { clearActiveDraft } from "@/lib/storage";
+import {
+  checkPendingLocalData,
+  executeDataMigration,
+  exportArchiveAsJSON,
+  FullArchivePayload,
+} from "./migration";
+import { clearActiveDraft, persistEntry } from "@/lib/storage";
 import { clearLetterDraft } from "@/lib/letters";
+import { offlineQueue } from "@/lib/offlineQueue";
 
 export interface RepositoryContextType {
   mode: "cloud" | "local";
   isSyncing: boolean;
+  isOnline: boolean;
+  pendingQueueCount: number;
   entries: DiaryEntry[];
   letters: FutureLetter[];
   reflections: SavedReflection[];
@@ -63,6 +72,10 @@ export interface RepositoryContextType {
   saveConnection: (connection: UniverseConnection) => Promise<UniverseConnection>;
   deleteConnection: (id: string) => Promise<void>;
   toggleMeaningfulMoment: (entryId: string, note?: string) => Promise<boolean>;
+  // Phase 9: Attachments
+  listAttachments: (entryId: string) => Promise<MemoryAttachment[]>;
+  saveAttachment: (entryId: string, file: File) => Promise<MemoryAttachment>;
+  deleteAttachment: (attachmentId: string, storagePath?: string) => Promise<void>;
   // Migration
   pendingLocalData: {
     entriesCount: number;
@@ -71,8 +84,9 @@ export interface RepositoryContextType {
   };
   migrateLocalToCloud: () => Promise<MigrationSummary>;
   clearLocalBrowserData: () => void;
-  // Export & Account Management
+  // Export, Import & Account Management
   exportData: () => void;
+  importArchiveJSON: (payload: FullArchivePayload) => Promise<{ success: boolean; importedCount: number; error?: string }>;
   deleteAccount: (confirmation: string) => Promise<{ success: boolean; message?: string; error?: string }>;
 }
 
@@ -93,34 +107,67 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
   const [connections, setConnections] = useState<UniverseConnection[]>([]);
   const [meaningfulMoments, setMeaningfulMoments] = useState<MeaningfulMoment[]>([]);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== "undefined" ? navigator.onLine : true);
+  const [pendingQueueCount, setPendingQueueCount] = useState<number>(0);
   const [pendingLocal, setPendingLocal] = useState({
     entriesCount: 0,
     lettersCount: 0,
     hasData: false,
   });
 
-  // Decide active repos based on user authentication
-  const { entryRepo, letterRepo, reflectionRepo, universeRepo, mode } = useMemo(() => {
-    const supabase = getSupabaseBrowserClient();
-    if (user && supabase) {
-      return {
-        entryRepo: new SupabaseEntryRepository(supabase, user.id),
-        letterRepo: new SupabaseLetterRepository(supabase, user.id),
-        reflectionRepo: new SupabaseReflectionRepository(supabase, user.id),
-        universeRepo: new SupabaseUniverseRepository(supabase, user.id),
-        mode: "cloud" as const,
-      };
-    }
-    return {
-      entryRepo: defaultLocalEntryRepo,
-      letterRepo: defaultLocalLetterRepo,
-      reflectionRepo: defaultLocalReflectionRepo,
-      universeRepo: defaultLocalUniverseRepo,
-      mode: "local" as const,
-    };
-  }, [user]);
+  const mode: "cloud" | "local" = user ? "cloud" : "local";
+  const supabaseClient = useMemo(() => getSupabaseBrowserClient(), []);
 
-  // Check pending local data whenever auth state changes
+  // Monitor network connectivity
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    let unsubscribeQueue: (() => void) | undefined;
+    if (offlineQueue) {
+      unsubscribeQueue = offlineQueue.subscribe((items) => {
+        setPendingQueueCount(items.length);
+      });
+    }
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+      if (unsubscribeQueue) unsubscribeQueue();
+    };
+  }, []);
+
+  const entryRepo: IEntryRepository = useMemo(() => {
+    if (user && supabaseClient) {
+      return new SupabaseEntryRepository(supabaseClient, user.id);
+    }
+    return defaultLocalEntryRepo;
+  }, [user, supabaseClient]);
+
+  const letterRepo: IFutureLetterRepository = useMemo(() => {
+    if (user && supabaseClient) {
+      return new SupabaseLetterRepository(supabaseClient, user.id);
+    }
+    return defaultLocalLetterRepo;
+  }, [user, supabaseClient]);
+
+  const reflectionRepo: IReflectionRepository = useMemo(() => {
+    if (user && supabaseClient) {
+      return new SupabaseReflectionRepository(supabaseClient, user.id);
+    }
+    return defaultLocalReflectionRepo;
+  }, [user, supabaseClient]);
+
+  const universeRepo: IUniverseRepository = useMemo(() => {
+    if (user && supabaseClient) {
+      return new SupabaseUniverseRepository(supabaseClient, user.id);
+    }
+    return defaultLocalUniverseRepo;
+  }, [user, supabaseClient]);
+
   const updatePendingLocalStatus = useCallback(() => {
     const status = checkPendingLocalData();
     setPendingLocal({
@@ -130,18 +177,14 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
     });
   }, []);
 
-  // Reload data whenever active repository changes (or user switches)
   const refreshEntries = useCallback(async (): Promise<DiaryEntry[]> => {
-    setIsSyncing(true);
     try {
       const data = await entryRepo.listEntries();
       setEntries(data);
       return data;
     } catch (err) {
-      console.error("Failed to refresh entries:", err);
+      console.warn("Failed to load entries:", err);
       return [];
-    } finally {
-      setIsSyncing(false);
     }
   }, [entryRepo]);
 
@@ -151,7 +194,7 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
       setLetters(data);
       return data;
     } catch (err) {
-      console.error("Failed to refresh letters:", err);
+      console.warn("Failed to load future letters:", err);
       return [];
     }
   }, [letterRepo]);
@@ -162,7 +205,7 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
       setReflections(data);
       return data;
     } catch (err) {
-      console.error("Failed to refresh reflections:", err);
+      console.warn("Failed to load reflections:", err);
       return [];
     }
   }, [reflectionRepo]);
@@ -184,8 +227,37 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
     }
   }, [universeRepo]);
 
+  // Automatic offline sync flusher
+  const flushOfflineQueue = useCallback(async () => {
+    if (!offlineQueue || !isOnline || mode !== "cloud") return;
+    await offlineQueue.flush(async (item) => {
+      try {
+        if (item.type === "save_entry") {
+          await entryRepo.saveEntry(item.payload as unknown as DiaryEntry);
+        } else if (item.type === "delete_entry") {
+          await entryRepo.deleteEntry(item.payload.id as string);
+        } else if (item.type === "save_letter") {
+          await letterRepo.saveLetter(item.payload as unknown as FutureLetter);
+        } else if (item.type === "delete_letter") {
+          await letterRepo.deleteLetter(item.payload.id as string);
+        }
+        return true;
+      } catch (err) {
+        console.warn("Error during offline queue sync item:", err);
+        return false;
+      }
+    });
+    await refreshEntries();
+    await refreshLetters();
+  }, [entryRepo, letterRepo, isOnline, mode, refreshEntries, refreshLetters]);
+
   useEffect(() => {
-    // When switching user or mode, reset state immediately to prevent cache bleeding
+    if (isOnline) {
+      void flushOfflineQueue();
+    }
+  }, [isOnline, flushOfflineQueue]);
+
+  useEffect(() => {
     setEntries([]);
     setLetters([]);
     setReflections([]);
@@ -204,44 +276,106 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
     async (entry: DiaryEntry): Promise<DiaryEntry> => {
       setIsSyncing(true);
       try {
+        if (!isOnline && mode === "cloud") {
+          // Offline in cloud mode: persist locally and enqueue for cloud sync
+          persistEntry(entry);
+          offlineQueue?.enqueue("save_entry", entry as unknown as Record<string, unknown>);
+          setEntries((prev) => {
+            const idx = prev.findIndex((e) => e.id === entry.id);
+            if (idx >= 0) {
+              const updated = [...prev];
+              updated[idx] = entry;
+              return updated;
+            }
+            return [entry, ...prev];
+          });
+          return entry;
+        }
+
         const saved = await entryRepo.saveEntry(entry);
         await refreshEntries();
         return saved;
+      } catch (err) {
+        if (mode === "cloud") {
+          console.warn("Cloud save failed, falling back to offline queue:", err);
+          persistEntry(entry);
+          offlineQueue?.enqueue("save_entry", entry as unknown as Record<string, unknown>);
+          return entry;
+        }
+        throw err;
       } finally {
         setIsSyncing(false);
       }
     },
-    [entryRepo, refreshEntries]
+    [entryRepo, refreshEntries, isOnline, mode]
   );
 
   const handleDeleteEntry = useCallback(
     async (id: string): Promise<void> => {
       setIsSyncing(true);
       try {
+        if (!isOnline && mode === "cloud") {
+          offlineQueue?.enqueue("delete_entry", { id });
+          setEntries((prev) => prev.filter((e) => e.id !== id));
+          return;
+        }
         await entryRepo.deleteEntry(id);
         await refreshEntries();
+      } catch (err) {
+        if (mode === "cloud") {
+          offlineQueue?.enqueue("delete_entry", { id });
+          setEntries((prev) => prev.filter((e) => e.id !== id));
+          return;
+        }
+        throw err;
       } finally {
         setIsSyncing(false);
       }
     },
-    [entryRepo, refreshEntries]
+    [entryRepo, refreshEntries, isOnline, mode]
   );
 
   const handleSaveLetter = useCallback(
     async (letter: FutureLetter): Promise<FutureLetter> => {
-      const saved = await letterRepo.saveLetter(letter);
-      await refreshLetters();
-      return saved;
+      try {
+        if (!isOnline && mode === "cloud") {
+          offlineQueue?.enqueue("save_letter", letter as unknown as Record<string, unknown>);
+          setLetters((prev) => {
+            const idx = prev.findIndex((l) => l.id === letter.id);
+            if (idx >= 0) {
+              const updated = [...prev];
+              updated[idx] = letter;
+              return updated;
+            }
+            return [letter, ...prev];
+          });
+          return letter;
+        }
+        const saved = await letterRepo.saveLetter(letter);
+        await refreshLetters();
+        return saved;
+      } catch (err) {
+        if (mode === "cloud") {
+          offlineQueue?.enqueue("save_letter", letter as unknown as Record<string, unknown>);
+          return letter;
+        }
+        throw err;
+      }
     },
-    [letterRepo, refreshLetters]
+    [letterRepo, refreshLetters, isOnline, mode]
   );
 
   const handleDeleteLetter = useCallback(
     async (id: string): Promise<void> => {
+      if (!isOnline && mode === "cloud") {
+        offlineQueue?.enqueue("delete_letter", { id });
+        setLetters((prev) => prev.filter((l) => l.id !== id));
+        return;
+      }
       await letterRepo.deleteLetter(id);
       await refreshLetters();
     },
-    [letterRepo, refreshLetters]
+    [letterRepo, refreshLetters, isOnline, mode]
   );
 
   const handleOpenLetter = useCallback(
@@ -323,6 +457,36 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
     [universeRepo, refreshUniverseData]
   );
 
+  // Phase 9: Attachments handlers
+  const handleListAttachments = useCallback(
+    async (entryId: string): Promise<MemoryAttachment[]> => {
+      if (entryRepo.listAttachments) {
+        return entryRepo.listAttachments(entryId);
+      }
+      return [];
+    },
+    [entryRepo]
+  );
+
+  const handleSaveAttachment = useCallback(
+    async (entryId: string, file: File): Promise<MemoryAttachment> => {
+      if (entryRepo.saveAttachment) {
+        return entryRepo.saveAttachment(entryId, file);
+      }
+      throw new Error("Attachments are not supported in this repository mode.");
+    },
+    [entryRepo]
+  );
+
+  const handleDeleteAttachment = useCallback(
+    async (attachmentId: string, storagePath?: string): Promise<void> => {
+      if (entryRepo.deleteAttachment) {
+        await entryRepo.deleteAttachment(attachmentId, storagePath);
+      }
+    },
+    [entryRepo]
+  );
+
   // Safe migration flow
   const migrateLocalToCloud = useCallback(async (): Promise<MigrationSummary> => {
     if (mode !== "cloud") {
@@ -346,16 +510,71 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
     }
   }, [updatePendingLocalStatus]);
 
-  // Export
+  // Enhanced Export
   const exportData = useCallback(() => {
-    exportArchiveAsJSON(entries, letters, user?.email);
-  }, [entries, letters, user?.email]);
+    exportArchiveAsJSON(
+      entries,
+      letters,
+      reflections,
+      {
+        entities,
+        mentions,
+        connections,
+        meaningfulMoments,
+      },
+      user?.email
+    );
+  }, [entries, letters, reflections, entities, mentions, connections, meaningfulMoments, user?.email]);
+
+  // Safe Import
+  const importArchiveJSON = useCallback(
+    async (payload: FullArchivePayload): Promise<{ success: boolean; importedCount: number; error?: string }> => {
+      try {
+        let count = 0;
+        // 1. Import entries
+        for (const entry of payload.entries || []) {
+          await entryRepo.saveEntry(entry);
+          count++;
+        }
+        // 2. Import letters
+        for (const letter of payload.futureLetters || []) {
+          await letterRepo.saveLetter(letter);
+          count++;
+        }
+        // 3. Import reflections
+        for (const ref of payload.reflections || []) {
+          await reflectionRepo.saveReflection(ref);
+        }
+        // 4. Import universe entities
+        for (const ent of payload.universe?.entities || []) {
+          await universeRepo.saveEntity(ent);
+        }
+        // 5. Import universe connections
+        for (const conn of payload.universe?.connections || []) {
+          await universeRepo.saveConnection(conn);
+        }
+
+        await refreshEntries();
+        await refreshLetters();
+        await refreshReflections();
+        await refreshUniverseData();
+
+        return { success: true, importedCount: count };
+      } catch (err) {
+        return {
+          success: false,
+          importedCount: 0,
+          error: err instanceof Error ? err.message : String(err),
+        };
+      }
+    },
+    [entryRepo, letterRepo, reflectionRepo, universeRepo, refreshEntries, refreshLetters, refreshReflections, refreshUniverseData]
+  );
 
   // Delete account
   const deleteAccount = useCallback(
     async (confirmation: string): Promise<{ success: boolean; message?: string; error?: string }> => {
       if (mode === "local") {
-        // Local mode: clear local storage
         clearLocalBrowserData();
         setEntries([]);
         setLetters([]);
@@ -384,14 +603,14 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
           return { success: false, error: data.error || "Account deletion failed" };
         }
 
-        // Clear in-memory state & sign out
         setEntries([]);
         setLetters([]);
         await signOut();
 
         return { success: true, message: data.message };
-      } catch (err: any) {
-        return { success: false, error: err?.message || "Network error during account deletion" };
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Network error during account deletion";
+        return { success: false, error: msg };
       }
     },
     [mode, session?.access_token, clearLocalBrowserData, signOut]
@@ -402,6 +621,8 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
       value={{
         mode,
         isSyncing,
+        isOnline,
+        pendingQueueCount,
         entries,
         letters,
         reflections,
@@ -430,10 +651,14 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
         saveConnection: handleSaveConnection,
         deleteConnection: handleDeleteConnection,
         toggleMeaningfulMoment: handleToggleMeaningfulMoment,
+        listAttachments: handleListAttachments,
+        saveAttachment: handleSaveAttachment,
+        deleteAttachment: handleDeleteAttachment,
         pendingLocalData: pendingLocal,
         migrateLocalToCloud,
         clearLocalBrowserData,
         exportData,
+        importArchiveJSON,
         deleteAccount,
       }}
     >
@@ -449,4 +674,3 @@ export function useRepository() {
   }
   return context;
 }
-

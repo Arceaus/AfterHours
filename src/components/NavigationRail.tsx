@@ -6,6 +6,7 @@ import { Feather, BookOpen, Calendar, Archive, Mail, Sparkles, Orbit, Moon, Eye,
 import { getFormattedDate } from "@/lib/date";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useRepository } from "@/lib/repository/RepositoryContext";
+import { AmbientSoundPlayer } from "@/components/AmbientSoundPlayer";
 
 interface NavigationRailProps {
   currentView: NavView;
@@ -163,6 +164,11 @@ export function NavigationRail({
           </nav>
 
           <div className="pt-6 border-t border-[#45373C]/40 space-y-4 text-xs text-[#A89A98]/70">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] uppercase tracking-wider text-[#A89A98]/60">Ambient Audio</span>
+              <AmbientSoundPlayer />
+            </div>
+
             <button
               type="button"
               onClick={() => {
@@ -268,6 +274,11 @@ export function NavigationRail({
                 {timeInfo.nightWhisper}
               </span>
             </div>
+          </div>
+
+          {/* Ambient Soundscape Player */}
+          <div className="pt-1">
+            <AmbientSoundPlayer />
           </div>
 
           {/* Focus Mode & Word count */}

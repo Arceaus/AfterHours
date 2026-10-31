@@ -119,12 +119,14 @@ export default function HomePage() {
             {/* Writing Area: Primary column (spacious 8 of 12 cols on desktop) */}
             <div
               className={`transition-all duration-300 ${
-                focusMode ? "lg:col-span-12 max-w-3xl mx-auto" : "lg:col-span-8"
+                focusMode ? "lg:col-span-12 max-w-4xl mx-auto" : "lg:col-span-8"
               }`}
             >
               <WritingArea
                 activeEntryId={activeEntryId}
                 customDate={customDate}
+                focusMode={focusMode}
+                onToggleFocusMode={() => setFocusMode(!focusMode)}
                 onWordCountChange={setWordCount}
                 onEntrySaved={handleEntrySaved}
                 onEntryDeleted={handleEntryDeleted}

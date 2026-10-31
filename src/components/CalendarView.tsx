@@ -21,6 +21,7 @@ import {
   Trash2,
   Clock,
   RotateCcw,
+  Image as ImageIcon,
 } from "lucide-react";
 
 interface CalendarViewProps {
@@ -353,9 +354,22 @@ export function CalendarView({
                     >
                       <div className="flex items-center justify-between text-xs text-[#A89A98]/70">
                         {timeStr ? (
-                          <span className="flex items-center gap-1 font-mono text-[11px]">
-                            <Clock className="w-3 h-3 text-[#A89A98]/50" />
-                            <span>{timeStr}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="flex items-center gap-1 font-mono text-[11px]">
+                              <Clock className="w-3 h-3 text-[#A89A98]/50" />
+                              <span>{timeStr}</span>
+                            </span>
+                            {entry.attachments?.length > 0 && (
+                              <span className="flex items-center gap-1 font-mono text-[10px] text-[#D78A70]">
+                                <ImageIcon className="w-3 h-3" />
+                                <span>{entry.attachments.length}</span>
+                              </span>
+                            )}
+                          </div>
+                        ) : entry.attachments?.length > 0 ? (
+                          <span className="flex items-center gap-1 font-mono text-[10px] text-[#D78A70]">
+                            <ImageIcon className="w-3 h-3" />
+                            <span>{entry.attachments.length}</span>
                           </span>
                         ) : (
                           <span />

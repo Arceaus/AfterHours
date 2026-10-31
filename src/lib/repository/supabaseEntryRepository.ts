@@ -1,6 +1,12 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { DiaryEntry } from "@/types/entry";
+import { DiaryEntry, MemoryAttachment } from "@/types/entry";
 import { IEntryRepository } from "./types";
+import {
+  uploadCloudAttachment,
+  refreshAttachmentSignedUrl,
+  deleteCloudAttachment,
+  getLocalAttachmentsForEntry,
+} from "@/lib/attachments";
 
 interface DBEntryRow {
   id: string;
@@ -112,6 +118,25 @@ export class SupabaseEntryRepository implements IEntryRepository {
   }
 
   async deleteEntry(id: string): Promise<void> {
+    // Supabase cascade deletes entry_attachments via foreign key ON DELETE CASCADE.
+    // Also delete storage objects if any
+    try {
+      const { data: attRows } = await this.client
+        .from("entry_attachments")
+        .select("storage_path")
+        .eq("entry_id", id)
+        .eq("user_id", this.userId);
+
+      if (attRows && attRows.length > 0) {
+        const paths = attRows.map((r) => r.storage_path).filter(Boolean);
+        if (paths.length > 0) {
+          await this.client.storage.from("diary-attachments").remove(paths);
+        }
+      }
+    } catch {
+      // Storage cleanup failure shouldn't block entry deletion
+    }
+
     const { error } = await this.client
       .from("entries")
       .delete()
@@ -137,5 +162,52 @@ export class SupabaseEntryRepository implements IEntryRepository {
       a.localeCompare(b, undefined, { sensitivity: "base" })
     );
   }
-}
 
+  async listAttachments(entryId: string): Promise<MemoryAttachment[]> {
+    try {
+      const { data, error } = await this.client
+        .from("entry_attachments")
+        .select("*")
+        .eq("entry_id", entryId)
+        .eq("user_id", this.userId)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.warn("listAttachments query note:", error.message);
+        return getLocalAttachmentsForEntry(entryId);
+      }
+
+      const attachments: MemoryAttachment[] = [];
+      for (const row of data || []) {
+        let signedUrl = "";
+        try {
+          signedUrl = await refreshAttachmentSignedUrl(row.storage_path);
+        } catch {
+          signedUrl = "";
+        }
+        attachments.push({
+          id: row.id,
+          userId: row.user_id,
+          entryId: row.entry_id,
+          storagePath: row.storage_path,
+          fileName: row.file_name,
+          mimeType: row.mime_type,
+          fileSize: row.file_size,
+          url: signedUrl,
+          createdAt: row.created_at,
+        });
+      }
+      return attachments;
+    } catch {
+      return getLocalAttachmentsForEntry(entryId);
+    }
+  }
+
+  async saveAttachment(entryId: string, file: File): Promise<MemoryAttachment> {
+    return uploadCloudAttachment(this.userId, entryId, file);
+  }
+
+  async deleteAttachment(attachmentId: string, storagePath?: string): Promise<void> {
+    await deleteCloudAttachment(attachmentId, storagePath || "");
+  }
+}

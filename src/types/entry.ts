@@ -1,5 +1,17 @@
 export type NavView = 'tonight' | 'archive' | 'calendar' | 'capsules' | 'letters' | 'reflection' | 'universe';
 
+export interface MemoryAttachment {
+  id: string;
+  userId?: string;
+  entryId: string;
+  storagePath: string;
+  fileName: string;
+  mimeType: string;
+  fileSize: number;
+  url: string; // scoped signed URL or base64 data URL
+  createdAt: string; // ISO 8601
+}
+
 export interface DiaryEntry {
   id: string;
   title?: string;
@@ -8,7 +20,8 @@ export interface DiaryEntry {
   updatedAt: string; // ISO 8601
   entryDate: string; // YYYY-MM-DD local calendar date
   tags: string[];
-  attachments: string[]; // reserved for future attachment functionality
+  attachments: string[]; // reserved for backwards compatibility
+  attachmentItems?: MemoryAttachment[]; // Phase 9 rich attachments
 }
 
 export interface DraftState {
@@ -18,6 +31,7 @@ export interface DraftState {
   entryDate: string; // YYYY-MM-DD
   tags: string[];
   updatedAt: string; // ISO 8601
+  attachments?: MemoryAttachment[];
 }
 
 export interface MemoryOverviewStats {
@@ -229,5 +243,45 @@ export interface GraphEdge {
   explanation?: string;
   confidence?: string;
 }
+
+// Phase 9: Ambient Soundscapes & Immersive Focus
+export type SoundscapeId = 'rain' | 'window-rain' | 'night' | 'wind' | 'ocean' | 'fireplace' | 'drone';
+
+export interface SoundscapeTrack {
+  id: SoundscapeId;
+  name: string;
+  description: string;
+  iconName: string;
+}
+
+export type FocusFontSize = 'normal' | 'comfortable' | 'large';
+export type FocusColumnWidth = 'narrow' | 'comfortable' | 'spacious';
+
+export interface FocusSettings {
+  fontSize: FocusFontSize;
+  columnWidth: FocusColumnWidth;
+  activeSoundscape: SoundscapeId | null;
+  soundVolume: number;
+  isMuted: boolean;
+}
+
+// Phase 9: Offline Writing & Synchronization Queue
+export type OfflineOperationType =
+  | 'save_entry'
+  | 'delete_entry'
+  | 'save_letter'
+  | 'delete_letter'
+  | 'save_attachment'
+  | 'delete_attachment';
+
+export interface OfflineQueueItem {
+  id: string;
+  type: OfflineOperationType;
+  payload: Record<string, unknown>;
+  createdAt: string; // ISO 8601
+  retryCount: number;
+  lastError?: string;
+}
+
 
 

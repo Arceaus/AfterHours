@@ -1,4 +1,4 @@
-import { DiaryEntry, FutureLetter, SavedReflection, MemoryEntity, MemoryMention, UniverseConnection, MeaningfulMoment } from "@/types/entry";
+import { DiaryEntry, FutureLetter, SavedReflection, MemoryEntity, MemoryMention, UniverseConnection, MeaningfulMoment, MemoryAttachment } from "@/types/entry";
 
 export interface IEntryRepository {
   listEntries(): Promise<DiaryEntry[]>;
@@ -6,6 +6,9 @@ export interface IEntryRepository {
   saveEntry(entry: DiaryEntry): Promise<DiaryEntry>;
   deleteEntry(id: string): Promise<void>;
   getAllTags(): Promise<string[]>;
+  listAttachments?(entryId: string): Promise<MemoryAttachment[]>;
+  saveAttachment?(entryId: string, file: File): Promise<MemoryAttachment>;
+  deleteAttachment?(attachmentId: string, storagePath?: string): Promise<void>;
 }
 
 export interface IFutureLetterRepository {

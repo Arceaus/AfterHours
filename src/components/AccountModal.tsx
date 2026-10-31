@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useRepository } from "@/lib/repository/RepositoryContext";
 import {
@@ -8,6 +8,7 @@ import {
   User,
   Shield,
   Download,
+  Upload,
   LogOut,
   AlertOctagon,
   CheckCircle,
@@ -15,7 +16,10 @@ import {
   Mail,
   Lock,
   Database,
+  FileCheck,
+  AlertTriangle,
 } from "lucide-react";
+import { validateImportJSON, FullArchivePayload } from "@/lib/repository/migration";
 
 interface AccountModalProps {
   isOpen: boolean;
@@ -37,6 +41,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
     entries,
     letters,
     exportData,
+    importArchiveJSON,
     deleteAccount,
   } = useRepository();
 
@@ -46,6 +51,21 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Import state
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importPreview, setImportPreview] = useState<{
+    payload: FullArchivePayload;
+    summary: {
+      entriesCount: number;
+      lettersCount: number;
+      reflectionsCount: number;
+      entitiesCount: number;
+      connectionsCount: number;
+    };
+  } | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
 
   // Deletion state
   const [isDeleting, setIsDeleting] = useState(false);
@@ -67,8 +87,9 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
       } else {
         setSuccessMessage("Welcome back to your quiet sanctuary.");
       }
-    } catch (err: any) {
-      setErrorMessage(err?.message || "Sign in failed");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Sign in failed";
+      setErrorMessage(msg);
     } finally {
       setLoading(false);
     }
@@ -88,8 +109,9 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
           "Sanctuary created. If confirmation email is enabled, please check your inbox."
         );
       }
-    } catch (err: any) {
-      setErrorMessage(err?.message || "Sign up failed");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Sign up failed";
+      setErrorMessage(msg);
     } finally {
       setLoading(false);
     }
@@ -107,93 +129,180 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
       } else {
         setSuccessMessage("Password recovery instructions sent to your email.");
       }
-    } catch (err: any) {
-      setErrorMessage(err?.message || "Password recovery failed");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Password reset failed";
+      setErrorMessage(msg);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== "DELETE MY ARCHIVE") {
+      setDeleteError("Please type DELETE MY ARCHIVE exactly to confirm.");
+      return;
+    }
     setIsDeleting(true);
     setDeleteError(null);
     try {
       const res = await deleteAccount(deleteConfirmation);
       if (!res.success) {
-        setDeleteError(res.error || "Deletion failed.");
+        setDeleteError(res.error || "Deletion could not be completed.");
       } else {
         onClose();
       }
-    } catch (err: any) {
-      setDeleteError(err?.message || "Deletion failed.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unexpected deletion error";
+      setDeleteError(msg);
     } finally {
       setIsDeleting(false);
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImportError(null);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      const res = validateImportJSON(text);
+      if (!res.valid || !res.payload || !res.summary) {
+        setImportError(res.error || "File validation failed.");
+        setImportPreview(null);
+      } else {
+        setImportPreview({
+          payload: res.payload,
+          summary: res.summary,
+        });
+      }
+    };
+    reader.readAsText(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleConfirmImport = async () => {
+    if (!importPreview) return;
+    setIsImporting(true);
+    setImportError(null);
+    try {
+      const res = await importArchiveJSON(importPreview.payload);
+      if (res.success) {
+        setSuccessMessage(`Successfully restored ${res.importedCount} memories and letters.`);
+        setImportPreview(null);
+      } else {
+        setImportError(res.error || "Failed to restore archive items.");
+      }
+    } catch (err: unknown) {
+      setImportError(err instanceof Error ? err.message : "Import failed");
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 bg-[#211A1D]/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#2B2226] border border-[#45373C] w-full max-w-lg rounded-sm shadow-2xl p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#181315]/80 backdrop-blur-sm animate-fadeIn"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md bg-[#2B2226] border border-[#45373C] rounded-md shadow-2xl p-6 sm:p-7 relative text-[#F0E8DF] max-h-[92vh] overflow-y-auto animate-scaleUp"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 text-[#A89A98] hover:text-[#F0E8DF] transition-colors"
+          className="absolute top-5 right-5 text-[#A89A98] hover:text-[#F0E8DF] transition-colors p-1"
           aria-label="Close modal"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 text-[#D78A70] text-xs uppercase tracking-wider mb-1">
-            <Shield className="w-4 h-4" />
-            <span>Private Sanctuary & Cloud Sync</span>
+        {/* Modal Header */}
+        <div className="flex items-center gap-2.5 mb-6">
+          <Shield className="w-5 h-5 text-[#D78A70]" />
+          <div>
+            <h3 className="font-serif text-lg tracking-wide">
+              {user ? "Cloud Sanctuary Account" : "Sanctuary Settings & Sync"}
+            </h3>
+            <p className="text-[11px] text-[#A89A98] font-sans">
+              Private, row-level protected nocturnal space.
+            </p>
           </div>
-          <h2 className="font-serif text-2xl text-[#F0E8DF] tracking-wide">
-            {user ? "Your Private Sanctuary" : "Cloud Authentication"}
-          </h2>
         </div>
 
-        {/* Status notice if backend unconfigured */}
-        {!isConfigured && (
-          <div className="mb-6 p-4 bg-[#211A1D] border border-amber-500/30 text-amber-200/90 rounded-sm text-xs leading-relaxed space-y-2">
-            <div className="flex items-center gap-2 font-medium text-amber-400">
-              <Database className="w-4 h-4 flex-shrink-0" />
-              <span>Offline Local Storage Active</span>
+        {/* Import Preview Confirmation Sub-Modal */}
+        {importPreview && (
+          <div className="mb-6 p-4 bg-[#211A1D] border border-[#D78A70]/40 rounded-sm space-y-3">
+            <div className="flex items-center gap-2 text-[#D78A70] text-xs font-medium">
+              <FileCheck className="w-4 h-4" />
+              <span>Archive Ready for Safe Restoration</span>
             </div>
-            <p className="text-[#A89A98]">
-              Supabase cloud credentials are not yet configured in{" "}
-              <code className="text-[#F0E8DF] bg-[#2B2226] px-1 py-0.5 rounded">.env.local</code>.
-              Your diary entries and future letters are currently stored safely and privately in your browser.
+            <p className="text-xs text-[#A89A98] leading-relaxed">
+              Found the following items inside this backup file:
             </p>
+            <ul className="text-xs text-[#F0E8DF] space-y-1 pl-4 list-disc font-sans">
+              <li>{importPreview.summary.entriesCount} Diary entries</li>
+              <li>{importPreview.summary.lettersCount} Future letters</li>
+              <li>{importPreview.summary.reflectionsCount} Saved reflections</li>
+              <li>{importPreview.summary.entitiesCount} Universe entities</li>
+              <li>{importPreview.summary.connectionsCount} Memory connections</li>
+            </ul>
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={handleConfirmImport}
+                disabled={isImporting}
+                className="px-3 py-1.5 bg-[#D78A70] hover:bg-[#D78A70]/90 text-[#211A1D] text-xs font-medium rounded transition-colors disabled:opacity-50"
+              >
+                {isImporting ? "Restoring Archive..." : "Confirm & Restore"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setImportPreview(null)}
+                className="px-3 py-1.5 text-xs text-[#A89A98] hover:text-[#F0E8DF]"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Authenticated View */}
+        {importError && (
+          <div className="mb-4 p-3 bg-rose-950/40 border border-rose-900/60 text-rose-300 text-xs rounded-sm flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>{importError}</span>
+          </div>
+        )}
+
+        {/* Authenticated State */}
         {user ? (
           <div className="space-y-6">
-            {/* User Info Card */}
-            <div className="p-4 bg-[#211A1D] border border-[#45373C]/50 rounded-sm space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-[#A89A98]">Signed In Account</span>
-                <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] rounded uppercase tracking-wider font-mono">
-                  Cloud Active
+            <div className="p-4 bg-[#211A1D] border border-[#45373C]/60 rounded-sm space-y-3">
+              <div className="flex items-center justify-between text-xs font-sans">
+                <span className="text-[#A89A98]">Signed in as:</span>
+                <span className="text-[#F0E8DF] font-medium truncate max-w-[200px]">
+                  {user.email}
                 </span>
               </div>
-              <p className="text-sm font-medium text-[#F0E8DF] break-all">{user.email}</p>
-              <div className="flex items-center gap-4 pt-2 text-xs text-[#A89A98]">
-                <span>
-                  <strong className="text-[#F0E8DF]">{entries.length}</strong> Entries
+              <div className="flex items-center justify-between text-xs font-sans">
+                <span className="text-[#A89A98]">Cloud Sanctuary:</span>
+                <span className="text-emerald-400 flex items-center gap-1 font-mono text-[11px]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
+                  Active & Synced
                 </span>
-                <span>•</span>
-                <span>
-                  <strong className="text-[#F0E8DF]">{letters.length}</strong> Future Letters
-                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs font-sans">
+                <span className="text-[#A89A98]">Synchronized entries:</span>
+                <span className="text-[#F0E8DF] font-mono">{entries.length} memories</span>
               </div>
             </div>
 
-            {/* Actions: Export & Sign out */}
-            <div className="space-y-3 pt-2">
+            {/* Actions: Export & Import */}
+            <div className="space-y-2">
               <button
                 type="button"
                 onClick={exportData}
@@ -202,6 +311,23 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                 <Download className="w-4 h-4 text-[#D78A70]" />
                 <span>Export Entire Sanctuary Archive (JSON)</span>
               </button>
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full py-2.5 px-4 bg-[#211A1D] hover:bg-[#211A1D]/80 border border-[#45373C] text-[#F0E8DF] text-xs font-medium rounded-sm flex items-center justify-center gap-2 transition-colors"
+              >
+                <Upload className="w-4 h-4 text-[#D78A70]" />
+                <span>Import & Restore Archive (JSON)</span>
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json,application/json"
+                className="hidden"
+                onChange={handleFileSelect}
+              />
 
               <button
                 type="button"
@@ -233,7 +359,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                     <span>Permanent Account Deletion</span>
                   </div>
                   <p className="text-[#A89A98] leading-relaxed">
-                    This action will permanently delete all cloud-stored diary entries, drafts, and future letters. This cannot be undone.
+                    This action will permanently delete all cloud-stored diary entries, drafts, future letters, attachments, and reflection records. This cannot be undone.
                   </p>
                   <p className="text-[#A89A98]">
                     To confirm, please type{" "}
@@ -454,17 +580,30 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
               </form>
             )}
 
-            {/* Offline Export capability even if not signed in */}
-            <div className="pt-6 mt-6 border-t border-[#45373C]/40 flex items-center justify-between">
-              <span className="text-xs text-[#A89A98]">Local Offline Archive</span>
-              <button
-                type="button"
-                onClick={exportData}
-                className="text-xs text-[#D78A70] hover:underline flex items-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export JSON Backup</span>
-              </button>
+            {/* Offline Export & Import capabilities even if not signed in */}
+            <div className="pt-6 mt-6 border-t border-[#45373C]/40 space-y-2">
+              <div className="flex items-center justify-between text-xs text-[#A89A98]">
+                <span>Local Offline Tools</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={exportData}
+                  className="text-xs text-[#D78A70] hover:bg-[#211A1D] p-2 border border-[#45373C]/60 rounded text-center flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export Backup</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs text-[#D78A70] hover:bg-[#211A1D] p-2 border border-[#45373C]/60 rounded text-center flex items-center justify-center gap-1.5"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Restore Backup</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -472,4 +611,3 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
     </div>
   );
 }
-

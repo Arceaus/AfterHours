@@ -26,6 +26,7 @@ import {
   ArrowUpDown,
   Tag as TagIcon,
   Calendar,
+  Image as ImageIcon,
 } from "lucide-react";
 
 interface ArchiveViewProps {
@@ -458,6 +459,12 @@ export function ArchiveView({
                             </div>
 
                             <div className="flex items-center gap-3">
+                              {entry.attachments?.length > 0 && (
+                                <span className="flex items-center gap-1 text-[11px] text-[#D78A70]/90 font-mono">
+                                  <ImageIcon className="w-3 h-3 text-[#D78A70]" />
+                                  <span>{entry.attachments.length} {entry.attachments.length === 1 ? "photo" : "photos"}</span>
+                                </span>
+                              )}
                               {wasEdited && (
                                 <span className="text-[10px] text-[#A89A98]/50 italic font-sans" title={`Edited on ${formatDateTimeFromISO(entry.updatedAt)}`}>
                                   Edited {formatDateTimeFromISO(entry.updatedAt)}

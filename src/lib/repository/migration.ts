@@ -1,7 +1,15 @@
-import { getSavedEntries, getEntryById } from "@/lib/storage";
-import { getSavedLetters, getLetterById } from "@/lib/letters";
+import { getSavedEntries } from "@/lib/storage";
+import { getSavedLetters } from "@/lib/letters";
 import { IEntryRepository, IFutureLetterRepository, MigrationSummary } from "./types";
-import { DiaryEntry, FutureLetter } from "@/types/entry";
+import {
+  DiaryEntry,
+  FutureLetter,
+  SavedReflection,
+  MemoryEntity,
+  UniverseConnection,
+  MemoryMention,
+  MeaningfulMoment,
+} from "@/types/entry";
 
 export function checkPendingLocalData(): {
   entriesCount: number;
@@ -34,10 +42,8 @@ export async function executeDataMigration(
   // 1. Migrate entries
   for (const entry of localEntries) {
     try {
-      // Check if entry already exists in cloud
       const remote = await cloudEntryRepo.getEntry(entry.id);
       if (remote) {
-        // If exact same, skip without duplicating
         if (remote.updatedAt >= entry.updatedAt) {
           migratedEntries++;
           continue;
@@ -45,8 +51,9 @@ export async function executeDataMigration(
       }
       await cloudEntryRepo.saveEntry(entry);
       migratedEntries++;
-    } catch (err: any) {
-      errors.push(`Entry "${entry.title || entry.id}": ${err?.message || "Upload failed"}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      errors.push(`Entry "${entry.title || entry.id}": ${msg}`);
     }
   }
 
@@ -62,8 +69,9 @@ export async function executeDataMigration(
       }
       await cloudLetterRepo.saveLetter(letter);
       migratedLetters++;
-    } catch (err: any) {
-      errors.push(`Letter "${letter.title || letter.id}": ${err?.message || "Upload failed"}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      errors.push(`Letter "${letter.title || letter.id}": ${msg}`);
     }
   }
 
@@ -76,18 +84,57 @@ export async function executeDataMigration(
   };
 }
 
-export function exportArchiveAsJSON(entries: DiaryEntry[], letters: FutureLetter[], userEmail?: string | null): void {
-  const exportPayload = {
+export interface FullArchivePayload {
+  app: "AFTERTHOUGHT";
+  version: "9.0";
+  exportedAt: string;
+  account: string;
+  stats: {
+    totalEntries: number;
+    totalFutureLetters: number;
+    totalReflections: number;
+    totalUniverseEntities: number;
+    totalConnections: number;
+  };
+  entries: DiaryEntry[];
+  futureLetters: FutureLetter[];
+  reflections?: SavedReflection[];
+  universe?: {
+    entities: MemoryEntity[];
+    mentions: MemoryMention[];
+    connections: UniverseConnection[];
+    meaningfulMoments: MeaningfulMoment[];
+  };
+}
+
+export function exportArchiveAsJSON(
+  entries: DiaryEntry[],
+  letters: FutureLetter[],
+  reflections: SavedReflection[] = [],
+  universeData?: {
+    entities: MemoryEntity[];
+    mentions: MemoryMention[];
+    connections: UniverseConnection[];
+    meaningfulMoments: MeaningfulMoment[];
+  },
+  userEmail?: string | null
+): void {
+  const exportPayload: FullArchivePayload = {
     app: "AFTERTHOUGHT",
+    version: "9.0",
     exportedAt: new Date().toISOString(),
     account: userEmail || "local_user",
-    version: "6.0",
     stats: {
       totalEntries: entries.length,
       totalFutureLetters: letters.length,
+      totalReflections: reflections.length,
+      totalUniverseEntities: universeData?.entities.length || 0,
+      totalConnections: universeData?.connections.length || 0,
     },
     entries,
     futureLetters: letters,
+    reflections,
+    universe: universeData,
   };
 
   const jsonStr = JSON.stringify(exportPayload, null, 2);
@@ -104,3 +151,54 @@ export function exportArchiveAsJSON(entries: DiaryEntry[], letters: FutureLetter
   URL.revokeObjectURL(url);
 }
 
+export interface ImportValidationResult {
+  valid: boolean;
+  error?: string;
+  payload?: FullArchivePayload;
+  summary?: {
+    entriesCount: number;
+    lettersCount: number;
+    reflectionsCount: number;
+    entitiesCount: number;
+    connectionsCount: number;
+  };
+}
+
+export function validateImportJSON(rawText: string): ImportValidationResult {
+  try {
+    const data = JSON.parse(rawText);
+    if (!data || typeof data !== "object") {
+      return { valid: false, error: "Invalid JSON format: payload is not an object." };
+    }
+
+    if (data.app !== "AFTERTHOUGHT" && !Array.isArray(data.entries)) {
+      return {
+        valid: false,
+        error: "Unrecognized file. This file does not appear to be an AFTERTHOUGHT archive.",
+      };
+    }
+
+    const entries = Array.isArray(data.entries) ? data.entries : [];
+    const letters = Array.isArray(data.futureLetters) ? data.futureLetters : [];
+    const reflections = Array.isArray(data.reflections) ? data.reflections : [];
+    const entities = Array.isArray(data.universe?.entities) ? data.universe.entities : [];
+    const connections = Array.isArray(data.universe?.connections) ? data.universe.connections : [];
+
+    return {
+      valid: true,
+      payload: data as FullArchivePayload,
+      summary: {
+        entriesCount: entries.length,
+        lettersCount: letters.length,
+        reflectionsCount: reflections.length,
+        entitiesCount: entities.length,
+        connectionsCount: connections.length,
+      },
+    };
+  } catch (err) {
+    return {
+      valid: false,
+      error: `JSON parse error: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+}
