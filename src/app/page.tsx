@@ -74,14 +74,14 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#08060F] text-[#FFFFFF] relative selection:bg-[#FF9254]/30 selection:text-[#FFFFFF] overflow-x-hidden font-sans">
-      {/* 1. Luminous Chromatic Twilight & Molten Silk Canvas */}
+    <div className="min-h-screen bg-[#0D0B0E] text-[#F7F4EF] relative selection:bg-[#C87A64]/30 selection:text-[#FFFFFF] overflow-x-hidden font-sans">
+      {/* 1. Calm, Resting Ambient Atmosphere */}
       <ThoughtWorldCanvas isWriting={isWriting || focusMode} />
 
-      {/* 2. Soft atmospheric ambient overlay */}
+      {/* 2. Soft atmospheric vignette */}
       <div
         aria-hidden="true"
-        className="fixed inset-0 pointer-events-none z-0 bg-radial-gradient from-transparent via-[#08060F]/10 to-[#08060F]/55"
+        className="fixed inset-0 pointer-events-none z-0 bg-radial-gradient from-transparent via-[#0D0B0E]/20 to-[#0D0B0E]/70"
       />
 
       {/* 3. Floating Spatial Navigation Dock */}
@@ -103,16 +103,16 @@ export default function HomePage() {
         {notification && (
           <div
             role="status"
-            className="mb-8 p-3 bg-[#110B1E]/80 backdrop-blur-2xl border border-white/10 text-[#FFFFFF] text-xs font-sans rounded-full max-w-md mx-auto flex items-center justify-between shadow-[0_12px_32px_rgba(0,0,0,0.4)] animate-fadeIn"
+            className="mb-8 p-3 bg-[#141215]/90 backdrop-blur-xl border border-white/10 text-[#F7F4EF] text-xs font-sans rounded-full max-w-md mx-auto flex items-center justify-between shadow-xl animate-fadeIn"
           >
             <div className="flex items-center gap-2 pl-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF9254] shadow-[0_0_8px_#FF9254]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C87A64]" />
               <span>{notification}</span>
             </div>
             <button
               type="button"
               onClick={() => setNotification(null)}
-              className="text-[#B3A8C6] hover:text-[#FFFFFF] text-xs px-2"
+              className="text-[#9C9289] hover:text-[#F7F4EF] text-xs px-2"
             >
               Dismiss
             </button>
@@ -134,16 +134,16 @@ export default function HomePage() {
               onStartNewDraft={handleStartNewDraft}
             />
 
-            {/* Subtle Echoes Floating Pill (Frosted Smoked Glass) */}
+            {/* Subtle Echoes Floating Pill (Quiet Minimalist Pill) */}
             {!focusMode && entries.length > 0 && (
               <div className="fixed bottom-6 right-6 z-30">
                 <button
                   type="button"
                   onClick={() => setIsEchoDrawerOpen(true)}
-                  className="flex items-center gap-2 px-3.5 py-1.5 bg-[#0E0919]/75 hover:bg-[#1A122E] backdrop-blur-2xl border border-white/10 hover:border-[#FF9254]/50 rounded-full text-xs text-[#B3A8C6] hover:text-[#FFFFFF] shadow-[0_12px_32px_rgba(0,0,0,0.4)] transition-all"
+                  className="flex items-center gap-2 px-3.5 py-1.5 bg-[#141215]/85 hover:bg-[#1E1B20] backdrop-blur-xl border border-white/10 hover:border-[#C87A64]/40 rounded-full text-xs text-[#9C9289] hover:text-[#F7F4EF] shadow-lg transition-all"
                   title="Peek at recent thoughts"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF9254] shadow-[0_0_6px_#FF9254]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C87A64]" />
                   <span>Echoes ({Math.min(entries.length, 5)})</span>
                 </button>
               </div>
