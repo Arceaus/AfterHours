@@ -47,27 +47,27 @@ export function MigrationBanner() {
       {/* Discreet floating pill rather than a giant disruptive banner */}
       <aside
         aria-label="Local Data Migration"
-        className="mb-8 p-4 bg-[#141215]/90 border border-[#D47A60]/30 rounded-2xl text-[#F3EFEA] backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.4)] relative max-w-2xl mx-auto w-full transition-all animate-fadeIn"
+        className="mb-8 p-4 bg-[#0E0919]/70 border border-white/10 rounded-2xl text-white backdrop-blur-3xl shadow-[0_12px_32px_rgba(0,0,0,0.4)] relative max-w-2xl mx-auto w-full transition-all animate-fadeIn"
       >
         <button
           type="button"
           onClick={() => setDismissed(true)}
-          className="absolute top-3.5 right-3.5 text-[#8E8782] hover:text-[#F3EFEA] transition-colors p-1"
+          className="absolute top-3.5 right-3.5 text-[#B3A8C6] hover:text-white transition-colors p-1"
           aria-label="Dismiss migration notification"
         >
           <X className="w-3.5 h-3.5" />
         </button>
 
         <div className="flex items-start gap-3.5 pr-6">
-          <div className="p-2 rounded-full bg-[#D47A60]/10 border border-[#D47A60]/20 text-[#D47A60] shrink-0 mt-0.5">
+          <div className="p-2 rounded-full bg-[#FF9254]/15 border border-[#FF9254]/30 text-[#FF9254] shrink-0 mt-0.5 shadow-[0_0_8px_#FF9254]/20">
             <CloudUpload className="w-4 h-4" />
           </div>
 
           <div className="flex-1">
-            <h3 className="font-serif text-base text-[#F3EFEA] font-normal mb-1">
+            <h3 className="font-serif text-base text-white font-normal mb-1">
               Local Memories Ready to Sync
             </h3>
-            <p className="text-xs text-[#8E8782] leading-relaxed mb-3">
+            <p className="text-xs text-[#B3A8C6] leading-relaxed mb-3">
               We found {pendingLocalData.entriesCount} journal {pendingLocalData.entriesCount === 1 ? "entry" : "entries"} stored in this browser. Safely preserve them to your cloud sanctuary.
             </p>
 
@@ -98,7 +98,7 @@ export function MigrationBanner() {
                   type="button"
                   onClick={handleStartMigration}
                   disabled={isMigrating}
-                  className="px-3.5 py-1.5 bg-[#D47A60] hover:bg-[#D47A60]/90 text-[#09080A] font-medium text-xs rounded-full transition-colors flex items-center gap-2 disabled:opacity-50"
+                  className="px-4 py-1.5 bg-[#FF9254] hover:bg-[#FF7A30] text-[#08060F] font-medium text-xs rounded-full transition-colors flex items-center gap-2 disabled:opacity-50 shadow-[0_0_12px_rgba(255,146,84,0.3)]"
                 >
                   {isMigrating ? "Syncing..." : "Sync to Cloud"}
                 </button>
@@ -106,7 +106,7 @@ export function MigrationBanner() {
                 <button
                   type="button"
                   onClick={() => setShowClearConfirm(true)}
-                  className="px-3 py-1 bg-white/[0.08] hover:bg-white/[0.12] text-xs text-[#F3EFEA] rounded-full transition-colors"
+                  className="px-3.5 py-1 bg-white/10 hover:bg-white/15 text-xs text-white rounded-full transition-colors"
                 >
                   Clear Local Browser Cache
                 </button>
@@ -114,7 +114,7 @@ export function MigrationBanner() {
               <button
                 type="button"
                 onClick={() => setDismissed(true)}
-                className="px-3 py-1 text-xs text-[#8E8782] hover:text-[#F3EFEA] transition-colors"
+                className="px-3 py-1 text-xs text-[#B3A8C6] hover:text-white transition-colors"
               >
                 Later
               </button>

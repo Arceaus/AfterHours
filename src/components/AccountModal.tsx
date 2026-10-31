@@ -207,14 +207,14 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-[#0C0B0E] border border-[#F4EFEA]/[0.08] rounded-md shadow-2xl p-6 sm:p-7 relative text-[#F4EFEA] max-h-[92vh] overflow-y-auto animate-scaleUp"
+        className="w-full max-w-md bg-[#0E0919] border border-[#FFFFFF]/[0.08] rounded-md shadow-2xl p-6 sm:p-7 relative text-[#FFFFFF] max-h-[92vh] overflow-y-auto animate-scaleUp"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 text-[#8F8782] hover:text-[#F4EFEA] transition-colors p-1"
+          className="absolute top-5 right-5 text-[#B3A8C6] hover:text-[#FFFFFF] transition-colors p-1"
           aria-label="Close modal"
         >
           <X className="w-4 h-4" />
@@ -222,12 +222,12 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
 
         {/* Modal Header */}
         <div className="flex items-center gap-2.5 mb-6">
-          <Shield className="w-5 h-5 text-[#E28A3B]" />
+          <Shield className="w-5 h-5 text-[#FF9254]" />
           <div>
             <h3 className="font-serif text-lg tracking-wide">
               {user ? "Cloud Sanctuary Account" : "Sanctuary Settings & Sync"}
             </h3>
-            <p className="text-[11px] text-[#8F8782] font-sans">
+            <p className="text-[11px] text-[#B3A8C6] font-sans">
               Private, row-level protected nocturnal space.
             </p>
           </div>
@@ -235,15 +235,15 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
 
         {/* Import Preview Confirmation Sub-Modal */}
         {importPreview && (
-          <div className="mb-6 p-4 bg-[#070607] border border-[#E28A3B]/40 rounded-sm space-y-3">
-            <div className="flex items-center gap-2 text-[#E28A3B] text-xs font-medium">
+          <div className="mb-6 p-4 bg-[#08060F] border border-[#FF9254]/40 rounded-sm space-y-3">
+            <div className="flex items-center gap-2 text-[#FF9254] text-xs font-medium">
               <FileCheck className="w-4 h-4" />
               <span>Archive Ready for Safe Restoration</span>
             </div>
-            <p className="text-xs text-[#8F8782] leading-relaxed">
+            <p className="text-xs text-[#B3A8C6] leading-relaxed">
               Found the following items inside this backup file:
             </p>
-            <ul className="text-xs text-[#F4EFEA] space-y-1 pl-4 list-disc font-sans">
+            <ul className="text-xs text-[#FFFFFF] space-y-1 pl-4 list-disc font-sans">
               <li>{importPreview.summary.entriesCount} Diary entries</li>
               <li>{importPreview.summary.lettersCount} Future letters</li>
               <li>{importPreview.summary.reflectionsCount} Saved reflections</li>
@@ -256,14 +256,14 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                 type="button"
                 onClick={handleConfirmImport}
                 disabled={isImporting}
-                className="px-3 py-1.5 bg-[#E28A3B] hover:bg-[#E28A3B]/90 text-[#070607] text-xs font-medium rounded transition-colors disabled:opacity-50"
+                className="px-3 py-1.5 bg-[#FF9254] hover:bg-[#FF9254]/90 text-[#08060F] text-xs font-medium rounded transition-colors disabled:opacity-50"
               >
                 {isImporting ? "Restoring Archive..." : "Confirm & Restore"}
               </button>
               <button
                 type="button"
                 onClick={() => setImportPreview(null)}
-                className="px-3 py-1.5 text-xs text-[#8F8782] hover:text-[#F4EFEA]"
+                className="px-3 py-1.5 text-xs text-[#B3A8C6] hover:text-[#FFFFFF]"
               >
                 Cancel
               </button>
@@ -281,23 +281,23 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
         {/* Authenticated State */}
         {user ? (
           <div className="space-y-6">
-            <div className="p-4 bg-[#070607] border border-[#F4EFEA]/[0.08] rounded-sm space-y-3">
+            <div className="p-4 bg-[#08060F] border border-[#FFFFFF]/[0.08] rounded-sm space-y-3">
               <div className="flex items-center justify-between text-xs font-sans">
-                <span className="text-[#8F8782]">Signed in as:</span>
-                <span className="text-[#F4EFEA] font-medium truncate max-w-[200px]">
+                <span className="text-[#B3A8C6]">Signed in as:</span>
+                <span className="text-[#FFFFFF] font-medium truncate max-w-[200px]">
                   {user.email}
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs font-sans">
-                <span className="text-[#8F8782]">Cloud Sanctuary:</span>
+                <span className="text-[#B3A8C6]">Cloud Sanctuary:</span>
                 <span className="text-emerald-400 flex items-center gap-1 font-mono text-[11px]">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
                   Active & Synced
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs font-sans">
-                <span className="text-[#8F8782]">Synchronized entries:</span>
-                <span className="text-[#F4EFEA] font-mono">{entries.length} memories</span>
+                <span className="text-[#B3A8C6]">Synchronized entries:</span>
+                <span className="text-[#FFFFFF] font-mono">{entries.length} memories</span>
               </div>
             </div>
 
@@ -306,18 +306,18 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
               <button
                 type="button"
                 onClick={exportData}
-                className="w-full py-2.5 px-4 bg-[#070607] hover:bg-[#070607]/80 border border-[#F4EFEA]/[0.08] text-[#F4EFEA] text-xs font-medium rounded-sm flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2.5 px-4 bg-[#08060F] hover:bg-[#08060F]/80 border border-[#FFFFFF]/[0.08] text-[#FFFFFF] text-xs font-medium rounded-sm flex items-center justify-center gap-2 transition-colors"
               >
-                <Download className="w-4 h-4 text-[#E28A3B]" />
+                <Download className="w-4 h-4 text-[#FF9254]" />
                 <span>Export Entire Sanctuary Archive (JSON)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full py-2.5 px-4 bg-[#070607] hover:bg-[#070607]/80 border border-[#F4EFEA]/[0.08] text-[#F4EFEA] text-xs font-medium rounded-sm flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2.5 px-4 bg-[#08060F] hover:bg-[#08060F]/80 border border-[#FFFFFF]/[0.08] text-[#FFFFFF] text-xs font-medium rounded-sm flex items-center justify-center gap-2 transition-colors"
               >
-                <Upload className="w-4 h-4 text-[#E28A3B]" />
+                <Upload className="w-4 h-4 text-[#FF9254]" />
                 <span>Import & Restore Archive (JSON)</span>
               </button>
 
@@ -335,7 +335,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                   await signOut();
                   onClose();
                 }}
-                className="w-full py-2.5 px-4 bg-transparent hover:bg-[#070607] border border-[#F4EFEA]/[0.08] text-[#8F8782] hover:text-[#F4EFEA] text-xs font-medium rounded-sm flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2.5 px-4 bg-transparent hover:bg-[#08060F] border border-[#FFFFFF]/[0.08] text-[#B3A8C6] hover:text-[#FFFFFF] text-xs font-medium rounded-sm flex items-center justify-center gap-2 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out of Cloud Sanctuary</span>
@@ -343,7 +343,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
             </div>
 
             {/* Danger Zone: Account Deletion */}
-            <div className="pt-4 border-t border-[#F4EFEA]/[0.06]">
+            <div className="pt-4 border-t border-[#FFFFFF]/[0.06]">
               {!showDeleteZone ? (
                 <button
                   type="button"
@@ -358,12 +358,12 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                     <AlertOctagon className="w-4 h-4 flex-shrink-0" />
                     <span>Permanent Account Deletion</span>
                   </div>
-                  <p className="text-[#8F8782] leading-relaxed">
+                  <p className="text-[#B3A8C6] leading-relaxed">
                     This action will permanently delete all cloud-stored diary entries, drafts, future letters, attachments, and reflection records. This cannot be undone.
                   </p>
-                  <p className="text-[#8F8782]">
+                  <p className="text-[#B3A8C6]">
                     To confirm, please type{" "}
-                    <strong className="text-[#F4EFEA] select-all font-mono">DELETE MY ARCHIVE</strong> below:
+                    <strong className="text-[#FFFFFF] select-all font-mono">DELETE MY ARCHIVE</strong> below:
                   </p>
 
                   <input
@@ -371,7 +371,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                     value={deleteConfirmation}
                     onChange={(e) => setDeleteConfirmation(e.target.value)}
                     placeholder="DELETE MY ARCHIVE"
-                    className="w-full bg-[#070607] border border-rose-900/60 text-[#F4EFEA] px-3 py-2 text-xs rounded-sm focus:outline-none focus:border-rose-500 font-mono"
+                    className="w-full bg-[#08060F] border border-rose-900/60 text-[#FFFFFF] px-3 py-2 text-xs rounded-sm focus:outline-none focus:border-rose-500 font-mono"
                   />
 
                   {deleteError && (
@@ -390,7 +390,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                     <button
                       type="button"
                       onClick={() => setShowDeleteZone(false)}
-                      className="text-xs text-[#8F8782] hover:text-[#F4EFEA]"
+                      className="text-xs text-[#B3A8C6] hover:text-[#FFFFFF]"
                     >
                       Cancel
                     </button>
@@ -403,7 +403,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
           /* Unauthenticated Auth Form */
           <div>
             {/* Tabs */}
-            <div className="flex border-b border-[#F4EFEA]/[0.08] mb-6">
+            <div className="flex border-b border-[#FFFFFF]/[0.08] mb-6">
               <button
                 type="button"
                 onClick={() => {
@@ -413,8 +413,8 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                 }}
                 className={`flex-1 pb-3 text-xs font-medium tracking-wide transition-colors border-b-2 -mb-px ${
                   authTab === "signin"
-                    ? "border-[#E28A3B] text-[#F4EFEA]"
-                    : "border-transparent text-[#8F8782] hover:text-[#F4EFEA]"
+                    ? "border-[#FF9254] text-[#FFFFFF]"
+                    : "border-transparent text-[#B3A8C6] hover:text-[#FFFFFF]"
                 }`}
               >
                 Sign In
@@ -428,8 +428,8 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                 }}
                 className={`flex-1 pb-3 text-xs font-medium tracking-wide transition-colors border-b-2 -mb-px ${
                   authTab === "signup"
-                    ? "border-[#E28A3B] text-[#F4EFEA]"
-                    : "border-transparent text-[#8F8782] hover:text-[#F4EFEA]"
+                    ? "border-[#FF9254] text-[#FFFFFF]"
+                    : "border-transparent text-[#B3A8C6] hover:text-[#FFFFFF]"
                 }`}
               >
                 Create Account
@@ -443,8 +443,8 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                 }}
                 className={`flex-1 pb-3 text-xs font-medium tracking-wide transition-colors border-b-2 -mb-px ${
                   authTab === "reset"
-                    ? "border-[#E28A3B] text-[#F4EFEA]"
-                    : "border-transparent text-[#8F8782] hover:text-[#F4EFEA]"
+                    ? "border-[#FF9254] text-[#FFFFFF]"
+                    : "border-transparent text-[#B3A8C6] hover:text-[#FFFFFF]"
                 }`}
               >
                 Recovery
@@ -468,31 +468,31 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
             {authTab === "signin" && (
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div>
-                  <label className="block text-xs text-[#8F8782] mb-1.5">Email Address</label>
+                  <label className="block text-xs text-[#B3A8C6] mb-1.5">Email Address</label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-[#8F8782] absolute left-3 top-3" />
+                    <Mail className="w-4 h-4 text-[#B3A8C6] absolute left-3 top-3" />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full bg-[#070607] border border-[#F4EFEA]/[0.08] text-[#F4EFEA] pl-9 pr-3 py-2 text-xs rounded-sm focus:outline-none focus:border-[#E28A3B]"
+                      className="w-full bg-[#08060F] border border-[#FFFFFF]/[0.08] text-[#FFFFFF] pl-9 pr-3 py-2 text-xs rounded-sm focus:outline-none focus:border-[#FF9254]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-[#8F8782] mb-1.5">Password</label>
+                  <label className="block text-xs text-[#B3A8C6] mb-1.5">Password</label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-[#8F8782] absolute left-3 top-3" />
+                    <Lock className="w-4 h-4 text-[#B3A8C6] absolute left-3 top-3" />
                     <input
                       type="password"
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••••••"
-                      className="w-full bg-[#070607] border border-[#F4EFEA]/[0.08] text-[#F4EFEA] pl-9 pr-3 py-2 text-xs rounded-sm focus:outline-none focus:border-[#E28A3B]"
+                      className="w-full bg-[#08060F] border border-[#FFFFFF]/[0.08] text-[#FFFFFF] pl-9 pr-3 py-2 text-xs rounded-sm focus:outline-none focus:border-[#FF9254]"
                     />
                   </div>
                 </div>
@@ -500,7 +500,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                 <button
                   type="submit"
                   disabled={loading || !isConfigured}
-                  className="w-full py-2.5 bg-[#E28A3B] hover:bg-[#E28A3B]/90 text-[#070607] font-medium text-xs rounded-sm transition-colors disabled:opacity-50"
+                  className="w-full py-2.5 bg-[#FF9254] hover:bg-[#FF9254]/90 text-[#08060F] font-medium text-xs rounded-sm transition-colors disabled:opacity-50"
                 >
                   {loading ? "Verifying..." : "Sign In to Cloud Sanctuary"}
                 </button>
@@ -510,24 +510,24 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
             {authTab === "signup" && (
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div>
-                  <label className="block text-xs text-[#8F8782] mb-1.5">Email Address</label>
+                  <label className="block text-xs text-[#B3A8C6] mb-1.5">Email Address</label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-[#8F8782] absolute left-3 top-3" />
+                    <Mail className="w-4 h-4 text-[#B3A8C6] absolute left-3 top-3" />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full bg-[#070607] border border-[#F4EFEA]/[0.08] text-[#F4EFEA] pl-9 pr-3 py-2 text-xs rounded-sm focus:outline-none focus:border-[#E28A3B]"
+                      className="w-full bg-[#08060F] border border-[#FFFFFF]/[0.08] text-[#FFFFFF] pl-9 pr-3 py-2 text-xs rounded-sm focus:outline-none focus:border-[#FF9254]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-[#8F8782] mb-1.5">Create Secure Password</label>
+                  <label className="block text-xs text-[#B3A8C6] mb-1.5">Create Secure Password</label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-[#8F8782] absolute left-3 top-3" />
+                    <Lock className="w-4 h-4 text-[#B3A8C6] absolute left-3 top-3" />
                     <input
                       type="password"
                       required
@@ -535,7 +535,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="At least 6 characters"
-                      className="w-full bg-[#070607] border border-[#F4EFEA]/[0.08] text-[#F4EFEA] pl-9 pr-3 py-2 text-xs rounded-sm focus:outline-none focus:border-[#E28A3B]"
+                      className="w-full bg-[#08060F] border border-[#FFFFFF]/[0.08] text-[#FFFFFF] pl-9 pr-3 py-2 text-xs rounded-sm focus:outline-none focus:border-[#FF9254]"
                     />
                   </div>
                 </div>
@@ -543,7 +543,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                 <button
                   type="submit"
                   disabled={loading || !isConfigured}
-                  className="w-full py-2.5 bg-[#E28A3B] hover:bg-[#E28A3B]/90 text-[#070607] font-medium text-xs rounded-sm transition-colors disabled:opacity-50"
+                  className="w-full py-2.5 bg-[#FF9254] hover:bg-[#FF9254]/90 text-[#08060F] font-medium text-xs rounded-sm transition-colors disabled:opacity-50"
                 >
                   {loading ? "Creating..." : "Create Cloud Sanctuary"}
                 </button>
@@ -552,20 +552,20 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
 
             {authTab === "reset" && (
               <form onSubmit={handleResetPassword} className="space-y-4">
-                <p className="text-xs text-[#8F8782] leading-relaxed">
+                <p className="text-xs text-[#B3A8C6] leading-relaxed">
                   Enter your registered email address to receive password reset instructions.
                 </p>
                 <div>
-                  <label className="block text-xs text-[#8F8782] mb-1.5">Email Address</label>
+                  <label className="block text-xs text-[#B3A8C6] mb-1.5">Email Address</label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-[#8F8782] absolute left-3 top-3" />
+                    <Mail className="w-4 h-4 text-[#B3A8C6] absolute left-3 top-3" />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full bg-[#070607] border border-[#F4EFEA]/[0.08] text-[#F4EFEA] pl-9 pr-3 py-2 text-xs rounded-sm focus:outline-none focus:border-[#E28A3B]"
+                      className="w-full bg-[#08060F] border border-[#FFFFFF]/[0.08] text-[#FFFFFF] pl-9 pr-3 py-2 text-xs rounded-sm focus:outline-none focus:border-[#FF9254]"
                     />
                   </div>
                 </div>
@@ -573,7 +573,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                 <button
                   type="submit"
                   disabled={loading || !isConfigured}
-                  className="w-full py-2.5 bg-[#E28A3B] hover:bg-[#E28A3B]/90 text-[#070607] font-medium text-xs rounded-sm transition-colors disabled:opacity-50"
+                  className="w-full py-2.5 bg-[#FF9254] hover:bg-[#FF9254]/90 text-[#08060F] font-medium text-xs rounded-sm transition-colors disabled:opacity-50"
                 >
                   {loading ? "Sending..." : "Send Recovery Email"}
                 </button>
@@ -581,15 +581,15 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
             )}
 
             {/* Offline Export & Import capabilities even if not signed in */}
-            <div className="pt-6 mt-6 border-t border-[#F4EFEA]/[0.06] space-y-2">
-              <div className="flex items-center justify-between text-xs text-[#8F8782]">
+            <div className="pt-6 mt-6 border-t border-[#FFFFFF]/[0.06] space-y-2">
+              <div className="flex items-center justify-between text-xs text-[#B3A8C6]">
                 <span>Local Offline Tools</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={exportData}
-                  className="text-xs text-[#E28A3B] hover:bg-[#070607] p-2 border border-[#F4EFEA]/[0.08] rounded text-center flex items-center justify-center gap-1.5"
+                  className="text-xs text-[#FF9254] hover:bg-[#08060F] p-2 border border-[#FFFFFF]/[0.08] rounded text-center flex items-center justify-center gap-1.5"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Export Backup</span>
@@ -598,7 +598,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="text-xs text-[#E28A3B] hover:bg-[#070607] p-2 border border-[#F4EFEA]/[0.08] rounded text-center flex items-center justify-center gap-1.5"
+                  className="text-xs text-[#FF9254] hover:bg-[#08060F] p-2 border border-[#FFFFFF]/[0.08] rounded text-center flex items-center justify-center gap-1.5"
                 >
                   <Upload className="w-3.5 h-3.5" />
                   <span>Restore Backup</span>

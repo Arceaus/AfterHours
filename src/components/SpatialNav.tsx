@@ -3,11 +3,17 @@
 import React, { useState } from "react";
 import { NavView } from "@/types/entry";
 import {
+  Feather,
+  BookOpen,
+  Calendar,
+  Archive,
+  Mail,
+  Sparkles,
+  Orbit,
   Eye,
   EyeOff,
   Menu,
   X,
-  Volume2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useRepository } from "@/lib/repository/RepositoryContext";
@@ -33,19 +39,19 @@ export function SpatialNav({
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navItems: { id: NavView; kanji: string; label: string }[] = [
-    { id: "tonight", kanji: "夜", label: "Tonight" },
-    { id: "archive", kanji: "記", label: "Memories" },
-    { id: "calendar", kanji: "暦", label: "Calendar" },
-    { id: "capsules", kanji: "筥", label: "Capsules" },
-    { id: "letters", kanji: "文", label: "Letters" },
-    { id: "reflection", kanji: "省", label: "Reflection" },
-    { id: "universe", kanji: "宙", label: "Universe" },
+  const navItems: { id: NavView; label: string; icon: React.ReactNode }[] = [
+    { id: "tonight", label: "Tonight", icon: <Feather className="w-3.5 h-3.5" /> },
+    { id: "archive", label: "Memories", icon: <BookOpen className="w-3.5 h-3.5" /> },
+    { id: "calendar", label: "Calendar", icon: <Calendar className="w-3.5 h-3.5" /> },
+    { id: "capsules", label: "Capsules", icon: <Archive className="w-3.5 h-3.5" /> },
+    { id: "letters", label: "Letters", icon: <Mail className="w-3.5 h-3.5" /> },
+    { id: "reflection", label: "Reflection", icon: <Sparkles className="w-3.5 h-3.5" /> },
+    { id: "universe", label: "Universe", icon: <Orbit className="w-3.5 h-3.5" /> },
   ];
 
   return (
     <>
-      {/* Floating Neo-Japanese Architectural Dock */}
+      {/* Floating Smoked Glass Nav Dock */}
       <header
         className={`fixed top-5 left-1/2 -translate-x-1/2 z-40 transition-all duration-700 w-[calc(100%-2.5rem)] max-w-4xl ${
           focusMode ? "opacity-0 -translate-y-8 pointer-events-none" : "opacity-100 translate-y-0"
@@ -53,29 +59,21 @@ export function SpatialNav({
       >
         <nav
           aria-label="Sanctuary Navigation"
-          className="relative flex items-center justify-between px-4 sm:px-6 py-2.5 bg-[#0C0B0E]/90 backdrop-blur-2xl border border-[#E28A3B]/20 rounded-full shadow-[0_16px_40px_rgba(0,0,0,0.7)] select-none"
+          className="relative flex items-center justify-between px-4 sm:px-6 py-2.5 bg-[#0E0919]/65 backdrop-blur-3xl border border-white/12 rounded-full shadow-[0_20px_50px_rgba(5,2,15,0.45)] select-none"
         >
-          {/* Brand Identity / Vermilion Seal */}
+          {/* Brand Wordmark */}
           <button
             type="button"
             onClick={() => onSelectView("tonight")}
-            className="flex items-center gap-2.5 text-left group pr-4 border-r border-white/[0.06] transition-opacity hover:opacity-90"
+            className="flex items-center gap-2.5 text-left group pr-4 border-r border-white/10 transition-opacity hover:opacity-90"
           >
-            {/* Traditional Vermilion Seal Stamp */}
-            <span className="w-5 h-5 rounded-sm bg-[#C83E2D]/90 border border-[#C83E2D] flex items-center justify-center text-[10px] font-serif text-[#F4EFEA] font-bold shadow-[0_0_8px_rgba(200,62,45,0.4)]">
-              夜
+            <span className="w-2 h-2 rounded-full bg-[#FF9254] shadow-[0_0_10px_#FF9254] group-hover:scale-125 transition-transform" />
+            <span className="font-serif text-[14px] tracking-[0.16em] uppercase text-white font-normal leading-none">
+              AFTERTHOUGHT
             </span>
-            <div className="flex flex-col">
-              <span className="font-serif text-[13px] tracking-[0.2em] uppercase text-[#F4EFEA] font-light leading-none">
-                AFTERTHOUGHT
-              </span>
-              <span className="text-[8px] font-mono tracking-widest text-[#8F8782] uppercase mt-0.5">
-                SHOU SUGI BAN
-              </span>
-            </div>
           </button>
 
-          {/* Center Navigation: Kanji + Roman micro-labels */}
+          {/* Center Navigation */}
           <div className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
               const active = currentView === item.id;
@@ -84,68 +82,68 @@ export function SpatialNav({
                   key={item.id}
                   type="button"
                   onClick={() => onSelectView(item.id)}
-                  className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-sans tracking-wider transition-all duration-300 ${
+                  className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-sans tracking-wide transition-all duration-300 ${
                     active
-                      ? "text-[#F4EFEA] bg-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-                      : "text-[#8F8782] hover:text-[#F4EFEA] hover:bg-white/[0.03]"
+                      ? "text-white bg-white/12 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] font-medium"
+                      : "text-[#B3A8C6] hover:text-white hover:bg-white/[0.04]"
                   }`}
                 >
                   <span
-                    className={`font-serif text-[11px] transition-colors ${
-                      active ? "text-[#E28A3B]" : "text-[#8F8782]/60"
+                    className={`transition-colors ${
+                      active ? "text-[#FF9254]" : "text-[#B3A8C6]/60"
                     }`}
                   >
-                    {item.kanji}
+                    {item.icon}
                   </span>
                   <span>{item.label}</span>
                   {active && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-3 h-[2px] bg-[#E28A3B] rounded-full shadow-[0_0_6px_#E28A3B]" />
+                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-3 h-[2px] bg-[#FF9254] rounded-full shadow-[0_0_8px_#FF9254]" />
                   )}
                 </button>
               );
             })}
           </div>
 
-          {/* Right Tools: Soundscape, Candle Focus & Cloud Seal */}
-          <div className="flex items-center gap-2 sm:gap-3 pl-3 border-l border-white/[0.06]">
+          {/* Right Tools: Ambient Audio, Focus Toggle & Account */}
+          <div className="flex items-center gap-2 sm:gap-3 pl-3 border-l border-white/10">
             {/* Ambient Soundscape Pill */}
             <div className="hidden sm:block">
               <AmbientSoundPlayer compact />
             </div>
 
-            {/* Focus Mode (Lantern Mode) */}
+            {/* Focus Mode */}
             <button
               type="button"
               onClick={onToggleFocusMode}
-              className="p-1.5 text-[#8F8782] hover:text-[#E28A3B] transition-colors rounded-full hover:bg-white/[0.05]"
-              title={focusMode ? "Exit Lantern Mode" : "Lantern Mode (Focus)"}
-              aria-label="Toggle lantern focus mode"
+              className="p-1.5 text-[#B3A8C6] hover:text-[#FF9254] transition-colors rounded-full hover:bg-white/10"
+              title={focusMode ? "Exit Focus Mode" : "Focus Mode"}
+              aria-label="Toggle focus mode"
             >
-              {focusMode ? <EyeOff className="w-3.5 h-3.5 text-[#E28A3B]" /> : <Eye className="w-3.5 h-3.5" />}
+              {focusMode ? <EyeOff className="w-3.5 h-3.5 text-[#FF9254]" /> : <Eye className="w-3.5 h-3.5" />}
             </button>
 
-            {/* Sanctuary Status Stamp */}
+            {/* Account / Cloud Status */}
             <button
               type="button"
               onClick={onOpenAccountModal}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-sans border border-white/[0.08] bg-white/[0.03] hover:border-[#E28A3B]/40 text-[#8F8782] hover:text-[#F4EFEA] transition-all"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-sans border border-white/10 bg-white/[0.05] hover:border-[#FF9254]/40 text-[#B3A8C6] hover:text-white transition-all shadow-sm"
               title={user ? `Sanctuary: ${user.email}` : "Local Sanctuary"}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  user ? "bg-emerald-400 shadow-[0_0_6px_#34d399]" : "bg-[#E28A3B] shadow-[0_0_6px_#E28A3B]"
+                  user ? "bg-emerald-400 shadow-[0_0_6px_#34d399]" : "bg-[#FF9254] shadow-[0_0_6px_#FF9254]"
                 }`}
               />
               <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider">
-                {user ? "Cloud" : "Discrete"}
+                {user ? "Cloud" : "Local"}
               </span>
             </button>
 
-            {/* Mobile Drawer Trigger */}
+            {/* Mobile Menu */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 text-[#8F8782] hover:text-[#F4EFEA] rounded-full hover:bg-white/[0.05]"
+              className="md:hidden p-1.5 text-[#B3A8C6] hover:text-white rounded-full hover:bg-white/10"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -153,9 +151,9 @@ export function SpatialNav({
           </div>
         </nav>
 
-        {/* Mobile Architectural Drawer */}
+        {/* Mobile Frosted Glass Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-2 p-3 bg-[#0C0B0E]/95 backdrop-blur-2xl border border-[#E28A3B]/20 rounded-2xl shadow-2xl flex flex-col gap-1 animate-fadeIn">
+          <div className="md:hidden mt-2 p-3 bg-[#0E0919]/90 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-2xl flex flex-col gap-1 animate-fadeIn">
             {navItems.map((item) => {
               const active = currentView === item.id;
               return (
@@ -168,15 +166,17 @@ export function SpatialNav({
                   }}
                   className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-sans transition-colors ${
                     active
-                      ? "text-[#F4EFEA] bg-white/[0.08] font-medium"
-                      : "text-[#8F8782] hover:text-[#F4EFEA] hover:bg-white/[0.04]"
+                      ? "text-white bg-white/10 font-medium"
+                      : "text-[#B3A8C6] hover:text-white hover:bg-white/[0.04]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="font-serif text-[#E28A3B]">{item.kanji}</span>
+                    <span className={active ? "text-[#FF9254]" : "text-[#B3A8C6]"}>
+                      {item.icon}
+                    </span>
                     <span>{item.label}</span>
                   </div>
-                  {active && <span className="w-1.5 h-1.5 rounded-full bg-[#E28A3B]" />}
+                  {active && <span className="w-1.5 h-1.5 rounded-full bg-[#FF9254] shadow-[0_0_6px_#FF9254]" />}
                 </button>
               );
             })}
