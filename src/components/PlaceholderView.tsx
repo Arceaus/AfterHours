@@ -2,7 +2,7 @@
 
 import React from "react";
 import { NavView } from "@/types/entry";
-import { BookOpen, Calendar, Archive, Mail, Feather } from "lucide-react";
+import { BookOpen, Calendar, Archive, Mail, Feather, Orbit } from "lucide-react";
 
 interface PlaceholderViewProps {
   view: NavView;
@@ -61,6 +61,14 @@ export function PlaceholderView({ view, onReturnToTonight }: PlaceholderViewProp
         "Understand recurring themes, explore changing perspectives over time, and revisit your personal history using your actual diary entries.",
       icon: <BookOpen className="w-6 h-6 text-[#D78A70]" />,
       whisper: "Sometimes, looking back helps you see things differently.",
+    },
+    universe: {
+      title: "Memory Universe",
+      subtitle: "Your memories, connected",
+      description:
+        "Explore the people, places, ideas, and moments that appear throughout your writing.",
+      icon: <Orbit className="w-6 h-6 text-[#D78A70]" />,
+      whisper: "Every memory is a part of a bigger story.",
     },
   };
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { NavView } from "@/types/entry";
-import { Feather, BookOpen, Calendar, Archive, Mail, Sparkles, Moon, Eye, EyeOff, Shield, Cloud } from "lucide-react";
+import { Feather, BookOpen, Calendar, Archive, Mail, Sparkles, Orbit, Moon, Eye, EyeOff, Shield, Cloud } from "lucide-react";
 import { getFormattedDate } from "@/lib/date";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useRepository } from "@/lib/repository/RepositoryContext";
@@ -81,6 +81,12 @@ export function NavigationRail({
       label: "Reflection",
       icon: <Sparkles className="w-4 h-4 stroke-[1.5]" />,
       hint: "See things differently",
+    },
+    {
+      id: "universe",
+      label: "Memory Universe",
+      icon: <Orbit className="w-4 h-4 stroke-[1.5]" />,
+      hint: "Your memories, connected",
     },
   ];
 

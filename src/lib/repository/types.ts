@@ -1,4 +1,4 @@
-import { DiaryEntry, FutureLetter, SavedReflection } from "@/types/entry";
+import { DiaryEntry, FutureLetter, SavedReflection, MemoryEntity, MemoryMention, UniverseConnection, MeaningfulMoment } from "@/types/entry";
 
 export interface IEntryRepository {
   listEntries(): Promise<DiaryEntry[]>;
@@ -23,6 +23,20 @@ export interface IReflectionRepository {
   deleteReflection(id: string): Promise<void>;
 }
 
+export interface IUniverseRepository {
+  listEntities(): Promise<MemoryEntity[]>;
+  saveEntity(entity: MemoryEntity): Promise<MemoryEntity>;
+  deleteEntity(id: string): Promise<void>;
+  listMentions(entryId?: string): Promise<MemoryMention[]>;
+  saveMention(mention: MemoryMention): Promise<MemoryMention>;
+  deleteMention(id: string): Promise<void>;
+  listConnections(): Promise<UniverseConnection[]>;
+  saveConnection(connection: UniverseConnection): Promise<UniverseConnection>;
+  deleteConnection(id: string): Promise<void>;
+  listMeaningfulMoments(): Promise<MeaningfulMoment[]>;
+  toggleMeaningfulMoment(entryId: string, note?: string): Promise<boolean>;
+}
+
 export interface MigrationSummary {
   localEntriesCount: number;
   localLettersCount: number;
@@ -30,4 +44,5 @@ export interface MigrationSummary {
   migratedLetters: number;
   errors: string[];
 }
+
 

@@ -1,4 +1,4 @@
-export type NavView = 'tonight' | 'archive' | 'calendar' | 'capsules' | 'letters' | 'reflection';
+export type NavView = 'tonight' | 'archive' | 'calendar' | 'capsules' | 'letters' | 'reflection' | 'universe';
 
 export interface DiaryEntry {
   id: string;
@@ -148,4 +148,86 @@ export interface MonthlyReflectionData {
   questionsToRevisit: string[];
   evidence: EvidenceItem[];
 }
+
+// Phase 8: The Memory Universe Types
+export type EntityType = 'person' | 'place' | 'topic' | 'project';
+export type ConfirmationStatus = 'suggested' | 'confirmed' | 'dismissed';
+export type ConnectionOrigin = 'ai' | 'heuristic' | 'user';
+export type ConnectionStatus = 'suggested' | 'accepted' | 'dismissed';
+
+export interface MemoryEntity {
+  id: string;
+  userId?: string;
+  entityType: EntityType;
+  displayName: string;
+  normalizedName: string;
+  confirmationStatus: ConfirmationStatus;
+  relationshipLabel?: string; // e.g. "Friend", "Colleague", "Mentor"
+  metadata?: Record<string, unknown>;
+  createdAt: string; // ISO 8601
+  updatedAt: string; // ISO 8601
+}
+
+export interface MemoryMention {
+  id: string;
+  userId?: string;
+  entryId: string;
+  entityId: string;
+  originalText: string;
+  excerpt?: string;
+  confidence: number;
+  confirmationStatus: ConfirmationStatus;
+  createdAt: string; // ISO 8601
+}
+
+export interface UniverseConnection {
+  id: string;
+  userId?: string;
+  sourceEntryId: string;
+  targetEntryId: string;
+  connectionType: string; // e.g. 'theme', 'person', 'place', 'project', 'user_link'
+  explanation: string;
+  supportingEvidence: EvidenceItem[];
+  origin: ConnectionOrigin;
+  status: ConnectionStatus;
+  createdAt: string; // ISO 8601
+  updatedAt: string; // ISO 8601
+}
+
+export interface MeaningfulMoment {
+  id: string;
+  userId?: string;
+  entryId: string;
+  note?: string;
+  createdAt: string; // ISO 8601
+}
+
+export interface GraphNode {
+  id: string;
+  type: 'entry' | 'person' | 'place' | 'topic' | 'project';
+  label: string;
+  sublabel?: string;
+  entityId?: string;
+  entryId?: string;
+  date?: string;
+  entryCount?: number;
+  status?: ConfirmationStatus;
+  isMeaningful?: boolean;
+  x: number;
+  y: number;
+  vx?: number;
+  vy?: number;
+}
+
+export interface GraphEdge {
+  id: string;
+  source: string; // node id
+  target: string; // node id
+  label?: string;
+  origin: ConnectionOrigin;
+  status: ConnectionStatus | 'confirmed';
+  explanation?: string;
+  confidence?: string;
+}
+
 

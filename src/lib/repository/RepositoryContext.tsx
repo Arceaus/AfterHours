@@ -1,14 +1,30 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
-import { DiaryEntry, FutureLetter, SavedReflection } from "@/types/entry";
-import { IEntryRepository, IFutureLetterRepository, IReflectionRepository, MigrationSummary } from "./types";
+import {
+  DiaryEntry,
+  FutureLetter,
+  SavedReflection,
+  MemoryEntity,
+  MemoryMention,
+  UniverseConnection,
+  MeaningfulMoment,
+} from "@/types/entry";
+import {
+  IEntryRepository,
+  IFutureLetterRepository,
+  IReflectionRepository,
+  IUniverseRepository,
+  MigrationSummary,
+} from "./types";
 import { LocalEntryRepository } from "./localEntryRepository";
 import { LocalLetterRepository } from "./localLetterRepository";
 import { LocalReflectionRepository } from "./localReflectionRepository";
+import { LocalUniverseRepository } from "./localUniverseRepository";
 import { SupabaseEntryRepository } from "./supabaseEntryRepository";
 import { SupabaseLetterRepository } from "./supabaseLetterRepository";
 import { SupabaseReflectionRepository } from "./supabaseReflectionRepository";
+import { SupabaseUniverseRepository } from "./supabaseUniverseRepository";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { checkPendingLocalData, executeDataMigration, exportArchiveAsJSON } from "./migration";
@@ -21,12 +37,18 @@ export interface RepositoryContextType {
   entries: DiaryEntry[];
   letters: FutureLetter[];
   reflections: SavedReflection[];
+  entities: MemoryEntity[];
+  mentions: MemoryMention[];
+  connections: UniverseConnection[];
+  meaningfulMoments: MeaningfulMoment[];
   activeEntryRepo: IEntryRepository;
   activeLetterRepo: IFutureLetterRepository;
   activeReflectionRepo: IReflectionRepository;
+  activeUniverseRepo: IUniverseRepository;
   refreshEntries: () => Promise<DiaryEntry[]>;
   refreshLetters: () => Promise<FutureLetter[]>;
   refreshReflections: () => Promise<SavedReflection[]>;
+  refreshUniverseData: () => Promise<void>;
   saveEntry: (entry: DiaryEntry) => Promise<DiaryEntry>;
   deleteEntry: (id: string) => Promise<void>;
   saveLetter: (letter: FutureLetter) => Promise<FutureLetter>;
@@ -35,6 +57,12 @@ export interface RepositoryContextType {
   unsealLetter: (id: string) => Promise<FutureLetter | null>;
   saveReflection: (reflection: SavedReflection) => Promise<SavedReflection>;
   deleteReflection: (id: string) => Promise<void>;
+  // Universe operations
+  saveEntity: (entity: MemoryEntity) => Promise<MemoryEntity>;
+  deleteEntity: (id: string) => Promise<void>;
+  saveConnection: (connection: UniverseConnection) => Promise<UniverseConnection>;
+  deleteConnection: (id: string) => Promise<void>;
+  toggleMeaningfulMoment: (entryId: string, note?: string) => Promise<boolean>;
   // Migration
   pendingLocalData: {
     entriesCount: number;
@@ -51,6 +79,7 @@ export interface RepositoryContextType {
 const defaultLocalEntryRepo = new LocalEntryRepository();
 const defaultLocalLetterRepo = new LocalLetterRepository();
 const defaultLocalReflectionRepo = new LocalReflectionRepository();
+const defaultLocalUniverseRepo = new LocalUniverseRepository();
 
 const RepositoryContext = createContext<RepositoryContextType | null>(null);
 
@@ -59,6 +88,10 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [letters, setLetters] = useState<FutureLetter[]>([]);
   const [reflections, setReflections] = useState<SavedReflection[]>([]);
+  const [entities, setEntities] = useState<MemoryEntity[]>([]);
+  const [mentions, setMentions] = useState<MemoryMention[]>([]);
+  const [connections, setConnections] = useState<UniverseConnection[]>([]);
+  const [meaningfulMoments, setMeaningfulMoments] = useState<MeaningfulMoment[]>([]);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [pendingLocal, setPendingLocal] = useState({
     entriesCount: 0,
@@ -67,13 +100,14 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
   });
 
   // Decide active repos based on user authentication
-  const { entryRepo, letterRepo, reflectionRepo, mode } = useMemo(() => {
+  const { entryRepo, letterRepo, reflectionRepo, universeRepo, mode } = useMemo(() => {
     const supabase = getSupabaseBrowserClient();
     if (user && supabase) {
       return {
         entryRepo: new SupabaseEntryRepository(supabase, user.id),
         letterRepo: new SupabaseLetterRepository(supabase, user.id),
         reflectionRepo: new SupabaseReflectionRepository(supabase, user.id),
+        universeRepo: new SupabaseUniverseRepository(supabase, user.id),
         mode: "cloud" as const,
       };
     }
@@ -81,6 +115,7 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
       entryRepo: defaultLocalEntryRepo,
       letterRepo: defaultLocalLetterRepo,
       reflectionRepo: defaultLocalReflectionRepo,
+      universeRepo: defaultLocalUniverseRepo,
       mode: "local" as const,
     };
   }, [user]);
@@ -132,16 +167,38 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
     }
   }, [reflectionRepo]);
 
+  const refreshUniverseData = useCallback(async (): Promise<void> => {
+    try {
+      const [entList, menList, connList, momList] = await Promise.all([
+        universeRepo.listEntities(),
+        universeRepo.listMentions(),
+        universeRepo.listConnections(),
+        universeRepo.listMeaningfulMoments(),
+      ]);
+      setEntities(entList);
+      setMentions(menList);
+      setConnections(connList);
+      setMeaningfulMoments(momList);
+    } catch (err) {
+      console.warn("Failed to refresh universe data:", err);
+    }
+  }, [universeRepo]);
+
   useEffect(() => {
     // When switching user or mode, reset state immediately to prevent cache bleeding
     setEntries([]);
     setLetters([]);
     setReflections([]);
+    setEntities([]);
+    setMentions([]);
+    setConnections([]);
+    setMeaningfulMoments([]);
     refreshEntries();
     refreshLetters();
     refreshReflections();
+    refreshUniverseData();
     updatePendingLocalStatus();
-  }, [user, mode, refreshEntries, refreshLetters, refreshReflections, updatePendingLocalStatus]);
+  }, [user, mode, refreshEntries, refreshLetters, refreshReflections, refreshUniverseData, updatePendingLocalStatus]);
 
   const handleSaveEntry = useCallback(
     async (entry: DiaryEntry): Promise<DiaryEntry> => {
@@ -220,6 +277,50 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
       await refreshReflections();
     },
     [reflectionRepo, refreshReflections]
+  );
+
+  // Universe handlers
+  const handleSaveEntity = useCallback(
+    async (entity: MemoryEntity): Promise<MemoryEntity> => {
+      const saved = await universeRepo.saveEntity(entity);
+      await refreshUniverseData();
+      return saved;
+    },
+    [universeRepo, refreshUniverseData]
+  );
+
+  const handleDeleteEntity = useCallback(
+    async (id: string): Promise<void> => {
+      await universeRepo.deleteEntity(id);
+      await refreshUniverseData();
+    },
+    [universeRepo, refreshUniverseData]
+  );
+
+  const handleSaveConnection = useCallback(
+    async (connection: UniverseConnection): Promise<UniverseConnection> => {
+      const saved = await universeRepo.saveConnection(connection);
+      await refreshUniverseData();
+      return saved;
+    },
+    [universeRepo, refreshUniverseData]
+  );
+
+  const handleDeleteConnection = useCallback(
+    async (id: string): Promise<void> => {
+      await universeRepo.deleteConnection(id);
+      await refreshUniverseData();
+    },
+    [universeRepo, refreshUniverseData]
+  );
+
+  const handleToggleMeaningfulMoment = useCallback(
+    async (entryId: string, note?: string): Promise<boolean> => {
+      const result = await universeRepo.toggleMeaningfulMoment(entryId, note);
+      await refreshUniverseData();
+      return result;
+    },
+    [universeRepo, refreshUniverseData]
   );
 
   // Safe migration flow
@@ -304,12 +405,18 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
         entries,
         letters,
         reflections,
+        entities,
+        mentions,
+        connections,
+        meaningfulMoments,
         activeEntryRepo: entryRepo,
         activeLetterRepo: letterRepo,
         activeReflectionRepo: reflectionRepo,
+        activeUniverseRepo: universeRepo,
         refreshEntries,
         refreshLetters,
         refreshReflections,
+        refreshUniverseData,
         saveEntry: handleSaveEntry,
         deleteEntry: handleDeleteEntry,
         saveLetter: handleSaveLetter,
@@ -318,6 +425,11 @@ export function RepositoryProvider({ children }: { children: React.ReactNode }) 
         unsealLetter: handleUnsealLetter,
         saveReflection: handleSaveReflection,
         deleteReflection: handleDeleteReflection,
+        saveEntity: handleSaveEntity,
+        deleteEntity: handleDeleteEntity,
+        saveConnection: handleSaveConnection,
+        deleteConnection: handleDeleteConnection,
+        toggleMeaningfulMoment: handleToggleMeaningfulMoment,
         pendingLocalData: pendingLocal,
         migrateLocalToCloud,
         clearLocalBrowserData,
